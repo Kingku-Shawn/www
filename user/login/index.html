@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+<meta name="author" content="shawn">
+<title>登录 / 注册 - 清逸的博客</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f7fa; color: #24292f; font-size: 14px; }
+  a { color: #2f81f7; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+
+  /* 登录卡片 */
+  .login-wrap { display: flex; align-items: flex-start; justify-content: center; padding: 70px 16px 90px; }
+  .card { width: 420px; max-width: 100%; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.05); overflow: hidden; }
+  .tabs { display: flex; border-bottom: 1px solid #e5e7eb; }
+  .tab { flex: 1; text-align: center; padding: 15px 0; cursor: pointer; color: #57606a; font-size: 15px; font-weight: 600; border-bottom: 2px solid transparent; }
+  .tab.on { color: #2f81f7; border-bottom-color: #2f81f7; }
+  .form-area { padding: 30px 34px 34px; }
+  .form-item { margin-bottom: 18px; }
+  .form-item label { display: block; color: #57606a; margin-bottom: 7px; font-size: 13px; }
+  .form-item input { width: 100%; padding: 11px 13px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 14px; outline: none; color: #24292f; }
+  .form-item input:focus { border-color: #2f81f7; box-shadow: 0 0 0 3px rgba(47,129,247,.12); }
+  .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #2f81f7; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn:hover { background: #1f6feb; }
+  .btn:disabled { background: #a5c8f5; cursor: not-allowed; }
+  .err { min-height: 20px; margin-top: 10px; color: #cf222e; font-size: 13px; }
+  .ok { min-height: 20px; margin-top: 10px; color: #1a7f37; font-size: 13px; }
+  .tip { margin-top: 18px; padding: 12px 14px; background: #f6f8fa; border: 1px dashed #d0d7de; border-radius: 8px; color: #57606a; font-size: 12.5px; line-height: 1.9; }
+  .tip b { color: #24292f; }
+  .hide { display: none; }
+  .logged-panel { text-align: center; padding: 50px 34px; }
+  .logged-panel .ico { font-size: 44px; margin-bottom: 14px; }
+  .logged-panel h3 { margin-bottom: 10px; }
+  .logged-panel p { color: #57606a; margin-bottom: 24px; }
+  .logged-panel .btn { width: auto; padding: 10px 34px; }
+  .site-footer { text-align: center; padding: 26px 0; color: #8c959f; font-size: 12.5px; }
+
+  /* 移动端适配：汉堡侧边菜单 */
+  .mobile-hamburger, .mobile-drawer, .mobile-drawer-mask { display: none; }
+
+  @media (max-width: 860px) {
+    .nav-in { padding: 0 12px; }
+    .nav-links { display: none !important; }
+    .nav-user { display: none !important; }
+    .mobile-hamburger {
+      position: fixed; top: 9px; right: 12px; z-index: 1500;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px; border: none; background: #f0f3f6;
+      border-radius: 12px; cursor: pointer; padding: 0;
+    }
+    .mobile-hamburger span { display: block; width: 18px; height: 2px; background: #24292f; border-radius: 2px; position: relative; }
+    .mobile-hamburger span::before, .mobile-hamburger span::after {
+      content: ""; position: absolute; left: 0; width: 18px; height: 2px;
+      background: #24292f; border-radius: 2px;
+    }
+    .mobile-hamburger span::before { top: -5px; }
+    .mobile-hamburger span::after { top: 5px; }
+    .mobile-hamburger.active span { background: transparent; }
+    .mobile-hamburger.active span::before { top: 0; transform: rotate(45deg); }
+    .mobile-hamburger.active span::after { top: 0; transform: rotate(-45deg); }
+    .mobile-drawer {
+      display: block; position: fixed; top: 0; right: 0; height: 100%;
+      width: 264px; max-width: 82vw; background: #fff; z-index: 2100;
+      transform: translateX(100%); transition: transform .26s ease;
+      box-shadow: -10px 0 34px rgba(15,23,42,.14); padding: 22px 16px;
+      overflow-y: auto; box-sizing: border-box;
+    }
+    .mobile-drawer.open { transform: translateX(0); }
+    .mobile-drawer .drawer-logo { font-size: 18px; font-weight: 800; color: #2f81f7; padding: 0 8px 14px; border-bottom: 1px solid #e5e7eb; margin-bottom: 12px; }
+    .mobile-drawer .drawer-nav { list-style: none; margin: 0; padding: 0; }
+    .mobile-drawer .drawer-nav li { margin: 0 0 2px; }
+    .mobile-drawer .drawer-nav a { display: block; padding: 11px 14px; border-radius: 12px; color: #24292f; font-size: 15px; font-weight: 600; text-decoration: none; }
+    .mobile-drawer .drawer-nav a:hover { background: #f0f3f6; color: #2f81f7; }
+    .mobile-drawer-mask {
+      display: block; position: fixed; inset: 0; background: rgba(15,23,42,.42);
+      z-index: 2000; opacity: 0; visibility: hidden; transition: opacity .25s ease;
+    }
+    .mobile-drawer-mask.show { opacity: 1; visibility: visible; }
+  }
+
+  /* 统一顶栏：与全站 soulsoft 白玻璃顶栏一致 */
+  header.nav {
+    background: rgba(255,255,255,.82) !important;
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border-bottom: 1px solid #e4e9f0 !important;
+    box-shadow: 0 8px 28px rgba(15,23,42,.05) !important;
+    height: 58px !important;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+  .nav-in {
+    max-width: 1200px !important;
+    gap: 26px !important;
+  }
+  .nav .logo {
+    color: #2563eb !important;
+    font-size: 19px !important;
+    font-weight: 800 !important;
+    letter-spacing: .5px;
+    text-decoration: none !important;
+    white-space: nowrap;
+  }
+  .nav-links a {
+    color: #5a6a7a !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 7px 12px !important;
+    border-radius: 999px !important;
+    text-decoration: none !important;
+    transition: all .15s ease;
+    white-space: nowrap;
+  }
+  .nav-links a:hover, .nav-links a.on {
+    color: #2563eb !important;
+    background: rgba(37,99,235,.08) !important;
+  }
+  .nav-user a {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    color: #2563eb !important;
+    background: #f4f8ff !important;
+    border: 1px solid #e4e9f0 !important;
+    padding: 7px 16px !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    box-shadow: 0 6px 16px rgba(15,23,42,.05);
+    transition: all .15s ease;
+  }
+  .nav-user a:hover {
+    background: #e9f2ff !important;
+    transform: translateY(-1px);
+  }
+</style>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style id="nav-pad">body{padding-top:58px}</style></head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links">
+      <a href="../index.html">首页</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"></div>
+  </div>
+</header>
+
+<div class="login-wrap">
+  <div class="card" id="card">
+    <!-- 登录 / 注册 -->
+    <div id="authBox">
+      <div class="tabs">
+        <div class="tab on" data-tab="login" onclick="switchTab('login')">登 录</div>
+        <div class="tab" data-tab="register" onclick="switchTab('register')">注 册</div>
+      </div>
+      <div class="form-area">
+        <!-- 登录表单 -->
+        <form id="loginForm" onsubmit="return doLogin(event)">
+          <div class="form-item">
+            <label>用户名</label>
+            <input id="loginUser" name="username" placeholder="请输入用户名" autocomplete="username">
+          </div>
+          <div class="form-item">
+            <label>密码</label>
+            <input id="loginPass" name="password" type="password" placeholder="请输入密码" autocomplete="current-password">
+          </div>
+          <button class="btn" id="loginBtn" type="submit">登 录</button>
+          <div class="err" id="loginErr"></div>
+        </form>
+        <!-- 注册表单 -->
+        <form id="registerForm" class="hide" onsubmit="return doRegister(event)">
+          <div class="form-item">
+            <label>用户名</label>
+            <input id="regUser" placeholder="3-32 位字母、数字、下划线" autocomplete="username">
+          </div>
+          <div class="form-item">
+            <label>昵称（可选）</label>
+            <input id="regNick" placeholder="展示在账号资料中">
+          </div>
+          <div class="form-item">
+            <label>密码</label>
+            <input id="regPass" type="password" placeholder="至少 6 位" autocomplete="new-password">
+          </div>
+          <div class="form-item">
+            <label>确认密码</label>
+            <input id="regPass2" type="password" placeholder="再次输入密码" autocomplete="new-password">
+          </div>
+          <button class="btn" id="regBtn" type="submit">注 册</button>
+          <div class="ok" id="regOk"></div>
+          <div class="err" id="regErr"></div>
+        </form>
+        <div class="tip">账号注册后可登录站点。离线/私有部署模式下账号保存在本地数据库中，不会同步到任何第三方平台。</div>
+      </div>
+    </div>
+    <!-- 已登录面板 -->
+    <div id="loggedBox" class="hide">
+      <div class="logged-panel">
+        <div class="ico">✅</div>
+        <h3>你已登录，<span id="loggedName"></span></h3>
+        <p>登录状态保存在本机浏览器中</p>
+        <button class="btn" onclick="logout()">退出登录</button>
+        <div class="ok" id="logoutMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+"use strict";
+const API = "/api";
+const TOKEN_KEY = "shawn_site_token";
+const USER_KEY = "shawn_site_user";
+
+function $(id) { return document.getElementById(id); }
+
+function readCookie() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const user = localStorage.getItem(USER_KEY);
+  if (token && user) {
+    $("authBox").classList.add("hide");
+    $("loggedBox").classList.remove("hide");
+    $("loggedName").textContent = user;
+    $("navUser").innerHTML = "你好，<b>" + user + "</b><span class=\"out\" onclick=\"logout()\">退出</span>";
+  } else {
+    $("navUser").innerHTML = '<a href="#" onclick="switchTab(\'login\');return false">登录</a><a href="#" onclick="switchTab(\'register\');return false">注册</a>';
+  }
+}
+
+async function apiCall(path, body) {
+  try {
+    const res = await fetch(API + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    return await res.json();
+  } catch (e) {
+    return { ok: false, msg: "无法连接登录服务，请确认本地服务已启动" };
+  }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === tab));
+  $("loginForm").classList.toggle("hide", tab !== "login");
+  $("registerForm").classList.toggle("hide", tab !== "register");
+  $("loginErr").textContent = "";
+  $("regErr").textContent = "";
+  $("regOk").textContent = "";
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  const username = $("loginUser").value.trim();
+  const password = $("loginPass").value;
+  $("loginBtn").disabled = true;
+  $("loginBtn").textContent = "登录中…";
+  $("loginErr").textContent = "";
+  if (!username || !password) { $("loginErr").textContent = "请输入用户名和密码"; $("loginBtn").disabled = false; $("loginBtn").textContent = "登 录"; return false; }
+  const r = await apiCall("/login", { username, password });
+  if (!r.ok) {
+    $("loginErr").textContent = r.msg || "登录失败";
+    $("loginBtn").disabled = false; $("loginBtn").textContent = "登 录";
+    return false;
+  }
+  localStorage.setItem(TOKEN_KEY, r.token);
+  localStorage.setItem(USER_KEY, r.user.nickname || r.user.username);
+  $("loginBtn").disabled = false; $("loginBtn").textContent = "登 录";
+  window.location.href = "../index.html";
+  return false;
+}
+
+async function doRegister(e) {
+  e.preventDefault();
+  const username = $("regUser").value.trim();
+  const nickname = $("regNick").value.trim();
+  const password = $("regPass").value;
+  const password2 = $("regPass2").value;
+  $("regErr").textContent = "";
+  $("regOk").textContent = "";
+  if (!/^[A-Za-z0-9_\-\.]{3,32}$/.test(username)) { $("regErr").textContent = "用户名需为 3-32 位字母、数字、下划线"; return false; }
+  if (password.length < 6) { $("regErr").textContent = "密码至少 6 位"; return false; }
+  if (password !== password2) { $("regErr").textContent = "两次输入的密码不一致"; return false; }
+  $("regBtn").disabled = true;
+  $("regBtn").textContent = "注册中…";
+  const r = await apiCall("/register", { username, nickname, password });
+  if (!r.ok) {
+    $("regErr").textContent = r.msg || "注册失败";
+    $("regBtn").disabled = false; $("regBtn").textContent = "注 册";
+    return false;
+  }
+  $("regOk").textContent = "注册成功，正在登录…";
+  const lr = await apiCall("/login", { username, password });
+  if (lr.ok) {
+    localStorage.setItem(TOKEN_KEY, lr.token);
+    localStorage.setItem(USER_KEY, lr.user.nickname || lr.user.username);
+    setTimeout(() => window.location.href = "../index.html", 600);
+  } else {
+    $("regOk").textContent = "注册成功，请切换到登录页登录";
+    $("regBtn").disabled = false; $("regBtn").textContent = "注 册";
+  }
+  return false;
+}
+
+function logout() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  $("loggedBox").classList.add("hide");
+  $("authBox").classList.remove("hide");
+  $("navUser").innerHTML = "";
+  $("logoutMsg").textContent = "已退出登录";
+}
+
+readCookie();
+</script>
+<script>
+(function () {
+  function fix() {
+    var a = document.querySelector('a.logo');
+    if (a && a.textContent.trim() !== '清逸的博客') { a.textContent = '清逸的博客'; }
+    var fs = document.querySelectorAll('footer span, footer p, footer');
+    fs.forEach(function (e) {
+      if (e.children.length === 0 && e.textContent.indexOf('shawn') >= 0) {
+        e.textContent = e.textContent.replace(/shawn\.com/g, '清逸的博客');
+      }
+    });
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', fix); } else { fix(); }
+  var t = setInterval(function () { fix(); }, 800);
+  setTimeout(function () { clearInterval(t); }, 8000);
+})();
+</script>
+<script>
+/* 清逸的博客 · 登录页移动端汉堡 */
+(function () {
+  function build() {
+    var header = document.querySelector('header.nav');
+    if (!header) return false;
+    if (document.querySelector('.mobile-hamburger')) return true;
+    var inner = header.querySelector('.inner') || header;
+    var btn = document.createElement('button');
+    btn.className = 'mobile-hamburger';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', '菜单');
+    var bar = document.createElement('span');
+    btn.appendChild(bar);
+    var mask = document.createElement('div');
+    mask.className = 'mobile-drawer-mask';
+    var drawer = document.createElement('div');
+    drawer.className = 'mobile-drawer';
+    var logo = document.createElement('div');
+    logo.className = 'drawer-logo';
+    logo.textContent = '清逸的博客';
+    var nav = document.createElement('ul');
+    nav.className = 'drawer-nav';
+    var srcNav = header.querySelector('.nav-links');
+    if (srcNav) {
+      srcNav.querySelectorAll('a').forEach(function (a) {
+        var li = document.createElement('li');
+        var na = document.createElement('a');
+        na.href = a.getAttribute('href') || '#';
+        na.textContent = a.textContent.trim();
+        li.appendChild(na);
+        nav.appendChild(li);
+      });
+    }
+    drawer.appendChild(logo);
+    drawer.appendChild(nav);
+    document.body.appendChild(btn);
+    document.body.appendChild(mask);
+    document.body.appendChild(drawer);
+    function toggle(open) {
+      var willOpen = (open === undefined) ? !drawer.classList.contains('open') : open;
+      drawer.classList.toggle('open', willOpen);
+      mask.classList.toggle('show', willOpen);
+      btn.classList.toggle('active', willOpen);
+      document.body.style.overflow = willOpen ? 'hidden' : '';
+    }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+    mask.addEventListener('click', function () { toggle(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
+    return true;
+  }
+  function start() {
+    if (build()) return;
+    var t = setInterval(function () { if (build()) clearInterval(t); }, 500);
+    setTimeout(function () { clearInterval(t); }, 15000);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else { start(); }
+})();
+</script>
+<script src="../js/header-fix.js"></script>
+</body>
+</html>

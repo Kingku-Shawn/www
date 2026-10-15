@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>页面不存在 - 清逸的博客</title>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f6f8fb;color:#1f2430;font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  .nav{position:fixed;top:0;left:0;right:0;height:58px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e6ebf2;z-index:50}
+  .nav-in{max-width:1100px;height:100%;margin:0 auto;display:flex;align-items:center;gap:22px;padding:0 20px}
+  .nav .logo{font-size:18px;font-weight:700;color:#2563eb;text-decoration:none}
+  .nav-links{display:flex;gap:18px;flex:1}
+  .nav-links a{color:#475569;text-decoration:none;font-size:14px}
+  .nav-links a:hover{color:#2563eb}
+  .nav-user a{color:#2563eb;text-decoration:none;font-size:14px}
+  .wrap{max-width:760px;margin:0 auto;padding:110px 20px 60px;text-align:center}
+  .card{background:#fff;border:1px solid #e6ebf2;border-radius:18px;padding:46px 28px;box-shadow:0 12px 34px rgba(15,23,42,.07)}
+  .code{font-size:64px;font-weight:800;line-height:1;color:#2563eb;letter-spacing:2px}
+  h1{font-size:22px;margin:18px 0 8px}
+  p{color:#64748b;margin:0 0 22px}
+  .acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .acts a{display:inline-block;padding:10px 18px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600}
+  .acts a.primary{background:#2563eb;color:#fff}
+  .acts a.ghost{border:1px solid #dbe3ee;color:#334155;background:#fff}
+  .acts a:hover{opacity:.9}
+  .path{margin-top:18px;font-size:12.5px;color:#94a3b8;word-break:break-all}
+  @media(max-width:720px){
+    .nav-links a:not(.logo){display:none}
+    .code{font-size:52px}
+    .card{padding:34px 18px}
+  }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in" id="navIn">
+    <a class="logo" href="/index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/index.html">首页</a>
+      <a href="/piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="/music/index.html" data-tool="music">在线乐器</a>
+      <a href="/tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="/metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="/article/index.html">文章</a>
+      <a href="/aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="/user/login.html">登录</a><a href="/user/login.html#register" style="margin-left:10px">注册</a></div>
+<script>
+(function(){
+  try{
+    var b=document.getElementById("navUser"); if(!b) return;
+    var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+    var u=localStorage.getItem("xw_username");
+    if(u){
+      b.setAttribute("data-nav-user","ready");
+      b.innerHTML='<div class="nav-user-menu" style="position:relative;display:inline-block"><button type="button" class="nav-uname" style="border:1px solid rgba(148,163,184,.45);background:rgba(148,163,184,.12);color:#475569;cursor:pointer;font-size:13px;font-weight:600;padding:5px 14px;border-radius:999px;line-height:1.4">'+esc(u)+'</button><div class="nav-user-dropdown" style="position:absolute;top:calc(100% + 6px);right:0;min-width:140px;background:#fff;border:1px solid #e6edf5;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.12);padding:6px;z-index:100;display:none"><a href="/user/profile.html" style="display:block;padding:9px 14px;border-radius:8px;color:#0f172a;text-decoration:none;font-size:13.5px">👤 个人中心</a><a href="#" id="navLogoutBtn" style="display:block;padding:9px 14px;border-radius:8px;color:#dc2626;text-decoration:none;font-size:13.5px">退出</a></div></div>';
+      var un=b.querySelector(".nav-uname"), m=b.querySelector(".nav-user-dropdown");
+      if(un&&m){un.onclick=function(ev){ev.stopPropagation();m.style.display=m.style.display==="none"?"block":"none";};document.addEventListener("click",function(ev){if(!b.contains(ev.target))m.style.display="none";});}
+      var lo=b.querySelector("#navLogoutBtn"); if(lo)lo.onclick=function(ev){ev.preventDefault();try{["xw_token","xw_username","shawn_site_token","shawn_site_user","shawn_admin_token","shawn_admin_role"].forEach(function(k){localStorage.removeItem(k);});}catch(e){}try{fetch("/api/user/logout",{method:"POST",credentials:"include"});}catch(e){}location.reload();};
+    }
+  }catch(e){}
+})();
+</script>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <div class="code">404</div>
+    <h1>这个页面不见了</h1>
+    <p>地址可能写错了，或者内容已经搬家。你可以从下面几个入口继续逛。</p>
+    <div class="acts">
+      <a class="primary" href="/index.html">返回首页</a>
+      <a class="ghost" href="/article/index.html">看全部文章</a>
+      <a class="ghost" href="/search/index.html">站内搜索</a>
+    </div>
+    <div class="path" id="missPath"></div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var el = document.getElementById("missPath");
+    if (el) el.textContent = "找不到的地址：" + location.pathname + location.search;
+  })();
+</script>
+<script src="/js/header-fix.js"></script>
+</body>
+</html>

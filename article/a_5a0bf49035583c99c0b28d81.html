@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>NodeJs实现音频录制 - Node Core Audio</title><meta name="keywords" content="NodeJs实现音频录制,Node Core Audio,node-core-audio.js"><meta name="description" content="Node Core Audio一个c++扩展node.js让javascript访问音频缓冲区和基本的音频处理功能。现在,它是一个基于nodejs的跨平台音频库　　 　　安装npm&nbsp;install&nbsp;node-core-audio简单用例Below is the most basi">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">NodeJs实现音频录制 - Node Core Audio</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/dft_2017/df2a576b8ce678a4383bfaa4e8399fbd_18120.jpg" title="NodeJs实现音频录制 - Node Core Audio" alt="NodeJs实现音频录制 - Node Core Audio"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-6-15 07:28:00">2016-6-15 07:28:00</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><h1>Node Core Audio</h1>
+<p><img src="../o/uploads/dft_2017/df2a576b8ce678a4383bfaa4e8399fbd_18120.jpg" alt="NodeJs实现音频录制 - Node Core Audio" /></p>
+<p>一个c++扩展node.js让javascript访问音频缓冲区和基本的音频处理功能。  </p>
+<p>现在,它是一个基于nodejs的跨平台音频库　　 　　</p>
+<h1>安装</h1>
+<pre><code>npm install node-core-audio
+</code></pre>
+<h1>简单用例</h1>
+<p>Below is the most basic use of the audio engine. We create a new instance of node-core-audio, and then give it our processing function. The audio engine will call the audio callback whenever it needs an output buffer to send to the sound card.下面是最基本的音频引擎的使用。我们创建一个新的node-core-audio的实例,然后给我们的处理函数。音频引擎将调用音频回调时需要一个声卡输出缓冲区发送。</p>
+<pre><code>// Create a new instance of node-core-audio
+var coreAudio = require(&quot;node-core-audio&quot;);
+    
+// Create a new audio engine
+var engine = coreAudio.createNewAudioEngine();
+    
+// Add an audio processing callback
+// This function accepts an input buffer coming from the sound card,
+// and returns an ourput buffer to be sent to your speakers.
+//
+// Note: This function must return an output buffer
+    
+function processAudio( inputBuffer ) {    
+    console.log( &quot;%d channels&quot;, inputBuffer.length );    
+    console.log( &quot;Channel 0 has %d samples&quot;, inputBuffer[0].length );    
+    return inputBuffer;
+}
+engine.addAudioCallback( processAudio );
+</code></pre>
+<p>// Alternatively, you can read/write samples to the sound card manually</p>
+<pre><code>var engine = coreAudio.createNewAudioEngine();
+
+// Grab a buffer
+var buffer = engine.read();
+
+// Silence the 0th channel
+for( var iSample=0; iSample&lt;inputBuffer[0].length; ++iSample )
+    buffer[0][iSample] = 0.0;
+    
+    // Send the buffer back to the sound 
+cardengine.write( buffer );
+</code></pre>
+<h1>性能问题</h1>
+<p>When you are writing code inside of your audio callback, you are operating on the processing thread of the application. This high priority environment means you should try to think about performance as much as possible. Allocations and other complex operations are possible, but dangerous.当你编写代码的内部音频回调,你操作的是应用程序的处理线程。这个优先环境意味着你应该试着尽可能考虑性能。分配和其他复杂的操作是可能的,但是危险。</p>
+<p>IF YOU TAKE TOO LONG TO RETURN A BUFFER TO THE SOUND CARD, YOU WILL HAVE AUDIO DROPOUTS 如果你在返回给声卡缓冲数据时 花费太多时间的话,你可能会丢失数据</p>
+<p>The basic principle is that you should have everything ready to go before you enter the processing function. Buffers, objects, and functions should be created in a constructor or static function outside of the audio callback whenever possible. The examples in this readme are not necessarily good practice as far as performance is concerned.基本原则是,你应该进入前的一切准备处理函数。应该创建缓冲区、对象和函数在构造函数或静态函数之外的音频回调。这个readme不一定是好的做法的例子就性能而言。</p>
+<p>The callback is only called if all buffers has been processed by the soundcard.如果所有缓冲数据已经被声卡处理完，回调函数才被调用。</p>
+<h1>Audio Engine Options</h1>
+<ul>
+<li><p>采样率 sampleRate  [default 44100]</p>
+</li>
+<li><p>Sample rate - number of samples per second in the audio stream</p>
+</li>
+<li><p>采样格式 sampleFormat  [default sampleFormatFloat32]</p>
+</li>
+<li><p>Bit depth - Number of bits used to represent sample values</p>
+</li>
+<li><p>formats are sampleFormatFloat32, sampleFormatInt32, sampleFormatInt24, sampleFormatInt16, sampleFormatInt8, sampleFormatUInt8.</p>
+</li>
+<li><p>缓冲区长度 framesPerBuffer [default 256]</p>
+</li>
+<li><p>Buffer length - Number of samples per buffer</p>
+</li>
+<li><p>interleaved [default false]</p>
+</li>
+<li><p>Interleaved / Deinterleaved - determines whether samples are given to you as a two dimensional array (buffer[channel][sample]) (deinterleaved) or one buffer with samples from alternating channels (interleaved).</p>
+</li>
+<li><p>输入通道 inputChannels [default 2]</p>
+</li>
+<li><p>Input channels - number of input channels</p>
+</li>
+<li><p>输出通道 outputChannels [default 2]</p>
+</li>
+<li><p>Output channels - number of output channels</p>
+</li>
+<li><p>输入设备 inputDevice [default to Pa_GetDefaultInputDevice]</p>
+</li>
+<li><p>Input device - id of the input device</p>
+</li>
+<li><p>输出设备 outputDevice [default to Pa_GetDefaultOutputDevice]</p>
+</li>
+<li><p>Output device - id of the output device</p>
+</li>
+</ul>
+<h1>API</h1>
+<p>First things first 先说重要的</p>
+<pre><code>var coreAudio = require(&quot;node-core-audio&quot;);
+</code></pre>
+<p>Create and audio processing function 创建和音频处理函数</p>
+<pre><code>function processAudio( inputBuffer ) {    
+    // Just print the value of the first sample on the left channel
+    console.log( inputBuffer[0][0] );
+}
+</code></pre>
+<p>Initialize the audio engine and setup the processing loop 初始化音频引擎和设置处理循环回调函数</p>
+<pre><code>var engine = coreAudio.createNewAudioEngine();
+engine.addAudioCallback( processAudio );
+</code></pre>
+<p>General functionality</p>
+<pre><code>// Returns whether the audio engine is activebool 
+engine.isActive();
+
+// Updates the parameters and restarts the engine. All keys from getOptions() are available.
+engine.setOptions({inputChannels: 2});
+
+// Returns all parametersarray 
+engine.getOptions();
+
+// Reads buffer of the input of the soundcard and returns as array.
+// Note: this is a blocking call, don&#39;t take too long!array 
+engine.read();
+
+// Writes the buffer to the output of the soundcard. Returns false if underflowed.
+// notic: blocking i/obool 
+engine.write(array input);
+
+// Returns the name of a given devicestring 
+engine.getDeviceName( int inputDeviceIndex );
+
+// Returns the total number of audio devicesint 
+engine.getNumDevices();
+</code></pre>
+<h1>Known Issues / TODO</h1>
+<ul>
+<li><p>Add FFTW to C++ extension, so you can get fast FFT&#39;s from javascript, and also register for the FFT of incoming audio, rather than the audio itself</p>
+</li>
+<li><p>Add support for streaming audio over sockets</p>
+</li>
+</ul>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d81","article":{"id":"5a0bf49035583c99c0b28d81","title":"NodeJs实现音频录制 - Node Core Audio","snippet":"Node Core Audio一个c++扩展node.js让javascript访问音频缓冲区和基本的音频处理功能。现在,它是一个基于nodejs的跨平台音频库　　 　　安装npm&nbsp;install&nbsp;node-core-audio简单用例Below is the most basi","image":"../o/uploads/dft_2017/df2a576b8ce678a4383bfaa4e8399fbd_18120.jpg","tags":["nodejs"],"category":["编程"],"keywords":["NodeJs实现音频录制","Node Core Audio","node-core-audio.js"],"content":"<h1>Node Core Audio</h1>\n<p><img src=\"../o/uploads/dft_2017/df2a576b8ce678a4383bfaa4e8399fbd_18120.jpg\" alt=\"NodeJs实现音频录制 - Node Core Audio\" /></p>\n<p>一个c++扩展node.js让javascript访问音频缓冲区和基本的音频处理功能。  </p>\n<p>现在,它是一个基于nodejs的跨平台音频库　　 　　</p>\n<h1>安装</h1>\n<pre><code>npm install node-core-audio\n</code></pre>\n<h1>简单用例</h1>\n<p>Below is the most basic use of the audio engine. We create a new instance of node-core-audio, and then give it our processing function. The audio engine will call the audio callback whenever it needs an output buffer to send to the sound card.下面是最基本的音频引擎的使用。我们创建一个新的node-core-audio的实例,然后给我们的处理函数。音频引擎将调用音频回调时需要一个声卡输出缓冲区发送。</p>\n<pre><code>// Create a new instance of node-core-audio\nvar coreAudio = require(&quot;node-core-audio&quot;);\n    \n// Create a new audio engine\nvar engine = coreAudio.createNewAudioEngine();\n    \n// Add an audio processing callback\n// This function accepts an input buffer coming from the sound card,\n// and returns an ourput buffer to be sent to your speakers.\n//\n// Note: This function must return an output buffer\n    \nfunction processAudio( inputBuffer ) {    \n    console.log( &quot;%d channels&quot;, inputBuffer.length );    \n    console.log( &quot;Channel 0 has %d samples&quot;, inputBuffer[0].length );    \n    return inputBuffer;\n}\nengine.addAudioCallback( processAudio );\n</code></pre>\n<p>// Alternatively, you can read/write samples to the sound card manually</p>\n<pre><code>var engine = coreAudio.createNewAudioEngine();\n\n// Grab a buffer\nvar buffer = engine.read();\n\n// Silence the 0th channel\nfor( var iSample=0; iSample&lt;inputBuffer[0].length; ++iSample )\n    buffer[0][iSample] = 0.0;\n    \n    // Send the buffer back to the sound \ncardengine.write( buffer );\n</code></pre>\n<h1>性能问题</h1>\n<p>When you are writing code inside of your audio callback, you are operating on the processing thread of the application. This high priority environment means you should try to think about performance as much as possible. Allocations and other complex operations are possible, but dangerous.当你编写代码的内部音频回调,你操作的是应用程序的处理线程。这个优先环境意味着你应该试着尽可能考虑性能。分配和其他复杂的操作是可能的,但是危险。</p>\n<p>IF YOU TAKE TOO LONG TO RETURN A BUFFER TO THE SOUND CARD, YOU WILL HAVE AUDIO DROPOUTS 如果你在返回给声卡缓冲数据时 花费太多时间的话,你可能会丢失数据</p>\n<p>The basic principle is that you should have everything ready to go before you enter the processing function. Buffers, objects, and functions should be created in a constructor or static function outside of the audio callback whenever possible. The examples in this readme are not necessarily good practice as far as performance is concerned.基本原则是,你应该进入前的一切准备处理函数。应该创建缓冲区、对象和函数在构造函数或静态函数之外的音频回调。这个readme不一定是好的做法的例子就性能而言。</p>\n<p>The callback is only called if all buffers has been processed by the soundcard.如果所有缓冲数据已经被声卡处理完，回调函数才被调用。</p>\n<h1>Audio Engine Options</h1>\n<ul>\n<li><p>采样率 sampleRate  [default 44100]</p>\n</li>\n<li><p>Sample rate - number of samples per second in the audio stream</p>\n</li>\n<li><p>采样格式 sampleFormat  [default sampleFormatFloat32]</p>\n</li>\n<li><p>Bit depth - Number of bits used to represent sample values</p>\n</li>\n<li><p>formats are sampleFormatFloat32, sampleFormatInt32, sampleFormatInt24, sampleFormatInt16, sampleFormatInt8, sampleFormatUInt8.</p>\n</li>\n<li><p>缓冲区长度 framesPerBuffer [default 256]</p>\n</li>\n<li><p>Buffer length - Number of samples per buffer</p>\n</li>\n<li><p>interleaved [default false]</p>\n</li>\n<li><p>Interleaved / Deinterleaved - determines whether samples are given to you as a two dimensional array (buffer[channel][sample]) (deinterleaved) or one buffer with samples from alternating channels (interleaved).</p>\n</li>\n<li><p>输入通道 inputChannels [default 2]</p>\n</li>\n<li><p>Input channels - number of input channels</p>\n</li>\n<li><p>输出通道 outputChannels [default 2]</p>\n</li>\n<li><p>Output channels - number of output channels</p>\n</li>\n<li><p>输入设备 inputDevice [default to Pa_GetDefaultInputDevice]</p>\n</li>\n<li><p>Input device - id of the input device</p>\n</li>\n<li><p>输出设备 outputDevice [default to Pa_GetDefaultOutputDevice]</p>\n</li>\n<li><p>Output device - id of the output device</p>\n</li>\n</ul>\n<h1>API</h1>\n<p>First things first 先说重要的</p>\n<pre><code>var coreAudio = require(&quot;node-core-audio&quot;);\n</code></pre>\n<p>Create and audio processing function 创建和音频处理函数</p>\n<pre><code>function processAudio( inputBuffer ) {    \n    // Just print the value of the first sample on the left channel\n    console.log( inputBuffer[0][0] );\n}\n</code></pre>\n<p>Initialize the audio engine and setup the processing loop 初始化音频引擎和设置处理循环回调函数</p>\n<pre><code>var engine = coreAudio.createNewAudioEngine();\nengine.addAudioCallback( processAudio );\n</code></pre>\n<p>General functionality</p>\n<pre><code>// Returns whether the audio engine is activebool \nengine.isActive();\n\n// Updates the parameters and restarts the engine. All keys from getOptions() are available.\nengine.setOptions({inputChannels: 2});\n\n// Returns all parametersarray \nengine.getOptions();\n\n// Reads buffer of the input of the soundcard and returns as array.\n// Note: this is a blocking call, don&#39;t take too long!array \nengine.read();\n\n// Writes the buffer to the output of the soundcard. Returns false if underflowed.\n// notic: blocking i/obool \nengine.write(array input);\n\n// Returns the name of a given devicestring \nengine.getDeviceName( int inputDeviceIndex );\n\n// Returns the total number of audio devicesint \nengine.getNumDevices();\n</code></pre>\n<h1>Known Issues / TODO</h1>\n<ul>\n<li><p>Add FFTW to C++ extension, so you can get fast FFT&#39;s from javascript, and also register for the FFT of incoming audio, rather than the audio itself</p>\n</li>\n<li><p>Add support for streaming audio over sockets</p>\n</li>\n</ul>\n","createTime":1465946880000,"updatedTime":1785052459813},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

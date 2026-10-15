@@ -1,0 +1,1 @@
+import{_ as t}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{o as e,c as r,e as s}from"./index-D-3VvwBs.js";const c={},n={class:"xw-button-group"};function a(o,_){return e(),r("div",n,[s(o.$slots,"default")])}const p=t(c,[["render",a]]);export{p as x};

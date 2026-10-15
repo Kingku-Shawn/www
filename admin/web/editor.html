@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>页面装修 - 清逸的博客管理后台</title>
+<style>
+  :root {
+    --bg: #f5f8fc; --panel: #ffffff; --border: #e6edf5;
+    --text: #0f172a; --muted: #64748b; --accent: #2563eb;
+    --accent2: #1d4ed8; --danger: #dc2626; --ok: #16a34a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei","Noto Sans SC",Segoe UI,Arial,sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* 顶栏 */
+  .topbar { height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; padding: 0 18px; position: relative; z-index: 30; }
+  .topbar .brand { font-weight: 800; font-size: 15px; color: var(--accent); }
+  .topbar .brand small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .topbar .spacer { flex: 1; }
+  .seg { display: flex; background: #eef2f8; border-radius: 10px; padding: 3px; }
+  .seg button { border: 0; background: transparent; padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .seg button.on { background: #fff; color: var(--accent); box-shadow: 0 2px 8px rgba(15,23,42,.08); }
+  .btn { border: 1px solid var(--border); background: #fff; padding: 7px 16px; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--text); }
+  .btn:hover { background: #f0f4fa; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent2); }
+  .btn.danger { color: var(--danger); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* 三栏布局 */
+  .wrap { display: flex; height: calc(100vh - 54px); }
+  .left { width: 232px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .right { width: 288px; background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; }
+  .center { flex: 1; overflow: auto; padding: 22px; }
+
+  .panel-title { padding: 12px 14px 8px; font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .5px; }
+  .comp-list { padding: 0 10px 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .comp { border: 1px solid var(--border); background: #fff; border-radius: 10px; padding: 10px 8px; text-align: center; font-size: 12px; color: var(--muted); cursor: grab; user-select: none; transition: all .12s; }
+  .comp:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 4px 12px rgba(37,99,235,.1); }
+  .comp .ci { font-size: 18px; display: block; margin-bottom: 4px; }
+  .comp.dragging { opacity: .4; }
+  .layer-item { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .layer-item:hover { background: #f0f4fa; }
+  .layer-item.on { background: rgba(37,99,235,.1); color: var(--accent); font-weight: 600; }
+  .layer-item .del { margin-left: auto; color: var(--danger); opacity: 0; }
+  .layer-item:hover .del { opacity: 1; }
+
+  /* 画布 */
+  .canvas-holder { min-height: 100%; display: flex; justify-content: center; align-items: flex-start; }
+  #canvas {
+    position: relative; background: #fff; border-radius: 14px;
+    box-shadow: 0 10px 34px rgba(15,23,42,.1); border: 1px solid var(--border);
+    transition: width .2s ease;
+    overflow: hidden;
+  }
+  #canvas.pc { width: 1200px; min-height: 860px; }
+  #canvas.mobile { width: 390px; min-height: 844px; }
+  .w-comp { position: absolute; border: 1.5px dashed transparent; border-radius: 10px; overflow: hidden; }
+  .w-comp.sel { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,.15); z-index: 999 !important; }
+  .w-comp .resize { position: absolute; right: -5px; bottom: -5px; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; border: 2px solid #fff; cursor: nwse-resize; display: none; z-index: 10; }
+  .w-comp.sel .resize { display: block; }
+  .w-comp .c-label { position: absolute; top: 6px; left: 8px; font-size: 10px; background: rgba(37,99,235,.85); color: #fff; padding: 2px 8px; border-radius: 999px; pointer-events: none; opacity: 0; transition: opacity .12s; }
+  .w-comp.sel .c-label { opacity: 1; }
+  .w-comp .c-body { width: 100%; height: 100%; pointer-events: none; }
+
+  /* 组件预览样式（与前台一致的白玻璃风格） */
+  .pv-hero { background: linear-gradient(135deg,#1d4ed8,#2563eb 55%,#3b82f6); color: #fff; padding: 26px; display: flex; flex-direction: column; justify-content: center; border-radius: 10px; }
+  .pv-hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 10px; }
+  .pv-hero p { opacity: .9; font-size: 14px; line-height: 1.8; max-width: 640px; }
+  .pv-hero .tags { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .pv-hero .tag { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); padding: 5px 14px; border-radius: 999px; font-size: 12px; }
+  .pv-side { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; height: 100%; overflow: hidden; }
+  .pv-side .sb-title { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .pv-side .sb-card { border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 10px; background: #f8fafc; }
+  .pv-side .sb-card b { font-size: 13px; }
+  .pv-side .sb-card p { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+  .pv-side .sb-line { height: 8px; background: #eef2f8; border-radius: 4px; margin: 6px 0; }
+  .pv-list { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; height: 100%; overflow: hidden; }
+  .pv-list .li-head { display: flex; gap: 10px; margin-bottom: 12px; }
+  .pv-list .li-tab { font-size: 13px; font-weight: 600; color: var(--accent); }
+  .pv-list .li-tab.off { color: var(--muted); }
+  .pv-list .li-item { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .pv-list .li-item b { font-size: 13px; display: block; }
+  .pv-list .li-item span { font-size: 11px; color: var(--muted); }
+  .pv-tools { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; height: 100%; overflow: hidden; }
+  .pv-tools .tg-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .pv-tools .tg { border: 1px solid var(--border); border-radius: 10px; padding: 12px 6px; text-align: center; font-size: 12px; color: var(--muted); background: #f8fafc; }
+  .pv-text { padding: 8px 14px; }
+  .pv-text h3 { font-size: 18px; margin-bottom: 6px; }
+  .pv-text p { font-size: 13px; color: var(--muted); line-height: 1.8; }
+  .pv-image { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; background: #eef2f8; }
+  .pv-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+  .pv-card h4 { font-size: 15px; margin-bottom: 6px; }
+  .pv-card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .pv-divider { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+  .pv-divider .ln { width: 90%; height: 1px; background: var(--border); }
+  .pv-spacer { background: repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 8px,#f8fafc 8px,#f8fafc 16px); border-radius: 8px; }
+  .pv-video { width: 100%; height: 100%; border-radius: 10px; overflow: hidden; background: #0b1220; }
+  .pv-links { width: 100%; height: 100%; overflow: auto; padding: 8px; box-sizing: border-box; }
+  .pv-links h3 { font-size: 14px; margin-bottom: 8px; }
+  .pv-links .lnk { display: block; padding: 7px 10px; margin-bottom: 6px; background: #f4f8ff; border: 1px solid var(--border); border-radius: 8px; color: #2563eb; font-size: 12px; }
+  .pv-stats { width: 100%; height: 100%; overflow: auto; padding: 8px; box-sizing: border-box; }
+  .pv-stats h3 { font-size: 14px; margin-bottom: 8px; }
+  .pv-stats .st-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
+  .pv-stats .st { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; }
+  .pv-stats .st b { display: block; font-size: 17px; color: var(--accent); }
+  .pv-stats .st span { font-size: 11px; color: var(--muted); }
+  .pv-notice { width: 100%; height: 100%; display: flex; align-items: center; gap: 8px; background: #fef3c7; border-radius: 10px; padding: 0 14px; box-sizing: border-box; font-size: 13px; color: #92400e; overflow: hidden; }
+  .pv-notice .nb { background: #f59e0b; color: #fff; border-radius: 999px; padding: 2px 8px; font-size: 11px; flex-shrink: 0; }
+  .pv-quote { width: 100%; height: 100%; overflow: auto; padding: 14px 18px; box-sizing: border-box; border-left: 4px solid var(--accent); background: #f8fafc; }
+  .pv-quote p { font-size: 13px; color: #334155; line-height: 1.7; font-style: italic; }
+  .pv-quote footer { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: right; }
+  .pv-btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 100%; border-radius: 10px; font-size: 14px; font-weight: 600; box-sizing: border-box; }
+  .pv-btn.primary { background: var(--accent); color: #fff; }
+  .pv-btn.outline { border: 2px solid var(--accent); color: var(--accent); }
+  .pv-btn.soft { background: #e8f0fe; color: var(--accent); }
+  .pv-code { width: 100%; height: 100%; overflow: auto; background: #0b1220; border-radius: 10px; }
+  .pv-code pre { padding: 12px; font-size: 11px; color: #dbeafe; font-family: Consolas, Monaco, monospace; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+  .pv-html { width: 100%; height: 100%; overflow: auto; padding: 10px; box-sizing: border-box; }
+  .pv-html p { margin-bottom: 6px; }
+  .pv-about { width: 100%; height: 100%; overflow: auto; padding: 14px 18px; box-sizing: border-box; background: #fff; border: 1px solid var(--border); border-radius: 12px; }
+  .pv-about .ab-stamp { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .pv-about .ab-body { font-size: 13px; color: #334155; line-height: 1.7; }
+  .arr-edit { display: flex; flex-direction: column; gap: 6px; }
+  .arr-row { display: flex; align-items: center; gap: 6px; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 6px; font-size: 11px; color: var(--muted); }
+  .arr-row > div { flex: 1; }
+  .arr-row input { width: 100%; box-sizing: border-box; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
+  .btn.sm { width: 26px; padding: 2px; font-size: 12px; flex-shrink: 0; }
+  .btn.danger.sm { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+  /* 属性面板 */
+  .prop-sec { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .prop-sec h4 { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 700; }
+  .prop-row { margin-bottom: 10px; }
+  .prop-row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .prop-row input[type=text], .prop-row input[type=number], .prop-row select, .prop-row textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; background: #fff; color: var(--text); }
+  .prop-row input:focus, .prop-row textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+  .prop-row textarea { min-height: 70px; resize: vertical; }
+  .prop-row .num2 { display: flex; gap: 8px; }
+  .prop-row .num2 > div { flex: 1; }
+  .tag-edit { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag-chip { display: inline-flex; align-items: center; gap: 6px; background: #eef2f8; border-radius: 999px; padding: 4px 10px; font-size: 12px; }
+  .tag-chip .x { cursor: pointer; color: var(--danger); font-weight: 700; }
+  .tag-add { border: 1px dashed var(--border); background: none; border-radius: 999px; padding: 4px 12px; font-size: 12px; color: var(--muted); }
+  .empty-tip { padding: 30px 16px; text-align: center; color: var(--muted); font-size: 13px; line-height: 2; }
+
+  /* 提示条 */
+  .toast { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; padding: 9px 20px; border-radius: 999px; font-size: 13px; z-index: 999; display: none; box-shadow: 0 8px 24px rgba(15,23,42,.25); }
+  .toast.err { background: var(--danger); }
+  .toast.ok { background: var(--ok); }
+  .dirty { display: none; font-size: 12px; color: #d97706; background: #fef3c7; border: 1px solid #fcd34d; padding: 4px 10px; border-radius: 999px; margin-left: 10px; }
+  .seg .on { background: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brand">清逸的博客 <small>页面装修</small></span>
+  <div class="seg" id="pageSeg">
+    <button data-page="home" class="on">首页</button>
+    <button data-page="about">关于我</button>
+    <button data-page="articles">文章列表</button>
+  </div>
+  <div class="seg" id="viewSeg">
+    <button data-view="pc" class="on">PC 桌面</button>
+    <button data-view="mobile">移动 H5</button>
+  </div>
+  <span class="dirty" id="dirtyTip" title="当前修改尚未保存，刷新/离开将丢失">未保存</span>
+  <div class="spacer"></div>
+  <span style="font-size:12px;color:var(--muted)" id="verTip"></span>
+  <button class="btn" id="btnReset">重置默认</button>
+  <button class="btn primary" id="btnSave">保存并同步前台</button>
+  <button class="btn" onclick="location.href='/admin/index.html'">返回后台</button>
+</div>
+
+<div class="wrap">
+  <div class="left">
+    <div class="panel-title">组件库（拖入画布）</div>
+    <div class="comp-list" id="compList"></div>
+    <div class="panel-title">图层（点击选中）</div>
+    <div id="layerList" style="padding:0 10px 20px"></div>
+  </div>
+
+  <div class="center">
+    <div class="canvas-holder"><div id="canvas" class="pc"></div></div>
+  </div>
+
+  <div class="right" id="propPanel">
+    <div class="empty-tip">选中画布中的组件后<br>在这里编辑它的属性与位置</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const TOKEN = localStorage.getItem("shawn_admin_token") || "";
+
+const TYPES = {
+  hero:          { icon: "🚩", name: "主视觉",   hasProps: ["title", "subtitle", "tags"] },
+  sidebar:       { icon: "👤", name: "侧边栏",   hasProps: [] },
+  article_list:  { icon: "📰", name: "文章列表", hasProps: ["mode", "limit"] },
+  tools_grid:    { icon: "🧰", name: "工具网格", hasProps: [] },
+  text:          { icon: "✍️", name: "文本",     hasProps: ["title", "content", "align", "size"] },
+  image:         { icon: "🖼", name: "图片",     hasProps: ["src", "alt"] },
+  card:          { icon: "🃏", name: "卡片",     hasProps: ["title", "desc", "url"] },
+  divider:       { icon: "➖", name: "分隔线",   hasProps: ["style"] },
+  spacer:        { icon: "⏹", name: "空白",     hasProps: [] },
+  video:         { icon: "🎬", name: "视频",     hasProps: ["src", "autoplay"] },
+  link_list:     { icon: "🔗", name: "链接列表", hasProps: ["title", "links"] },
+  stats:         { icon: "📊", name: "数据统计", hasProps: ["title", "stats"] },
+  notice:        { icon: "📣", name: "公告条",   hasProps: ["text", "bg"] },
+  quote:         { icon: "💬", name: "引用",     hasProps: ["text", "author"] },
+  button:        { icon: "🔘", name: "按钮",     hasProps: ["text", "url", "theme"] },
+  code:          { icon: "⌨️", name: "代码块",   hasProps: ["title", "content"] },
+  custom_html:   { icon: "🧩", name: "自定义HTML", hasProps: ["content"] },
+  about_content: { icon: "👨‍💻", name: "关于我图文", hasProps: [] },
+};
+
+const PAGES = {
+  home:     { name: "首页" },
+  about:    { name: "关于我" },
+  articles: { name: "文章列表" },
+};
+
+let state = { home: { pc: [], mobile: [] }, about: { pc: [], mobile: [] }, articles: { pc: [], mobile: [] } };
+let page = "home";
+let view = "pc";
+let selId = null;
+let version = 0;
+let dirty = false;
+let drag = null;   // {id, mode:"move"|"resize", startX,startY,ox,oy,ow,oh, moved}
+
+/* ---------- API ---------- */
+async function api(path, body) {
+  const opt = { method: body ? "POST" : "GET", headers: { "X-Token": TOKEN } };
+  if (body) { opt.headers["Content-Type"] = "application/json"; opt.body = JSON.stringify(body); }
+  const res = await fetch(path, opt);
+  return res.json().catch(() => ({ ok: false, msg: "响应解析失败" }));
+}
+let toastTimer = null;
+function toast(msg, ok = true) {
+  const t = $("toast");
+  t.textContent = msg; t.className = "toast " + (ok ? "ok" : "err"); t.style.display = "block";
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.display = "none", 2400);
+}
+
+/* ---------- 数据 ---------- */
+const cur = () => state[page][view];
+function uid() { return "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function markDirty() { dirty = true; $("dirtyTip").style.display = "inline-block"; }
+function clearDirty() { dirty = false; $("dirtyTip").style.display = "none"; }
+
+function newComp(type, x, y) {
+  const base = { id: uid(), type, x, y, w: 30, h: 140, z: 10, props: {} };
+  if (type === "hero")      { base.w = 100; base.h = 240; base.props = { title: "清逸的博客", subtitle: "在这里写下你的博客简介", tags: ["前端开发", "机器学习"] }; }
+  if (type === "sidebar")   { base.w = 26;  base.h = 460; }
+  if (type === "article_list") { base.w = 72; base.h = 460; base.props = { mode: "latest", limit: 6 }; }
+  if (type === "tools_grid") { base.w = 100; base.h = 240; }
+  if (type === "text")      { base.w = 60;  base.props = { title: "标题", content: "正文内容", align: "left", size: "normal" }; }
+  if (type === "image")     { base.w = 40;  base.h = 220; base.props = { src: "", alt: "图片" }; }
+  if (type === "card")      { base.w = 30;  base.h = 140; base.props = { title: "卡片标题", desc: "卡片描述", url: "" }; }
+  if (type === "divider")   { base.w = 100; base.h = 30; base.props = { style: "solid" }; }
+  if (type === "spacer")    { base.w = 100; base.h = 40; }
+  if (type === "video")     { base.w = 60;  base.h = 320; base.props = { src: "", autoplay: false }; }
+  if (type === "link_list") { base.w = 40;  base.h = 240; base.props = { title: "友情链接", links: [{ text: "链接一", url: "#" }, { text: "链接二", url: "#" }] }; }
+  if (type === "stats")     { base.w = 50;  base.h = 180; base.props = { title: "数据统计", stats: [{ label: "文章", value: "58" }, { label: "标签", value: "12" }] }; }
+  if (type === "notice")    { base.w = 100; base.h = 60;  base.props = { text: "这里是公告内容", bg: "" }; }
+  if (type === "quote")     { base.w = 60;  base.h = 160; base.props = { text: "引用内容", author: "作者" }; }
+  if (type === "button")    { base.w = 22;  base.h = 60;  base.props = { text: "按钮", url: "#", theme: "primary" }; }
+  if (type === "code")      { base.w = 60;  base.h = 240; base.props = { title: "代码示例", content: "def hello():\n    print('hi')" }; }
+  if (type === "custom_html") { base.w = 60; base.h = 200; base.props = { content: "<p>自定义 HTML 内容</p>" }; }
+  if (type === "about_content") { base.w = 100; base.h = 520; }
+  return base;
+}
+
+/* ---------- 画布渲染 ---------- */
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ '&': "&amp;", '<': "&lt;", '>': "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function bodyHtml(c) {
+  const p = c.props || {};
+  switch (c.type) {
+    case "hero": return `<div class="pv-hero"><h1>${esc(p.title || "清逸的博客")}</h1><p>${esc(p.subtitle || "")}</p><div class="tags">${(p.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div></div>`;
+    case "sidebar": return `<div class="pv-side"><div class="sb-title">博主</div><div class="sb-card"><b>清逸</b><p>热爱代码与乐器的开发者</p></div><div class="sb-title">分栏</div><div class="sb-line"></div><div class="sb-line" style="width:70%"></div><div class="sb-title">标签</div><div class="sb-line" style="width:50%"></div><div class="sb-line" style="width:60%"></div></div>`;
+    case "article_list": return `<div class="pv-list"><div class="li-head"><span class="li-tab">最新文章</span><span class="li-tab off">热门文章</span></div>${[1,2,3].map(() => `<div class="li-item"><b>文章标题占位</b><span>发布于 2026-01-01</span></div>`).join("")}</div>`;
+    case "tools_grid": return `<div class="pv-tools"><div class="tg-grid">${["在线钢琴","在线乐器","调音器","节拍器","卡林巴","吉他和弦"].map(t => `<div class="tg">${t}</div>`).join("")}</div></div>`;
+    case "text": return `<div class="pv-text" style="text-align:${esc(p.align || "left")}"><h3 style="font-size:${p.size === "big" ? 22 : 17}px">${esc(p.title || "")}</h3><p>${esc(p.content || "")}</p></div>`;
+    case "image": return p.src ? `<img class="pv-image" src="${esc(p.src)}" alt="${esc(p.alt || "")}">` : `<div class="pv-image" style="display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px">图片（在右侧填写地址）</div>`;
+    case "card": return `<div class="pv-card"><h4>${esc(p.title || "卡片")}</h4><p>${esc(p.desc || "")}</p></div>`;
+    case "divider": return `<div class="pv-divider"><div class="ln" style="border-top-style:${esc(p.style || "solid")}"></div></div>`;
+    case "spacer": return `<div class="pv-spacer"></div>`;
+    case "video": return p.src ? `<div class="pv-video"><video src="${esc(p.src)}" controls muted style="width:100%;height:100%;background:#0b1220;border-radius:10px"></video></div>` : `<div class="pv-video" style="display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px">视频（在右侧填写 mp4 地址）</div>`;
+    case "link_list": return `<div class="pv-links"><h3>${esc(p.title || "链接")}</h3>${(p.links || []).map(l => `<a class="lnk">${esc(l.text)}</a>`).join("")}</div>`;
+    case "stats": return `<div class="pv-stats"><h3>${esc(p.title || "数据统计")}</h3><div class="st-grid">${(p.stats || []).map(s => `<div class="st"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div></div>`;
+    case "notice": return `<div class="pv-notice" ${p.bg ? `style="background:${esc(p.bg)}"` : ""}><span class="nb">公告</span>${esc(p.text || "")}</div>`;
+    case "quote": return `<div class="pv-quote"><p>${esc(p.text || "")}</p>${p.author ? `` : ""}</div>`;
+    case "button": return `<div class="pv-btn ${esc(p.theme || "primary")}">${esc(p.text || "按钮")}</div>`;
+    case "code": return `<div class="pv-code"><pre><code>${esc(p.content || "")}</code></pre></div>`;
+    case "custom_html": return `<div class="pv-html">${p.content || ""}</div>`;
+    case "about_content": return `<div class="pv-about"><div class="ab-stamp">最后更新：2026-01-01</div><div class="ab-body">关于我的图文内容将在这里展示，保存后前台自动拉取后台「关于我」编辑内容。</div></div>`;
+    default: return `<div style="padding:20px;color:var(--muted)">${esc(c.type)}</div>`;
+  }
+}
+
+function renderCanvas() {
+  const cv = $("canvas");
+  cv.className = view === "pc" ? "pc" : "mobile";
+  const items = cur();
+  // 计算画布高度：max(y+h)
+  let maxH = view === "pc" ? 860 : 844;
+  items.forEach(c => { maxH = Math.max(maxH, c.y + c.h + 20); });
+  cv.style.height = maxH + "px";
+  cv.innerHTML = "";
+  items.slice().sort((a, b) => a.z - b.z).forEach(c => {
+    const el = document.createElement("div");
+    el.className = "w-comp" + (c.id === selId ? " sel" : "");
+    el.dataset.id = c.id;
+    el.style.left = c.x + "%"; el.style.top = c.y + "px";
+    el.style.width = c.w + "%"; el.style.height = c.h + "px";
+    el.style.zIndex = c.z;
+    el.innerHTML = `<div class="c-label">${TYPES[c.type] ? TYPES[c.type].name : c.type}</div><div class="c-body">${bodyHtml(c)}</div><div class="resize" title="拖拽缩放"></div>`;
+    cv.appendChild(el);
+  });
+  renderLayer();
+}
+
+function renderLayer() {
+  const box = $("layerList");
+  const items = cur().slice().sort((a, b) => b.z - a.z);
+  box.innerHTML = items.length ? items.map(c =>
+    `<div class="layer-item ${c.id === selId ? "on" : ""}" data-id="${c.id}">
+      <span>${TYPES[c.type] ? TYPES[c.type].icon + " " + TYPES[c.type].name : c.type}</span>
+      <span class="del" data-del="${c.id}">✕</span></div>`).join("") :
+    `<div style="font-size:12px;color:var(--muted);padding:10px 4px">画布为空，从上方拖入组件</div>`;
+}
+
+/* ---------- 选中与属性面板 ---------- */
+function select(id) {
+  selId = id;
+  renderCanvas();
+  renderProps();
+}
+
+function renderProps() {
+  const box = $("propPanel");
+  const c = cur().find(x => x.id === selId);
+  if (!c) { box.innerHTML = `<div class="empty-tip">选中画布中的组件后<br>在这里编辑它的属性与位置</div>`; return; }
+  const t = TYPES[c.type] || { name: c.type, hasProps: [] };
+  let h = `<div class="prop-sec"><h4>${t.icon} ${t.name} · 位置与尺寸</h4>
+    <div class="prop-row"><div class="num2">
+      <div><label>X（%）</label><input type="number" id="pf_x" value="${c.x}" step="1"></div>
+      <div><label>宽（%）</label><input type="number" id="pf_w" value="${c.w}" step="1"></div>
+    </div></div>
+    <div class="prop-row"><div class="num2">
+      <div><label>Y（px）</label><input type="number" id="pf_y" value="${c.y}" step="1"></div>
+      <div><label>高（px）</label><input type="number" id="pf_h" value="${c.h}" step="1"></div>
+    </div></div>
+    <div class="prop-row"><div class="num2">
+      <div><label>层级 Z</label><input type="number" id="pf_z" value="${c.z}" step="1"></div>
+      <div><label>复制</label><button class="btn" style="width:100%;padding:6px 8px;font-size:12px" id="pf_copy">复制组件</button></div>
+    </div></div>
+    <button class="btn danger" style="width:100%" id="pf_del">删除组件</button>
+  </div>`;
+  if (t.hasProps.length) {
+    h += `<div class="prop-sec"><h4>内容与样式</h4>`;
+    for (const f of t.hasProps) {
+      if (f === "title") h += row("title", "标题", `<input type="text" id="pf_title" value="${esc(c.props.title || "")}">`);
+      if (f === "subtitle") h += row("subtitle", "副标题", `<textarea id="pf_subtitle">${esc(c.props.subtitle || "")}</textarea>`);
+      if (f === "content") h += row("content", "正文", `<textarea id="pf_content">${esc(c.props.content || "")}</textarea>`);
+      if (f === "align") h += row("align", "对齐", `<select id="pf_align">${["left","center","right"].map(v => `<option ${c.props.align === v ? "selected" : ""} value="${v}">${v}</option>`).join("")}</select>`);
+      if (f === "size") h += row("size", "字号", `<select id="pf_size">${[["normal","正常"],["big","大号"]].map(v => `<option ${c.props.size === v[0] ? "selected" : ""} value="${v[0]}">${v[1]}</option>`).join("")}</select>`);
+      if (f === "src") h += row("src", "图片地址", `<input type="text" id="pf_src" value="${esc(c.props.src || "")}" placeholder="https://... 或 /...">`);
+      if (f === "alt") h += row("alt", "图片说明", `<input type="text" id="pf_alt" value="${esc(c.props.alt || "")}">`);
+      if (f === "desc") h += row("desc", "描述", `<textarea id="pf_desc">${esc(c.props.desc || "")}</textarea>`);
+      if (f === "url") h += row("url", "链接地址", `<input type="text" id="pf_url" value="${esc(c.props.url || "")}">`);
+      if (f === "mode") h += row("mode", "文章排序", `<select id="pf_mode">${[["latest","最新"],["hot","热门"]].map(v => `<option ${c.props.mode === v[0] ? "selected" : ""} value="${v[0]}">${v[1]}</option>`).join("")}</select>`);
+      if (f === "limit") h += row("limit", "显示数量", `<input type="number" id="pf_limit" value="${c.props.limit || 6}" min="1" max="20">`);
+      if (f === "style") h += row("style", "线型", `<select id="pf_style">${[["solid","实线"],["dashed","虚线"],["dotted","点线"]].map(v => `<option ${c.props.style === v[0] ? "selected" : ""} value="${v[0]}">${v[1]}</option>`).join("")}</select>`);
+      if (f === "tags") h += row("tags", "标签（回车添加）", `<div class="tag-edit" id="pf_tags"></div><input type="text" id="pf_tagInput" placeholder="输入后回车" style="margin-top:6px">`);
+      if (f === "text") h += row("text", "文本内容", `<textarea id="pf_text">${esc(c.props.text || "")}</textarea>`);
+      if (f === "author") h += row("author", "作者/来源", `<input type="text" id="pf_author" value="${esc(c.props.author || "")}">`);
+      if (f === "bg") h += row("bg", "背景色", `<input type="text" id="pf_bg" value="${esc(c.props.bg || "")}" placeholder="#fef3c7 或留空">`);
+      if (f === "theme") h += row("theme", "按钮样式", `<select id="pf_theme">${[["primary","主题蓝"],["outline","描边"],["soft","浅色"]].map(v => `<option ${c.props.theme === v[0] ? "selected" : ""} value="${v[0]}">${v[1]}</option>`).join("")}</select>`);
+      if (f === "autoplay") h += row("autoplay", "自动播放", `<select id="pf_autoplay">${[["false","关闭"],["true","开启（静音）"]].map(v => `<option ${c.props.autoplay === true && v[0] === "true" ? "selected" : ""} value="${v[0]}">${v[1]}</option>`).join("")}</select>`);
+      if (f === "links") h += row("links", "链接列表", `<div id="pf_links" class="arr-edit"></div><button class="btn" style="width:100%;margin-top:6px;font-size:12px" id="pf_linksAdd">+ 添加链接</button>`);
+      if (f === "stats") h += row("stats", "统计项", `<div id="pf_stats" class="arr-edit"></div><button class="btn" style="width:100%;margin-top:6px;font-size:12px" id="pf_statsAdd">+ 添加统计</button>`);
+    }
+    h += `</div>`;
+  }
+  box.innerHTML = h;
+  bindProps(c);
+}
+function row(k, label, inner) { return `<div class="prop-row"><label>${label}</label>${inner}</div>`; }
+
+function bindProps(c) {
+  const p = c.props;
+  const num = (id, key, min, max) => {
+    const el = $(id); if (!el) return;
+    el.addEventListener("change", () => {
+      let v = parseFloat(el.value); if (isNaN(v)) v = 0;
+      v = Math.max(min, Math.min(max, v));
+      c[key] = v; el.value = v; markDirty(); renderCanvas();
+    });
+  };
+  num("pf_x", "x", 0, 100); num("pf_w", "w", 5, 100); num("pf_y", "y", 0, 99999); num("pf_h", "h", 10, 9999); num("pf_z", "z", 0, 999);
+  const txt = (id, key) => { const el = $(id); if (el) el.addEventListener("change", () => { p[key] = el.value; markDirty(); renderCanvas(); }); };
+  txt("pf_title", "title"); txt("pf_subtitle", "subtitle"); txt("pf_content", "content");
+  txt("pf_src", "src"); txt("pf_alt", "alt"); txt("pf_desc", "desc"); txt("pf_url", "url");
+  const sel = (id, key) => { const el = $(id); if (el) el.addEventListener("change", () => { p[key] = el.value; markDirty(); renderCanvas(); }); };
+  sel("pf_align", "align"); sel("pf_size", "size"); sel("pf_mode", "mode"); sel("pf_style", "style");
+  sel("pf_theme", "theme");
+  const selB = (id, key) => { const el = $(id); if (el) el.addEventListener("change", () => { p[key] = el.value === "true"; markDirty(); renderCanvas(); }); };
+  selB("pf_autoplay", "autoplay");
+  const num2 = (id, key) => { const el = $(id); if (el) el.addEventListener("change", () => { p[key] = parseInt(el.value) || 6; markDirty(); renderCanvas(); }); };
+  num2("pf_limit", "limit");
+  txt("pf_text", "text"); txt("pf_author", "author"); txt("pf_bg", "bg");
+
+  // 数组编辑器：链接列表 / 统计项
+  const arrEdit = (boxId, addId, key, fields, rowHtml) => {
+    const box = $(boxId); if (!box) return;
+    const draw = () => {
+      p[key] = p[key] || [];
+      box.innerHTML = p[key].map((it, i) => rowHtml(it, i)).join("");
+      box.querySelectorAll("[data-k]").forEach(el => {
+        el.addEventListener("change", () => {
+          p[key][+el.dataset.i][el.dataset.k] = el.value;
+          markDirty(); renderCanvas();
+        });
+      });
+      box.querySelectorAll("[data-del]").forEach(el => {
+        el.addEventListener("click", () => { p[key].splice(+el.dataset.i, 1); markDirty(); draw(); renderCanvas(); });
+      });
+    };
+    draw();
+    const add = $(addId);
+    if (add) add.addEventListener("click", () => {
+      p[key] = p[key] || [];
+      const blank = {}; fields.forEach(f => blank[f] = "");
+      p[key].push(blank); markDirty(); draw(); renderCanvas();
+    });
+  };
+  arrEdit("pf_links", "pf_linksAdd", "links", ["text", "url"], (it, i) =>
+    `<div class="arr-row">${esc(it.text || "")}<div><input data-k="text" data-i="${i}" value="${esc(it.text || "")}" placeholder="名称" style="width:100%"></div><div><input data-k="url" data-i="${i}" value="${esc(it.url || "")}" placeholder="https://..." style="width:100%"></div><button class="btn danger sm" data-del="${i}">✕</button></div>`);
+  arrEdit("pf_stats", "pf_statsAdd", "stats", ["label", "value"], (it, i) =>
+    `<div class="arr-row">${esc(it.label || "")}<div><input data-k="label" data-i="${i}" value="${esc(it.label || "")}" placeholder="标签" style="width:100%"></div><div><input data-k="value" data-i="${i}" value="${esc(it.value || "")}" placeholder="数值" style="width:100%"></div><button class="btn danger sm" data-del="${i}">✕</button></div>`);
+
+  // 标签编辑
+  const tagsBox = $("pf_tags"); const tagInput = $("pf_tagInput");
+  if (tagsBox) {
+    const drawTags = () => {
+      tagsBox.innerHTML = (p.tags || []).map((t, i) => `<span class="tag-chip">${esc(t)}<span class="x" data-i="${i}">×</span></span>`).join("") + `<button class="tag-add" id="tagAddBtn">+ 添加</button>`;
+      const xEls = tagsBox.querySelectorAll(".x"); xEls.forEach(xe => xe.addEventListener("click", () => { p.tags.splice(+xe.dataset.i, 1); markDirty(); drawTags(); }));
+      $("tagAddBtn").addEventListener("click", () => { tagInput.focus(); });
+    };
+    drawTags();
+    tagInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const v = tagInput.value.trim(); tagInput.value = "";
+        if (v && (p.tags || []).length < 12) { p.tags = p.tags || []; p.tags.push(v); markDirty(); drawTags(); renderCanvas(); }
+      }
+    });
+  }
+  const delBtn = $("pf_del");
+  if (delBtn) delBtn.addEventListener("click", () => { removeComp(selId); });
+  const copyBtn = $("pf_copy");
+  if (copyBtn) copyBtn.addEventListener("click", () => {
+    const n = Object.assign({}, c, { id: uid(), x: Math.min(95, c.x + 4), y: c.y + 12, z: c.z + 1, props: JSON.parse(JSON.stringify(c.props)) });
+    cur().push(n); markDirty(); select(n.id);
+  });
+}
+
+function removeComp(id) {
+  const i = cur().findIndex(x => x.id === id);
+  if (i >= 0) cur().splice(i, 1);
+  if (selId === id) selId = null;
+  markDirty();
+  renderCanvas();
+}
+
+/* ---------- 拖拽：组件面板 → 画布 ---------- */
+function buildCompList() {
+  $("compList").innerHTML = Object.keys(TYPES).map(k =>
+    `<div class="comp" draggable="true" data-type="${k}"><span class="ci">${TYPES[k].icon}</span>${TYPES[k].name}</div>`).join("");
+  $("compList").querySelectorAll(".comp").forEach(el => {
+    el.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", el.dataset.type);
+      el.classList.add("dragging");
+      setTimeout(() => el.classList.remove("dragging"), 200);
+    });
+  });
+}
+
+/* ---------- 拖拽：画布内移动/缩放 ---------- */
+function canvasMetrics() {
+  const cv = $("canvas");
+  const r = cv.getBoundingClientRect();
+  return { cv, rect: r };
+}
+
+function initCanvasEvents() {
+  const cv = $("canvas");
+  cv.addEventListener("dragover", e => e.preventDefault());
+  cv.addEventListener("drop", e => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData("text/plain");
+    if (!TYPES[type]) return;
+    const { rect } = canvasMetrics();
+    const x = Math.max(0, Math.min(100, Math.round((e.clientX - rect.left) / rect.width * 100)));
+    const y = Math.max(0, Math.round(e.clientY - rect.top));
+    const c = newComp(type, x, y);
+    cur().push(c);
+    markDirty();
+    select(c.id);
+    toast("已添加「" + (TYPES[type].name) + "」组件，可在右侧调整");
+  });
+
+  cv.addEventListener("mousedown", e => {
+    const compEl = e.target.closest(".w-comp");
+    if (!compEl) { if (selId) { selId = null; renderCanvas(); } return; }
+    const c = cur().find(x => x.id === compEl.dataset.id);
+    if (!c) return;
+    select(c.id);
+    if (e.target.closest(".resize")) {
+      drag = { id: c.id, mode: "resize", startX: e.clientX, startY: e.clientY, ow: c.w, oh: c.h };
+    } else {
+      drag = { id: c.id, mode: "move", startX: e.clientX, startY: e.clientY, ox: c.x, oy: c.y };
+    }
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", e => { if (drag) moveDrag(e.clientX, e.clientY); });
+  document.addEventListener("mouseup", () => {
+    if (drag && drag.mode === "move" && !drag.moved) {
+      // 未移动：可能误触，无操作
+    }
+    drag = null;
+  });
+
+  // 触屏支持
+  cv.addEventListener("touchstart", e => {
+    const t = e.touches[0];
+    const compEl = document.elementFromPoint(t.clientX, t.clientY).closest(".w-comp");
+    if (!compEl) return;
+    const c = cur().find(x => x.id === compEl.dataset.id);
+    if (!c) return;
+    select(c.id);
+    const resizeHit = document.elementFromPoint(t.clientX, t.clientY).closest(".resize");
+    drag = resizeHit ? { id: c.id, mode: "resize", startX: t.clientX, startY: t.clientY, ow: c.w, oh: c.h }
+                     : { id: c.id, mode: "move", startX: t.clientX, startY: t.clientY, ox: c.x, oy: c.y };
+  }, { passive: true });
+  document.addEventListener("touchmove", e => {
+    if (!drag) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    moveDrag(t.clientX, t.clientY);
+  }, { passive: false });
+  document.addEventListener("touchend", () => { drag = null; });
+
+  document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+    if (e.key === "Delete" || e.key === "Backspace") { if (selId) removeComp(selId); }
+    if (e.key === "Escape") { if (selId) { selId = null; renderCanvas(); } }
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown") {
+      if (!selId) return;
+      const c = cur().find(x => x.id === selId); if (!c) return;
+      e.preventDefault();
+      if (e.key === "ArrowLeft") c.x = Math.max(0, c.x - 1);
+      if (e.key === "ArrowRight") c.x = Math.min(100, c.x + 1);
+      if (e.key === "ArrowUp") c.y = Math.max(0, c.y - 8);
+      if (e.key === "ArrowDown") c.y += 8;
+      renderCanvas();
+    }
+  });
+}
+
+function moveDrag(clientX, clientY) {
+  const { rect } = canvasMetrics();
+  const c = cur().find(x => x.id === drag.id);
+  if (!c) { drag = null; return; }
+  if (drag.mode === "move") {
+    const dx = clientX - drag.startX;
+    const dy = clientY - drag.startY;
+    const nX = Math.max(0, Math.min(100, drag.ox + dx / rect.width * 100));
+    const nY = Math.max(0, drag.oy + dy);
+    if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
+    c.x = Math.round(nX * 10) / 10;
+    c.y = Math.round(nY);
+  } else {
+    const dx = clientX - drag.startX;
+    const dy = clientY - drag.startY;
+    const nW = Math.max(5, Math.min(100, drag.ow + dx / rect.width * 100));
+    const nH = Math.max(20, drag.oh + dy);
+    c.w = Math.round(nW * 10) / 10;
+    c.h = Math.round(nH);
+  }
+  markDirty();
+  renderCanvas();
+}
+
+/* ---------- 视图切换 ---------- */
+function initViewSeg() {
+  $("viewSeg").querySelectorAll("button").forEach(b => {
+    b.addEventListener("click", () => {
+      view = b.dataset.view;
+      $("viewSeg").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+      selId = null;
+      renderCanvas();
+    });
+  });
+}
+
+/* ---------- 页面维度切换 ---------- */
+function initPageSeg() {
+  $("pageSeg").querySelectorAll("button").forEach(b => {
+    b.addEventListener("click", () => {
+      page = b.dataset.page;
+      $("pageSeg").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+      selId = null;
+      renderCanvas();
+      $("verTip").textContent = "当前版本 v" + version + " · 正在编辑：" + PAGES[page].name;
+    });
+  });
+}
+
+/* ---------- 图层点击 ---------- */
+function initLayer() {
+  $("layerList").addEventListener("click", e => {
+    const del = e.target.closest("[data-del]");
+    if (del) { const id = del.dataset.del; removeComp(id); return; }
+    const it = e.target.closest(".layer-item");
+    if (it) select(it.dataset.id);
+  });
+}
+
+/* ---------- 保存 / 重置 ---------- */
+async function save() {
+  // 保存前确保每个组件 z 有值
+  Object.keys(state).forEach(pg => ["pc", "mobile"].forEach(k => state[pg][k].forEach((c, i) => { if (typeof c.z !== "number") c.z = i + 1; })));
+  const r = await api("/api/settings/layout", { pages: state });
+  if (r.ok) {
+    version = r.data.version;
+    clearDirty();
+    $("verTip").textContent = "已保存版本 v" + version;
+    toast("保存成功，前台网页已同步 v" + version);
+  } else {
+    toast("保存失败：" + (r.msg || "未知错误"), false);
+  }
+}
+
+async function reset() {
+  if (!confirm("确认恢复默认布局？当前所有页面的装修内容将被覆盖。")) return;
+  const r = await api("/api/settings/layout/reset", {});
+  if (!r.ok) { toast("重置失败：" + (r.msg || "未知错误"), false); return; }
+  if (r.data && r.data.pages) {
+    state = JSON.parse(JSON.stringify(r.data.pages));
+    version = r.data.version || 1;
+  } else {
+    const d = await api("/api/layout");
+    if (d.ok && d.data && d.data.pages) {
+      state = JSON.parse(JSON.stringify(d.data.pages));
+      version = d.data.version || 1;
+    }
+  }
+  selId = null;
+  clearDirty();
+  renderCanvas();
+  $("verTip").textContent = "已重置为默认布局";
+  toast("已恢复默认布局");
+}
+
+/* ---------- 加载 ---------- */
+async function load() {
+  if (!TOKEN) {
+    $("canvas").innerHTML = `<div style="padding:80px 20px;text-align:center;color:var(--muted)">请先在后台登录（shawn_admin_token 缺失），<a href="/admin/index.html" style="color:var(--accent)">返回登录</a></div>`;
+    return;
+  }
+  const r = await api("/api/settings/layout");
+  if (!r.ok) {
+    toast(r.msg || "加载失败，请确认已登录", false);
+    $("canvas").innerHTML = `<div style="padding:80px 20px;text-align:center;color:var(--muted)">加载失败：${esc(r.msg || "未登录")}<br><a href="/admin/index.html" style="color:var(--accent)">返回后台登录</a></div>`;
+    return;
+  }
+  const d = r.data;
+  const pg = d.pages || {};
+  state = {
+    home:     { pc: (pg.home || {}).pc || [], mobile: (pg.home || {}).mobile || [] },
+    about:    { pc: (pg.about || {}).pc || [], mobile: (pg.about || {}).mobile || [] },
+    articles: { pc: (pg.articles || {}).pc || [], mobile: (pg.articles || {}).mobile || [] }
+  };
+  version = d.version || 1;
+  $("verTip").textContent = "当前版本 v" + version + " · 正在编辑：" + PAGES[page].name;
+  renderCanvas();
+}
+
+/* ---------- 未保存离开提醒（编辑后仅保存才生效） ---------- */
+window.addEventListener("beforeunload", e => {
+  if (!dirty) return;
+  e.preventDefault();
+  e.returnValue = "";
+});
+
+/* ---------- 启动 ---------- */
+buildCompList();
+initCanvasEvents();
+initViewSeg();
+initPageSeg();
+initLayer();
+$("btnSave").addEventListener("click", save);
+$("btnReset").addEventListener("click", reset);
+load();
+</script>
+</body>
+</html>

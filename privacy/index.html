@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="清逸的博客隐私政策：说明本站收集哪些数据、用途、Cookie 使用、第三方服务与你的权利。">
+<link rel="canonical" href="https://blog.qingyi.dpdns.org/privacy/">
+<title>隐私政策 - 清逸的博客</title>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f6f8fb;color:#1f2430;font:15px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  .nav{position:fixed;top:0;left:0;right:0;height:58px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e6ebf2;z-index:50}
+  .nav-in{max-width:1100px;height:100%;margin:0 auto;display:flex;align-items:center;gap:22px;padding:0 20px}
+  .nav .logo{font-size:18px;font-weight:700;color:#2563eb;text-decoration:none}
+  .nav-links{display:flex;gap:18px;flex:1}
+  .nav-links a{color:#475569;text-decoration:none;font-size:14px}
+  .nav-links a:hover{color:#2563eb}
+  .nav-user a{color:#2563eb;text-decoration:none;font-size:14px}
+  .wrap{max-width:860px;margin:0 auto;padding:100px 20px 60px}
+  .card{background:#fff;border:1px solid #e6ebf2;border-radius:18px;padding:40px 34px;box-shadow:0 12px 34px rgba(15,23,42,.06)}
+  h1{font-size:26px;margin:0 0 6px}
+  .meta{color:#94a3b8;font-size:13px;margin-bottom:26px}
+  h2{font-size:17px;margin:30px 0 10px;padding-left:12px;border-left:3px solid #2563eb}
+  p,li{color:#334155;font-size:14.5px}
+  ul{padding-left:22px;margin:8px 0}
+  li{margin:5px 0}
+  code{background:#eef2ff;color:#4f46e5;padding:2px 6px;border-radius:6px;font-size:13px}
+  .tip{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:14px 16px;font-size:13.5px;color:#475569;margin:18px 0}
+  a{color:#2563eb}
+  .foot{margin-top:26px;text-align:center;color:#94a3b8;font-size:12.5px}
+  @media(max-width:720px){
+    .nav-links a:not(.logo){display:none}
+    .card{padding:26px 18px}
+    .wrap{padding:84px 14px 40px}
+  }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in" id="navIn">
+    <a class="logo" href="/index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/index.html">首页</a>
+      <a href="/article/index.html">文章</a>
+      <a href="/aboutme/index.html">关于我</a>
+      <a href="/search/index.html" data-search="1">搜索</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="/user/login.html">登录</a><a href="/user/login.html#register" style="margin-left:10px">注册</a></div>
+<script>
+(function(){
+  try{
+    var b=document.getElementById("navUser"); if(!b) return;
+    var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+    var u=localStorage.getItem("xw_username");
+    if(u){
+      b.setAttribute("data-nav-user","ready");
+      b.innerHTML='<div class="nav-user-menu" style="position:relative;display:inline-block"><button type="button" class="nav-uname" style="border:1px solid rgba(148,163,184,.45);background:rgba(148,163,184,.12);color:#475569;cursor:pointer;font-size:13px;font-weight:600;padding:5px 14px;border-radius:999px;line-height:1.4">'+esc(u)+'</button><div class="nav-user-dropdown" style="position:absolute;top:calc(100% + 6px);right:0;min-width:140px;background:#fff;border:1px solid #e6edf5;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.12);padding:6px;z-index:100;display:none"><a href="/user/profile.html" style="display:block;padding:9px 14px;border-radius:8px;color:#0f172a;text-decoration:none;font-size:13.5px">👤 个人中心</a><a href="#" id="navLogoutBtn" style="display:block;padding:9px 14px;border-radius:8px;color:#dc2626;text-decoration:none;font-size:13.5px">退出</a></div></div>';
+      var un=b.querySelector(".nav-uname"), m=b.querySelector(".nav-user-dropdown");
+      if(un&&m){un.onclick=function(ev){ev.stopPropagation();m.style.display=m.style.display==="none"?"block":"none";};document.addEventListener("click",function(ev){if(!b.contains(ev.target))m.style.display="none";});}
+      var lo=b.querySelector("#navLogoutBtn"); if(lo)lo.onclick=function(ev){ev.preventDefault();try{["xw_token","xw_username","shawn_site_token","shawn_site_user","shawn_admin_token","shawn_admin_role"].forEach(function(k){localStorage.removeItem(k);});}catch(e){}try{fetch("/api/user/logout",{method:"POST",credentials:"include"});}catch(e){}location.reload();};
+    }
+  }catch(e){}
+})();
+</script>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h1>隐私政策</h1>
+    <div class="meta">最后更新：2026-10-12　|　适用站点：blog.qingyi.dpdns.org</div>
+
+    <p>本站是一个个人技术博客。为了让页面正常显示、统计阅读量、支持评论与登录，会处理少量必要数据。本站<strong>不出售、不交换、不向第三方共享</strong>你的个人信息用于营销目的。</p>
+
+    <div class="tip">一句话概括：不追踪你、不用广告 Cookie；评论与登录只保存必要字段；阅读量只做去重计数。</div>
+
+    <h2>一、我们收集什么</h2>
+    <ul>
+      <li><strong>访问日志</strong>：为统计阅读量与排查异常，边缘服务会记录请求路径、时间、User-Agent、以及<strong>不可逆的 IP 哈希</strong>（不保存原始 IP 明文）。</li>
+      <li><strong>评论</strong>：你提交的<strong>昵称（可匿名）、评论正文、时间</strong>；若你填写邮箱，仅用于展示 Gravatar 头像或回复通知（取决于功能开关）。</li>
+      <li><strong>账号</strong>：注册时提供的<strong>用户名、昵称、邮箱、密码哈希</strong>（PBKDF2-SHA256 加盐，本站无法还原你的明文密码）。</li>
+      <li><strong>本地存储</strong>：登录令牌（<code>localStorage</code>，键名前缀 <code>shawn_</code> / <code>xw_</code>）与「本文已读过」标记（<code>sessionStorage</code>），用于保持登录态与阅读量幂等。</li>
+    </ul>
+
+    <h2>二、Cookie 的使用</h2>
+    <ul>
+      <li><code>session</code>：登录后由服务端下发的会话标识（HttpOnly、SameSite=Lax、默认 8 小时过期），仅用于识别登录状态。</li>
+      <li>本站<strong>不使用</strong>广告、画像或跨站追踪 Cookie；不接入第三方广告联盟。</li>
+      <li>你可以在浏览器中随时清除 Cookie 与本地存储；清除后需要重新登录，阅读量去重标记也会重置。</li>
+    </ul>
+
+    <h2>三、数据用途与保存期限</h2>
+    <ul>
+      <li>阅读量、访问统计：用于展示热门文章与站点健康度，聚合数据可长期保留。</li>
+      <li>评论与账号：在内容存在期间保留；你可以联系站长要求删除你的评论或账号。</li>
+      <li>审计与登录日志：用于安全排查与防滥用，保留较短周期后清理。</li>
+    </ul>
+
+    <h2>四、第三方服务</h2>
+    <ul>
+      <li><strong>Cloudflare</strong>：提供 CDN、DNS 与边缘计算（页面与接口请求会经过其网络）。</li>
+      <li><strong>GitHub Pages</strong>：静态资源托管来源。</li>
+      <li>若页面嵌入外部资源（如视频、代码高亮库、评论头像服务），其提供方可能按自身隐私政策处理请求信息。</li>
+    </ul>
+
+    <h2>五、你的权利</h2>
+    <ul>
+      <li>查询、更正你的账号资料；注销账号；删除你的评论。</li>
+      <li>拒绝或撤回同意：不登录、不评论即可让本站几乎不保存与你相关的个性化数据。</li>
+      <li>行使方式：在 <a href="/aboutme/index.html">关于我</a> 页面找到联系方式，或通过页脚邮箱联系站长。</li>
+    </ul>
+
+    <h2>六、未成年人</h2>
+    <p>本站面向成年技术读者，不针对未成年人设计；若监护人发现未成年人提交了个人信息，可联系站长删除。</p>
+
+    <h2>七、政策更新</h2>
+    <p>本政策如有更新，会修改本页顶部的「最后更新」日期并在站内提示；重大变更会在首页公告。</p>
+
+    <div class="tip">本页为通用模板，具体表述以站长最终确认为准；若你所在司法辖区有额外要求（如 GDPR/CCPA），请联系站长补充。</div>
+
+    <div class="foot">© 清逸的博客 · <a href="/terms/index.html">服务条款</a> · <a href="/index.html">返回首页</a></div>
+  </div>
+</div>
+<script src="/js/header-fix.js"></script>
+</body>
+</html>

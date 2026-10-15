@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>学习PyTorch 的张量（Tensor）</title><meta name="description" content="PyTorch 是一个强大的深度学习框架，张量（Tensor）是其核心数据结构。学习 PyTorch 中的张量运算是掌握深度学习的基础。1. **张量的创建**张量是 PyTorch 中的多维数组，类似于 NumPy 的 `ndarray`，但支持 GPU 加速。import torch\n\n# 创建">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">学习PyTorch 的张量（Tensor）</h1></header><section class="detail-section"><!----><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2025-2-8 14:12:51">2025-2-8 14:12:51</time></div><div class="tags"><!--[--><span> # 机器学习</span><span> # PyTorch</span><!--]--></div></div></section><div class="detail-content"><p>PyTorch 是一个强大的深度学习框架，张量（Tensor）是其核心数据结构。学习 PyTorch 中的张量运算是掌握深度学习的基础。</p>
+<h3>1. **张量的创建**</h3>
+<p>张量是 PyTorch 中的多维数组，类似于 NumPy 的 `ndarray`，但支持 GPU 加速。</p>
+<pre><code class="language-python">import torch
+
+# 创建未初始化的张量
+x = torch.empty(2, 3)  # 2行3列的空张量
+
+# 创建随机初始化的张量
+x = torch.rand(2, 3)  # 2行3列的随机张量（值在0到1之间）
+
+# 创建全零张量
+x = torch.zeros(2, 3)  # 2行3列的全零张量
+
+# 创建全一张量
+x = torch.ones(2, 3)  # 2行3列的全一张量
+
+# 从 Python 列表创建张量
+x = torch.tensor([1.0, 2.0, 3.0])  # 1维张量
+
+# 创建指定范围的张量
+x = torch.arange(0, 10, 2)  # 0到10，步长为2
+</code></pre>
+<h3>2. **张量的基本属性**</h3>
+<p>张量有一些重要的属性，如形状、数据类型和设备（CPU 或 GPU）。</p>
+<pre><code class="language-python">x = torch.rand(2, 3)
+
+# 查看张量的形状
+print(x.shape)  # 或 x.size()
+
+# 查看张量的数据类型
+print(x.dtype)  # 默认是 torch.float32
+
+# 查看张量的设备
+print(x.device)  # 默认是 CPU
+
+# 将张量移动到 GPU（如果有 GPU）
+if torch.cuda.is_available():
+    x = x.to(&quot;cuda&quot;)
+</code></pre>
+<h3>3. **张量的基本运算**</h3>
+<p>PyTorch 支持多种张量运算，包括逐元素运算、矩阵运算等。</p>
+<h4>逐元素运算</h4>
+<pre><code class="language-python">x = torch.tensor([1.0, 2.0, 3.0])
+y = torch.tensor([4.0, 5.0, 6.0])
+
+# 加法
+z = x + y  # 或 torch.add(x, y)
+
+# 减法
+z = x - y
+
+# 乘法（逐元素）
+z = x * y
+
+# 除法（逐元素）
+z = x / y
+
+# 指数运算
+z = torch.exp(x)  # e^x
+</code></pre>
+<h4>矩阵运算</h4>
+<pre><code class="language-python">x = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+y = torch.tensor([[5.0, 6.0], [7.0, 8.0]])
+
+# 矩阵乘法
+z = torch.matmul(x, y)  # 或 x @ y
+
+# 转置
+z = x.T
+</code></pre>
+<h4>广播机制</h4>
+<p>PyTorch 支持广播机制，允许不同形状的张量进行运算。</p>
+<pre><code class="language-python">x = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+y = torch.tensor([1.0, 2.0])
+
+# 广播加法
+z = x + y  # y 会被广播为 [[1.0, 2.0], [1.0, 2.0]]
+</code></pre>
+<h3>4. **张量的索引和切片**</h3>
+<p>张量的索引和切片与 NumPy 类似。</p>
+<pre><code class="language-python">x = torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+
+# 获取第一行
+print(x[0])  # tensor([1.0, 2.0, 3.0])
+
+# 获取第二列
+print(x[:, 1])  # tensor([2.0, 5.0])
+
+# 修改某个元素
+x[0, 1] = 10.0
+</code></pre>
+<h3>5. **张量的形状操作**</h3>
+<p>PyTorch 提供了多种方法来改变张量的形状。</p>
+<pre><code class="language-python">x = torch.arange(6)  # tensor([0, 1, 2, 3, 4, 5])
+
+# 改变形状
+y = x.view(2, 3)  # 2行3列的张量
+
+# 展平张量
+z = y.flatten()  # 回到1维张量
+
+# 增加维度
+y = x.unsqueeze(0)  # 在第0维增加一个维度
+
+# 减少维度
+z = y.squeeze(0)  # 去掉第0维
+</code></pre>
+<h3>6. **张量的梯度计算**</h3>
+<p>PyTorch 支持自动微分，可以通过 `requires_grad=True` 启用梯度计算。</p>
+<pre><code class="language-python">x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+y = x * 2  # y = [2.0, 4.0, 6.0]
+z = y.sum()  # z = 12.0
+
+# 计算梯度
+z.backward()
+
+# 查看 x 的梯度
+print(x.grad)  # tensor([2.0, 2.0, 2.0])
+</code></pre>
+<h3>7. **常用函数**</h3>
+<p>以下是一些常用的张量操作函数：</p>
+<p>- **求和**：`torch.sum(x)`</p>
+<p>- **均值**：`torch.mean(x)`</p>
+<p>- **最大值**：`torch.max(x)`</p>
+<p>- **最小值**：`torch.min(x)`</p>
+<p>- **连接张量**：`torch.cat([x, y], dim=0)`</p>
+<p>- **堆叠张量**：`torch.stack([x, y], dim=0)`</p>
+<h3>8. **GPU 加速**</h3>
+<p>PyTorch 支持将张量移动到 GPU 上进行加速。</p>
+<pre><code class="language-python"># 检查是否有 GPU
+if torch.cuda.is_available():
+    device = torch.device(&quot;cuda&quot;)
+    x = torch.tensor([1.0, 2.0, 3.0]).to(device)
+    y = torch.tensor([4.0, 5.0, 6.0]).to(device)
+    z = x + y
+    print(z)
+</code></pre>
+<p>- 参考 PyTorch 官方文档：<a href="../link@next=https%253A%252F%252Fpytorch.org%252Fdocs%252Fstable%252Findex.html" target="_blank">PyTorch Documentation</a></p>
+<p><a href="../link@next=https%253A%252F%252Fpytorch.org%252Fdocs%252Fstable%252Ftensors.html" target="_blank">https://pytorch.org/docs/stable/tensors.html</a></p>
+<p>以下是一些 PyTorch 张量运算的课后小题目，帮助你巩固所学知识。每个题目都涵盖了不同的知识点，需动手编写代码并运行验证。</p>
+<p>### **题目 1：张量创建与基本属性**</p>
+<p>1. 创建一个形状为 `(3, 4)` 的随机张量，并打印它的形状、数据类型和设备。</p>
+<p>2. 创建一个全零张量，形状为 `(2, 2)`，并将其数据类型设置为 `torch.float64`。</p>
+<p>3. 从 Python 列表 `[1, 2, 3, 4, 5]` 创建一个张量，并将其移动到 GPU（如果有 GPU）。</p>
+<p>### **题目 2：张量运算**</p>
+<p>1. 创建两个形状为 `(2, 3)` 的随机张量 `x` 和 `y`，计算它们的逐元素加法、减法和乘法。</p>
+<p>2. 创建一个形状为 `(3, 3)` 的随机张量 `x`，计算它的转置。</p>
+<p>3. 创建两个形状为 `(2, 2)` 的随机张量 `x` 和 `y`，计算它们的矩阵乘法。</p>
+<p>### **题目 3：广播机制**</p>
+<p>1. 创建一个形状为 `(3, 1)` 的张量 `x` 和一个形状为 `(1, 3)` 的张量 `y`，计算它们的逐元素加法。</p>
+<p>2. 创建一个形状为 `(2, 3)` 的张量 `x` 和一个标量 `2.0`，计算它们的逐元素乘法。</p>
+<p>### **题目 4：索引与切片**</p>
+<p>1. 创建一个形状为 `(4, 4)` 的随机张量 `x`，提取它的第 2 行和第 3 列。</p>
+<p>2. 创建一个形状为 `(5, 5)` 的随机张量 `x`，将其第 2 到第 4 行的第 1 到第 3 列设置为 `1.0`。</p>
+<p>### **题目 5：形状操作**</p>
+<p>1. 创建一个形状为 `(6,)` 的张量 `x`，将其重塑为 `(2, 3)` 的形状。</p>
+<p>2. 创建一个形状为 `(1, 3, 3)` 的张量 `x`，去掉其第 0 维。</p>
+<p>3. 创建两个形状为 `(3,)` 的张量 `x` 和 `y`，将它们沿第 0 维连接。</p>
+<p>### **题目 6：梯度计算**</p>
+<p>1. 创建一个张量 `x = [2.0, 3.0, 4.0]`，并启用梯度计算。定义 `y = x^2 + 2x + 1`，计算 `y` 对 `x` 的梯度。</p>
+<p>2. 创建一个形状为 `(2, 2)` 的随机张量 `x`，并启用梯度计算。定义 `y = sum(x^2)`，计算 `y` 对 `x` 的梯度。</p>
+<p>### **题目 7：常用函数**</p>
+<p>1. 创建一个形状为 `(3, 3)` 的随机张量 `x`，计算它的总和、均值和最大值。</p>
+<p>2. 创建两个形状为 `(2, 2)` 的随机张量 `x` 和 `y`，将它们沿第 0 维堆叠。</p>
+<p>### **题目 8：GPU 加速**</p>
+<p>1. 检查是否有 GPU 可用，如果有，创建一个形状为 `(1000, 1000)` 的随机张量 `x`，并将其移动到 GPU 上，计算 `x + 1`。</p>
+<p>### **题目 9：综合练习**</p>
+<p>1. 创建一个形状为 `(5, 5)` 的随机张量 `x`，计算它的转置，并将结果与原始张量相加。</p>
+<p>2. 创建一个形状为 `(10,)` 的张量 `x`，将其重塑为 `(2, 5)`，然后计算每列的和。</p>
+<p>3. 创建一个形状为 `(3, 3)` 的随机张量 `x`，并启用梯度计算。定义 `y = sum(x * x.T)`，计算 `y` 对 `x` 的梯度。</p>
+<p>### **题目 10：挑战题**</p>
+<p>1. 实现一个简单的线性回归模型：</p>
+<p>  - 创建输入数据 `x = [1.0, 2.0, 3.0, 4.0]` 和目标数据 `y = [2.0, 4.0, 6.0, 8.0]`。</p>
+<p>  - 定义模型参数 `w` 和 `b`（初始化为随机值），并启用梯度计算。</p>
+<p>  - 定义损失函数为均方误差（MSE），使用梯度下降法更新参数 `w` 和 `b`，训练 100 次并打印最终的 `w` 和 `b`。</p>
+<p>### **提示**</p>
+<p>- 使用 `torch.optim.SGD` 实现梯度下降。</p>
+<p>- 使用 `torch.nn.functional.mse_loss` 计算均方误差。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"67a6f5e336d094cf2a6ce6fe","article":{"id":"67a6f5e336d094cf2a6ce6fe","title":"学习PyTorch 的张量（Tensor）","snippet":"PyTorch 是一个强大的深度学习框架，张量（Tensor）是其核心数据结构。学习 PyTorch 中的张量运算是掌握深度学习的基础。1. **张量的创建**张量是 PyTorch 中的多维数组，类似于 NumPy 的 `ndarray`，但支持 GPU 加速。import torch\n\n# 创建","tags":["PyTorch"],"category":["机器学习","PyTorch"],"keywords":[],"content":"<p>PyTorch 是一个强大的深度学习框架，张量（Tensor）是其核心数据结构。学习 PyTorch 中的张量运算是掌握深度学习的基础。</p>\n<h3>1. **张量的创建**</h3>\n<p>张量是 PyTorch 中的多维数组，类似于 NumPy 的 `ndarray`，但支持 GPU 加速。</p>\n<pre><code class=\"language-python\">import torch\n\n# 创建未初始化的张量\nx = torch.empty(2, 3)  # 2行3列的空张量\n\n# 创建随机初始化的张量\nx = torch.rand(2, 3)  # 2行3列的随机张量（值在0到1之间）\n\n# 创建全零张量\nx = torch.zeros(2, 3)  # 2行3列的全零张量\n\n# 创建全一张量\nx = torch.ones(2, 3)  # 2行3列的全一张量\n\n# 从 Python 列表创建张量\nx = torch.tensor([1.0, 2.0, 3.0])  # 1维张量\n\n# 创建指定范围的张量\nx = torch.arange(0, 10, 2)  # 0到10，步长为2\n</code></pre>\n<h3>2. **张量的基本属性**</h3>\n<p>张量有一些重要的属性，如形状、数据类型和设备（CPU 或 GPU）。</p>\n<pre><code class=\"language-python\">x = torch.rand(2, 3)\n\n# 查看张量的形状\nprint(x.shape)  # 或 x.size()\n\n# 查看张量的数据类型\nprint(x.dtype)  # 默认是 torch.float32\n\n# 查看张量的设备\nprint(x.device)  # 默认是 CPU\n\n# 将张量移动到 GPU（如果有 GPU）\nif torch.cuda.is_available():\n    x = x.to(&quot;cuda&quot;)\n</code></pre>\n<h3>3. **张量的基本运算**</h3>\n<p>PyTorch 支持多种张量运算，包括逐元素运算、矩阵运算等。</p>\n<h4>逐元素运算</h4>\n<pre><code class=\"language-python\">x = torch.tensor([1.0, 2.0, 3.0])\ny = torch.tensor([4.0, 5.0, 6.0])\n\n# 加法\nz = x + y  # 或 torch.add(x, y)\n\n# 减法\nz = x - y\n\n# 乘法（逐元素）\nz = x * y\n\n# 除法（逐元素）\nz = x / y\n\n# 指数运算\nz = torch.exp(x)  # e^x\n</code></pre>\n<h4>矩阵运算</h4>\n<pre><code class=\"language-python\">x = torch.tensor([[1.0, 2.0], [3.0, 4.0]])\ny = torch.tensor([[5.0, 6.0], [7.0, 8.0]])\n\n# 矩阵乘法\nz = torch.matmul(x, y)  # 或 x @ y\n\n# 转置\nz = x.T\n</code></pre>\n<h4>广播机制</h4>\n<p>PyTorch 支持广播机制，允许不同形状的张量进行运算。</p>\n<pre><code class=\"language-python\">x = torch.tensor([[1.0, 2.0], [3.0, 4.0]])\ny = torch.tensor([1.0, 2.0])\n\n# 广播加法\nz = x + y  # y 会被广播为 [[1.0, 2.0], [1.0, 2.0]]\n</code></pre>\n<h3>4. **张量的索引和切片**</h3>\n<p>张量的索引和切片与 NumPy 类似。</p>\n<pre><code class=\"language-python\">x = torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])\n\n# 获取第一行\nprint(x[0])  # tensor([1.0, 2.0, 3.0])\n\n# 获取第二列\nprint(x[:, 1])  # tensor([2.0, 5.0])\n\n# 修改某个元素\nx[0, 1] = 10.0\n</code></pre>\n<h3>5. **张量的形状操作**</h3>\n<p>PyTorch 提供了多种方法来改变张量的形状。</p>\n<pre><code class=\"language-python\">x = torch.arange(6)  # tensor([0, 1, 2, 3, 4, 5])\n\n# 改变形状\ny = x.view(2, 3)  # 2行3列的张量\n\n# 展平张量\nz = y.flatten()  # 回到1维张量\n\n# 增加维度\ny = x.unsqueeze(0)  # 在第0维增加一个维度\n\n# 减少维度\nz = y.squeeze(0)  # 去掉第0维\n</code></pre>\n<h3>6. **张量的梯度计算**</h3>\n<p>PyTorch 支持自动微分，可以通过 `requires_grad=True` 启用梯度计算。</p>\n<pre><code class=\"language-python\">x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)\ny = x * 2  # y = [2.0, 4.0, 6.0]\nz = y.sum()  # z = 12.0\n\n# 计算梯度\nz.backward()\n\n# 查看 x 的梯度\nprint(x.grad)  # tensor([2.0, 2.0, 2.0])\n</code></pre>\n<h3>7. **常用函数**</h3>\n<p>以下是一些常用的张量操作函数：</p>\n<p>- **求和**：`torch.sum(x)`</p>\n<p>- **均值**：`torch.mean(x)`</p>\n<p>- **最大值**：`torch.max(x)`</p>\n<p>- **最小值**：`torch.min(x)`</p>\n<p>- **连接张量**：`torch.cat([x, y], dim=0)`</p>\n<p>- **堆叠张量**：`torch.stack([x, y], dim=0)`</p>\n<h3>8. **GPU 加速**</h3>\n<p>PyTorch 支持将张量移动到 GPU 上进行加速。</p>\n<pre><code class=\"language-python\"># 检查是否有 GPU\nif torch.cuda.is_available():\n    device = torch.device(&quot;cuda&quot;)\n    x = torch.tensor([1.0, 2.0, 3.0]).to(device)\n    y = torch.tensor([4.0, 5.0, 6.0]).to(device)\n    z = x + y\n    print(z)\n</code></pre>\n<p>- 参考 PyTorch 官方文档：<a href=\\&quot;https://pytorch.org/docs/stable/index.html\\&quot;\">PyTorch Documentation</a></p>\n<p><a href=\\&quot;https://pytorch.org/docs/stable/tensors.html\\&quot;\">https://pytorch.org/docs/stable/tensors.html</a></p>\n<p>以下是一些 PyTorch 张量运算的课后小题目，帮助你巩固所学知识。每个题目都涵盖了不同的知识点，需动手编写代码并运行验证。</p>\n<p>### **题目 1：张量创建与基本属性**</p>\n<p>1. 创建一个形状为 `(3, 4)` 的随机张量，并打印它的形状、数据类型和设备。</p>\n<p>2. 创建一个全零张量，形状为 `(2, 2)`，并将其数据类型设置为 `torch.float64`。</p>\n<p>3. 从 Python 列表 `[1, 2, 3, 4, 5]` 创建一个张量，并将其移动到 GPU（如果有 GPU）。</p>\n<p>### **题目 2：张量运算**</p>\n<p>1. 创建两个形状为 `(2, 3)` 的随机张量 `x` 和 `y`，计算它们的逐元素加法、减法和乘法。</p>\n<p>2. 创建一个形状为 `(3, 3)` 的随机张量 `x`，计算它的转置。</p>\n<p>3. 创建两个形状为 `(2, 2)` 的随机张量 `x` 和 `y`，计算它们的矩阵乘法。</p>\n<p>### **题目 3：广播机制**</p>\n<p>1. 创建一个形状为 `(3, 1)` 的张量 `x` 和一个形状为 `(1, 3)` 的张量 `y`，计算它们的逐元素加法。</p>\n<p>2. 创建一个形状为 `(2, 3)` 的张量 `x` 和一个标量 `2.0`，计算它们的逐元素乘法。</p>\n<p>### **题目 4：索引与切片**</p>\n<p>1. 创建一个形状为 `(4, 4)` 的随机张量 `x`，提取它的第 2 行和第 3 列。</p>\n<p>2. 创建一个形状为 `(5, 5)` 的随机张量 `x`，将其第 2 到第 4 行的第 1 到第 3 列设置为 `1.0`。</p>\n<p>### **题目 5：形状操作**</p>\n<p>1. 创建一个形状为 `(6,)` 的张量 `x`，将其重塑为 `(2, 3)` 的形状。</p>\n<p>2. 创建一个形状为 `(1, 3, 3)` 的张量 `x`，去掉其第 0 维。</p>\n<p>3. 创建两个形状为 `(3,)` 的张量 `x` 和 `y`，将它们沿第 0 维连接。</p>\n<p>### **题目 6：梯度计算**</p>\n<p>1. 创建一个张量 `x = [2.0, 3.0, 4.0]`，并启用梯度计算。定义 `y = x^2 + 2x + 1`，计算 `y` 对 `x` 的梯度。</p>\n<p>2. 创建一个形状为 `(2, 2)` 的随机张量 `x`，并启用梯度计算。定义 `y = sum(x^2)`，计算 `y` 对 `x` 的梯度。</p>\n<p>### **题目 7：常用函数**</p>\n<p>1. 创建一个形状为 `(3, 3)` 的随机张量 `x`，计算它的总和、均值和最大值。</p>\n<p>2. 创建两个形状为 `(2, 2)` 的随机张量 `x` 和 `y`，将它们沿第 0 维堆叠。</p>\n<p>### **题目 8：GPU 加速**</p>\n<p>1. 检查是否有 GPU 可用，如果有，创建一个形状为 `(1000, 1000)` 的随机张量 `x`，并将其移动到 GPU 上，计算 `x + 1`。</p>\n<p>### **题目 9：综合练习**</p>\n<p>1. 创建一个形状为 `(5, 5)` 的随机张量 `x`，计算它的转置，并将结果与原始张量相加。</p>\n<p>2. 创建一个形状为 `(10,)` 的张量 `x`，将其重塑为 `(2, 5)`，然后计算每列的和。</p>\n<p>3. 创建一个形状为 `(3, 3)` 的随机张量 `x`，并启用梯度计算。定义 `y = sum(x * x.T)`，计算 `y` 对 `x` 的梯度。</p>\n<p>### **题目 10：挑战题**</p>\n<p>1. 实现一个简单的线性回归模型：</p>\n<p>  - 创建输入数据 `x = [1.0, 2.0, 3.0, 4.0]` 和目标数据 `y = [2.0, 4.0, 6.0, 8.0]`。</p>\n<p>  - 定义模型参数 `w` 和 `b`（初始化为随机值），并启用梯度计算。</p>\n<p>  - 定义损失函数为均方误差（MSE），使用梯度下降法更新参数 `w` 和 `b`，训练 100 次并打印最终的 `w` 和 `b`。</p>\n<p>### **提示**</p>\n<p>- 使用 `torch.optim.SGD` 实现梯度下降。</p>\n<p>- 使用 `torch.nn.functional.mse_loss` 计算均方误差。</p>\n","createTime":1738995171928,"updatedTime":1785059239724},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

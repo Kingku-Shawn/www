@@ -1,0 +1,389 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>redis的命令集合 & nodejs,php,python,java连接redis</title><meta name="keywords" content="nodejs、php、python、java连接redis,redis的命令集合,redis命令的使用"><meta name="description" content="Redis是一个开源的而且先进的key-value存储库，主要用于构建高性能的存储解决方案。redis主要承担的任务是缓存。由于数据是存储于内存中，所以具有很高速的读写性能。这里记录了redis的一些常用的命令参考，以及nodejs,php,python,java连接redis的方式。连接操作相关的">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">redis的命令集合 &amp; nodejs,php,python,java连接redis</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/image/articleimg/fb12758b2f90cf1b88f1eaa5f42ee875_103091.png" title="redis的命令集合 &amp; nodejs,php,python,java连接redis" alt="redis的命令集合 &amp; nodejs,php,python,java连接redis"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-5-5 14:38:33">2016-5-5 14:38:33</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>Redis是一个开源的而且先进的key-value存储库，主要用于构建高性能的存储解决方案。redis主要承担的任务是缓存。由于数据是存储于内存中，所以具有很高速的读写性能。</p>
+<p><img src="../o/uploads/image/articleimg/fb12758b2f90cf1b88f1eaa5f42ee875_103091.png" alt="redis的命令集合 & nodejs,php,python,java连接redis" title="redis的命令集合 & nodejs,php,python,java连接redis" /></p>
+<p>这里记录了redis的一些常用的命令参考，以及nodejs,php,python,java连接redis的方式。</p>
+<p>连接操作相关的命令</p>
+<ul>
+<li><p>quit：关闭连接（connection）</p>
+</li>
+<li><p>auth：简单密码认证</p>
+</li>
+</ul>
+<p>持久化</p>
+<ul>
+<li><p>save：将数据同步保存到磁盘</p>
+</li>
+<li><p>bgsave：将数据异步保存到磁盘</p>
+</li>
+<li><p>lastsave：返回上次成功将数据保存到磁盘的Unix时戳</p>
+</li>
+<li><p>shundown：将数据同步保存到磁盘，然后关闭服务</p>
+</li>
+</ul>
+<p>远程服务控制</p>
+<ul>
+<li><p>info：提供服务器的信息和统计</p>
+</li>
+<li><p>monitor：实时转储收到的请求</p>
+</li>
+<li><p>slaveof：改变复制策略设置</p>
+</li>
+<li><p>config：在运行时配置Redis服务器</p>
+</li>
+</ul>
+<p>对value操作的命令</p>
+<ul>
+<li><p>exists(key)：确认一个key是否存在</p>
+</li>
+<li><p>del(key)：删除一个key</p>
+</li>
+<li><p>type(key)：返回值的类型</p>
+</li>
+<li><p>keys(pattern)：返回满足给定pattern的所有key</p>
+</li>
+<li><p>randomkey：随机返回key空间的一个</p>
+</li>
+<li><p>keyrename(oldname, newname)：重命名key</p>
+</li>
+<li><p>dbsize：返回当前数据库中key的数目</p>
+</li>
+<li><p>expire：设定一个key的活动时间（s）</p>
+</li>
+<li><p>ttl：获得一个key的活动时间</p>
+</li>
+<li><p>select(index)：按索引查询</p>
+</li>
+<li><p>move(key, dbindex)：移动当前数据库中的key到dbindex数据库</p>
+</li>
+<li><p>flushdb：删除当前选择数据库中的所有key</p>
+</li>
+<li><p>flushall：删除所有数据库中的所有key</p>
+</li>
+</ul>
+<p>对String操作的命令</p>
+<ul>
+<li><p>set(key, value)：给数据库中名称为key的string赋予值value</p>
+</li>
+<li><p>get(key)：返回数据库中名称为key的string的value</p>
+</li>
+<li><p>getset(key, value)：给名称为key的string赋予上一次的value</p>
+</li>
+<li><p>mget(key1, key2,…, key N)：返回库中多个string的value</p>
+</li>
+<li><p>setnx(key, value)：添加string，名称为key，值为value</p>
+</li>
+<li><p>setex(key, time, value)：向库中添加string，设定过期时间time</p>
+</li>
+<li><p>mset(key N, value N)：批量设置多个string的值</p>
+</li>
+<li><p>msetnx(key N, value N)：如果所有名称为key i的string都不存在</p>
+</li>
+<li><p>incr(key)：名称为key的string增1操作</p>
+</li>
+<li><p>incrby(key, integer)：名称为key的string增加integer</p>
+</li>
+<li><p>decr(key)：名称为key的string减1操作</p>
+</li>
+<li><p>decrby(key, integer)：名称为key的string减少integer</p>
+</li>
+<li><p>append(key, value)：名称为key的string的值附加value</p>
+</li>
+<li><p>substr(key, start, end)：返回名称为key的string的value的子串</p>
+</li>
+</ul>
+<p>对List操作的命令</p>
+<ul>
+<li><p>rpush(key, value)：在名称为key的list尾添加一个值为value的元素</p>
+</li>
+<li><p>lpush(key, value)：在名称为key的list头添加一个值为value的 元素</p>
+</li>
+<li><p>llen(key)：返回名称为key的list的长度</p>
+</li>
+<li><p>lrange(key, start, end)：返回名称为key的list中start至end之间的元素</p>
+</li>
+<li><p>ltrim(key, start, end)：截取名称为key的list</p>
+</li>
+<li><p>lindex(key, index)：返回名称为key的list中index位置的元素</p>
+</li>
+<li><p>lset(key, index, value)：给名称为key的list中index位置的元素赋值</p>
+</li>
+<li><p>lrem(key, count, value)：删除count个key的list中值为value的元素</p>
+</li>
+<li><p>lpop(key)：返回并删除名称为key的list中的首元素</p>
+</li>
+<li><p>rpop(key)：返回并删除名称为key的list中的尾元素</p>
+</li>
+<li><p>blpop(key1, key2,… key N, timeout)：lpop命令的block版本。</p>
+</li>
+<li><p>brpop(key1, key2,… key N, timeout)：rpop的block版本。</p>
+</li>
+<li><p>rpoplpush(srckey, dstkey)：返回并删除名称为srckey的list的尾元素，并将该元素添加到名称为dstkey的list的头部</p>
+</li>
+</ul>
+<p>对Set操作的命令</p>
+<ul>
+<li><p>sadd(key, member)：向名称为key的set中添加元素member</p>
+</li>
+<li><p>srem(key, member) ：删除名称为key的set中的元素member</p>
+</li>
+<li><p>spop(key) ：随机返回并删除名称为key的set中一个元素</p>
+</li>
+<li><p>smove(srckey, dstkey, member) ：移到集合元素</p>
+</li>
+<li><p>scard(key) ：返回名称为key的set的基数</p>
+</li>
+<li><p>sismember(key, member) ：member是否是名称为key的set的元素</p>
+</li>
+<li><p>sinter(key1, key2,…key N) ：求交集</p>
+</li>
+<li><p>sinterstore(dstkey, (keys)) ：求交集并将交集保存到dstkey的集合</p>
+</li>
+<li><p>sunion(key1, (keys)) ：求并集</p>
+</li>
+<li><p>sunionstore(dstkey, (keys)) ：求并集并将并集保存到dstkey的集合</p>
+</li>
+<li><p>sdiff(key1, (keys)) ：求差集</p>
+</li>
+<li><p>sdiffstore(dstkey, (keys)) ：求差集并将差集保存到dstkey的集合</p>
+</li>
+<li><p>smembers(key) ：返回名称为key的set的所有元素</p>
+</li>
+<li><p>srandmember(key) ：随机返回名称为key的set的一个元素</p>
+</li>
+</ul>
+<p>对Hash操作的命令</p>
+<ul>
+<li><p>hset(key, field, value)：向名称为key的hash中添加元素field</p>
+</li>
+<li><p>hget(key, field)：返回名称为key的hash中field对应的value</p>
+</li>
+<li><p>hmget(key, (fields))：返回名称为key的hash中field i对应的value</p>
+</li>
+<li><p>hmset(key, (fields))：向名称为key的hash中添加元素field </p>
+</li>
+<li><p>hincrby(key, field, integer)：将名称为key的hash中field的value增加integer</p>
+</li>
+<li><p>hexists(key, field)：名称为key的hash中是否存在键为field的域</p>
+</li>
+<li><p>hdel(key, field)：删除名称为key的hash中键为field的域</p>
+</li>
+<li><p>hlen(key)：返回名称为key的hash中元素个数</p>
+</li>
+<li><p>hkeys(key)：返回名称为key的hash中所有键</p>
+</li>
+<li><p>hvals(key)：返回名称为key的hash中所有键对应的value</p>
+</li>
+<li><p>hgetall(key)：返回名称为key的hash中所有的键（field）及其对应的value</p>
+</li>
+</ul>
+<p>-----------------------------------------------------------------------</p>
+<p><img src="../o/uploads/image/articleimg/8b6bd4682e2872e92d7e2d446eb6cce0_40531.png" alt="redis的命令集合 & nodejs,php,python,java连接redis" title="redis的命令集合 & nodejs,php,python,java连接redis" /></p>
+<h3>Node.js连接Redis</h3>
+<ol>
+<li><p>将依赖添加到package.json。</p>
+<pre><code>{
+    &quot;dependencies&quot;: {
+        &quot;redis&quot;: &quot;0.12.1&quot;
+    }
+}
+</code></pre>
+</li>
+<li><p>添加代码连接Redis服务。</p>
+<pre><code>var redis = require(&#39;redis&#39;);
+/*数据库连接信息host,port,user,pwd,dbname(可查询数据库详情页)*/
+var username = &#39;&lt;User_AK&gt;&#39;;  //用户AK
+var password = &#39;&lt;User_SK&gt;&#39;;  //用户SK
+var db_host = &#39;redis.duapp.com&#39;;   
+var db_port = 80;
+var db_name = &#39;&lt;DB_Name&gt;&#39;;   //数据库名称
+console.log(db_host);
+console.log(db_port);
+var options = {&quot;no_ready_check&quot;:true};
+
+function testRedis(req, res) {
+  var client = redis.createClient(db_port, db_host, options);
+  client.on(&quot;error&quot;, function (err) {
+    console.log(&quot;Error &quot; + err);
+  });
+
+  // 建立连接后，在进行集合操作前，需要先进行auth验证
+
+  client.auth(username + &#39;-&#39; + password + &#39;-&#39; + db_name);
+
+  client.set(&#39;baidu&#39;, &#39;welcome to BAE&#39;);
+
+  client.get(&#39;baidu&#39;, function(err, result) {
+    if (err) {
+      console.log(err);
+      res.end(&#39;get error&#39;);
+      return;
+    }
+    res.end(&#39;result: &#39; + result);      
+  }); 
+
+}
+
+module.exports = testRedis;
+</code></pre>
+</li>
+</ol>
+<h3>PHP连接Redis</h3>
+<pre><code>&lt;?php
+/*从平台获取数据库名*/
+$dbname = &quot;&lt;DB_Name&gt;&quot;; //数据库名称
+
+/*从环境变量里取host,port,user,pwd*/
+$host = &#39;redis.duapp.com&#39;;
+$port = &#39;80&#39;;
+$user = &#39;&lt;User_AK&gt;&#39;; //用户AK
+$pwd = &#39;&lt;User_SK&gt;&#39;;  //用户SK
+
+try {
+    /*建立连接后，在进行集合操作前，需要先进行auth验证*/
+    $redis = new Redis();
+    $ret = $redis-&gt;connect($host, $port);
+    if ($ret === false) {
+    die($redis-&gt;getLastError());
+    }
+
+    $ret = $redis-&gt;auth($user . &quot;-&quot; . $pwd . &quot;-&quot; . $dbname);
+    if ($ret === false) {
+    die($redis-&gt;getLastError());
+    }
+
+    /*接下来就可以对该库进行操作了，具体操作方法请参考phpredis官方文档*/
+    $redis-&gt;flushdb();
+    $ret = $redis-&gt;set(&quot;key&quot;, &quot;value&quot;);
+    if ($ret === false) {
+    die($redis-&gt;getLastError());
+    } else {
+    echo &quot;OK&quot;;
+    }
+
+} catch (RedisException $e) {
+    die(&quot;Uncaught exception &quot; . $e-&gt;getMessage());
+}
+?&gt;
+</code></pre>
+<h3>Python连接Redis</h3>
+<pre><code>#-*- coding:utf-8 -*-
+
+def test_redis():
+    ### 开发者在requirements.txt中指定依赖Redis使用
+    import redis
+    ### 从管理控制台获取host, port, db_name, api_key, secret_key值 
+    db_name = &quot;&lt;DB_Name&gt;&quot; # 数据库名称
+    api_key = &quot;&lt;User_AK&gt;&quot; # 用户AK
+    secret_key = &quot;&lt;User_SK&gt;&quot; # 用户SK
+    myauth = &quot;%s-%s-%s&quot;%(api_key, secret_key, db_name)
+
+    ### 连接Redis服务
+    r = redis.Redis(host = &quot;redis.duapp.com&quot;, port = 80, password = myauth)
+
+    ### 进行各种Redis操作，如set、get
+    r.set(&quot;foo&quot;, &quot;bar&quot;)
+    return &quot;get foo=&gt; %s success!&quot;%r.get(&quot;foo&quot;)
+</code></pre>
+<h3>Java连接Redis</h3>
+<pre><code>import redis.clients.jedis.Jedis;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+public class RedisBasic extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
+        try {
+            /*****填写数据库相关信息(请查找数据库详情页)*****/
+            String databaseName = &quot;&lt;DB_Name&gt;&quot;; //数据库名称
+            String host = &quot;redis.duapp.com&quot;;
+            String portStr = &quot;80&quot;;
+            int port = Integer.parseInt(portStr);
+            String username = &quot;&lt;User_AK&gt;&quot;; //用户AK
+            String password = &quot;&lt;User_SK&gt;&quot;; //密码SK
+
+            /******接着连接并选择数据库名为databaseName的服务器******/
+            Jedis jedis = new Jedis(host, port);
+            jedis.connect();
+            jedis.auth(username + &quot;-&quot; + password + &quot;-&quot; + databaseName);
+
+            /*至此连接已完全建立，就可对当前数据库进行相应的操作了*/
+            /*接下来就可以使用redis数据库语句进行数据库操作,详细操作方法请参考java-redis官方文档*/
+            PrintWriter out = resp.getWriter();
+            //删除所有redis数据库中的key-value
+            jedis.flushDB();
+            //简单的key-value设置
+            jedis.set(&quot;name&quot;, &quot;bae&quot;);
+            System.out.println(&quot;name | &quot; + jedis.get(&quot;name&quot;));
+        } catch (Exception e) {
+            e.printStackTrace(resp.getWriter());
+        }
+    }
+ }
+</code></pre>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d7e","article":{"id":"5a0bf49035583c99c0b28d7e","title":"redis的命令集合 & nodejs,php,python,java连接redis","snippet":"Redis是一个开源的而且先进的key-value存储库，主要用于构建高性能的存储解决方案。redis主要承担的任务是缓存。由于数据是存储于内存中，所以具有很高速的读写性能。这里记录了redis的一些常用的命令参考，以及nodejs,php,python,java连接redis的方式。连接操作相关的","image":"../o/uploads/image/articleimg/fb12758b2f90cf1b88f1eaa5f42ee875_103091.png","tags":["redis"],"category":["编程"],"keywords":["nodejs、php、python、java连接redis","redis的命令集合","redis命令的使用"],"content":"<p>Redis是一个开源的而且先进的key-value存储库，主要用于构建高性能的存储解决方案。redis主要承担的任务是缓存。由于数据是存储于内存中，所以具有很高速的读写性能。</p>\n<p><img src=\"../o/uploads/image/articleimg/fb12758b2f90cf1b88f1eaa5f42ee875_103091.png\" alt=\"redis的命令集合 & nodejs,php,python,java连接redis\" title=\"redis的命令集合 & nodejs,php,python,java连接redis\" /></p>\n<p>这里记录了redis的一些常用的命令参考，以及nodejs,php,python,java连接redis的方式。</p>\n<p>连接操作相关的命令</p>\n<ul>\n<li><p>quit：关闭连接（connection）</p>\n</li>\n<li><p>auth：简单密码认证</p>\n</li>\n</ul>\n<p>持久化</p>\n<ul>\n<li><p>save：将数据同步保存到磁盘</p>\n</li>\n<li><p>bgsave：将数据异步保存到磁盘</p>\n</li>\n<li><p>lastsave：返回上次成功将数据保存到磁盘的Unix时戳</p>\n</li>\n<li><p>shundown：将数据同步保存到磁盘，然后关闭服务</p>\n</li>\n</ul>\n<p>远程服务控制</p>\n<ul>\n<li><p>info：提供服务器的信息和统计</p>\n</li>\n<li><p>monitor：实时转储收到的请求</p>\n</li>\n<li><p>slaveof：改变复制策略设置</p>\n</li>\n<li><p>config：在运行时配置Redis服务器</p>\n</li>\n</ul>\n<p>对value操作的命令</p>\n<ul>\n<li><p>exists(key)：确认一个key是否存在</p>\n</li>\n<li><p>del(key)：删除一个key</p>\n</li>\n<li><p>type(key)：返回值的类型</p>\n</li>\n<li><p>keys(pattern)：返回满足给定pattern的所有key</p>\n</li>\n<li><p>randomkey：随机返回key空间的一个</p>\n</li>\n<li><p>keyrename(oldname, newname)：重命名key</p>\n</li>\n<li><p>dbsize：返回当前数据库中key的数目</p>\n</li>\n<li><p>expire：设定一个key的活动时间（s）</p>\n</li>\n<li><p>ttl：获得一个key的活动时间</p>\n</li>\n<li><p>select(index)：按索引查询</p>\n</li>\n<li><p>move(key, dbindex)：移动当前数据库中的key到dbindex数据库</p>\n</li>\n<li><p>flushdb：删除当前选择数据库中的所有key</p>\n</li>\n<li><p>flushall：删除所有数据库中的所有key</p>\n</li>\n</ul>\n<p>对String操作的命令</p>\n<ul>\n<li><p>set(key, value)：给数据库中名称为key的string赋予值value</p>\n</li>\n<li><p>get(key)：返回数据库中名称为key的string的value</p>\n</li>\n<li><p>getset(key, value)：给名称为key的string赋予上一次的value</p>\n</li>\n<li><p>mget(key1, key2,…, key N)：返回库中多个string的value</p>\n</li>\n<li><p>setnx(key, value)：添加string，名称为key，值为value</p>\n</li>\n<li><p>setex(key, time, value)：向库中添加string，设定过期时间time</p>\n</li>\n<li><p>mset(key N, value N)：批量设置多个string的值</p>\n</li>\n<li><p>msetnx(key N, value N)：如果所有名称为key i的string都不存在</p>\n</li>\n<li><p>incr(key)：名称为key的string增1操作</p>\n</li>\n<li><p>incrby(key, integer)：名称为key的string增加integer</p>\n</li>\n<li><p>decr(key)：名称为key的string减1操作</p>\n</li>\n<li><p>decrby(key, integer)：名称为key的string减少integer</p>\n</li>\n<li><p>append(key, value)：名称为key的string的值附加value</p>\n</li>\n<li><p>substr(key, start, end)：返回名称为key的string的value的子串</p>\n</li>\n</ul>\n<p>对List操作的命令</p>\n<ul>\n<li><p>rpush(key, value)：在名称为key的list尾添加一个值为value的元素</p>\n</li>\n<li><p>lpush(key, value)：在名称为key的list头添加一个值为value的 元素</p>\n</li>\n<li><p>llen(key)：返回名称为key的list的长度</p>\n</li>\n<li><p>lrange(key, start, end)：返回名称为key的list中start至end之间的元素</p>\n</li>\n<li><p>ltrim(key, start, end)：截取名称为key的list</p>\n</li>\n<li><p>lindex(key, index)：返回名称为key的list中index位置的元素</p>\n</li>\n<li><p>lset(key, index, value)：给名称为key的list中index位置的元素赋值</p>\n</li>\n<li><p>lrem(key, count, value)：删除count个key的list中值为value的元素</p>\n</li>\n<li><p>lpop(key)：返回并删除名称为key的list中的首元素</p>\n</li>\n<li><p>rpop(key)：返回并删除名称为key的list中的尾元素</p>\n</li>\n<li><p>blpop(key1, key2,… key N, timeout)：lpop命令的block版本。</p>\n</li>\n<li><p>brpop(key1, key2,… key N, timeout)：rpop的block版本。</p>\n</li>\n<li><p>rpoplpush(srckey, dstkey)：返回并删除名称为srckey的list的尾元素，并将该元素添加到名称为dstkey的list的头部</p>\n</li>\n</ul>\n<p>对Set操作的命令</p>\n<ul>\n<li><p>sadd(key, member)：向名称为key的set中添加元素member</p>\n</li>\n<li><p>srem(key, member) ：删除名称为key的set中的元素member</p>\n</li>\n<li><p>spop(key) ：随机返回并删除名称为key的set中一个元素</p>\n</li>\n<li><p>smove(srckey, dstkey, member) ：移到集合元素</p>\n</li>\n<li><p>scard(key) ：返回名称为key的set的基数</p>\n</li>\n<li><p>sismember(key, member) ：member是否是名称为key的set的元素</p>\n</li>\n<li><p>sinter(key1, key2,…key N) ：求交集</p>\n</li>\n<li><p>sinterstore(dstkey, (keys)) ：求交集并将交集保存到dstkey的集合</p>\n</li>\n<li><p>sunion(key1, (keys)) ：求并集</p>\n</li>\n<li><p>sunionstore(dstkey, (keys)) ：求并集并将并集保存到dstkey的集合</p>\n</li>\n<li><p>sdiff(key1, (keys)) ：求差集</p>\n</li>\n<li><p>sdiffstore(dstkey, (keys)) ：求差集并将差集保存到dstkey的集合</p>\n</li>\n<li><p>smembers(key) ：返回名称为key的set的所有元素</p>\n</li>\n<li><p>srandmember(key) ：随机返回名称为key的set的一个元素</p>\n</li>\n</ul>\n<p>对Hash操作的命令</p>\n<ul>\n<li><p>hset(key, field, value)：向名称为key的hash中添加元素field</p>\n</li>\n<li><p>hget(key, field)：返回名称为key的hash中field对应的value</p>\n</li>\n<li><p>hmget(key, (fields))：返回名称为key的hash中field i对应的value</p>\n</li>\n<li><p>hmset(key, (fields))：向名称为key的hash中添加元素field </p>\n</li>\n<li><p>hincrby(key, field, integer)：将名称为key的hash中field的value增加integer</p>\n</li>\n<li><p>hexists(key, field)：名称为key的hash中是否存在键为field的域</p>\n</li>\n<li><p>hdel(key, field)：删除名称为key的hash中键为field的域</p>\n</li>\n<li><p>hlen(key)：返回名称为key的hash中元素个数</p>\n</li>\n<li><p>hkeys(key)：返回名称为key的hash中所有键</p>\n</li>\n<li><p>hvals(key)：返回名称为key的hash中所有键对应的value</p>\n</li>\n<li><p>hgetall(key)：返回名称为key的hash中所有的键（field）及其对应的value</p>\n</li>\n</ul>\n<p>-----------------------------------------------------------------------</p>\n<p><img src=\"../o/uploads/image/articleimg/8b6bd4682e2872e92d7e2d446eb6cce0_40531.png\" alt=\"redis的命令集合 & nodejs,php,python,java连接redis\" title=\"redis的命令集合 & nodejs,php,python,java连接redis\" /></p>\n<h3>Node.js连接Redis</h3>\n<ol>\n<li><p>将依赖添加到package.json。</p>\n<pre><code>{\n    &quot;dependencies&quot;: {\n        &quot;redis&quot;: &quot;0.12.1&quot;\n    }\n}\n</code></pre>\n</li>\n<li><p>添加代码连接Redis服务。</p>\n<pre><code>var redis = require(&#39;redis&#39;);\n/*数据库连接信息host,port,user,pwd,dbname(可查询数据库详情页)*/\nvar username = &#39;&lt;User_AK&gt;&#39;;  //用户AK\nvar password = &#39;&lt;User_SK&gt;&#39;;  //用户SK\nvar db_host = &#39;redis.duapp.com&#39;;   \nvar db_port = 80;\nvar db_name = &#39;&lt;DB_Name&gt;&#39;;   //数据库名称\nconsole.log(db_host);\nconsole.log(db_port);\nvar options = {&quot;no_ready_check&quot;:true};\n\nfunction testRedis(req, res) {\n  var client = redis.createClient(db_port, db_host, options);\n  client.on(&quot;error&quot;, function (err) {\n    console.log(&quot;Error &quot; + err);\n  });\n\n  // 建立连接后，在进行集合操作前，需要先进行auth验证\n\n  client.auth(username + &#39;-&#39; + password + &#39;-&#39; + db_name);\n\n  client.set(&#39;baidu&#39;, &#39;welcome to BAE&#39;);\n\n  client.get(&#39;baidu&#39;, function(err, result) {\n    if (err) {\n      console.log(err);\n      res.end(&#39;get error&#39;);\n      return;\n    }\n    res.end(&#39;result: &#39; + result);      \n  }); \n\n}\n\nmodule.exports = testRedis;\n</code></pre>\n</li>\n</ol>\n<h3>PHP连接Redis</h3>\n<pre><code>&lt;?php\n/*从平台获取数据库名*/\n$dbname = &quot;&lt;DB_Name&gt;&quot;; //数据库名称\n\n/*从环境变量里取host,port,user,pwd*/\n$host = &#39;redis.duapp.com&#39;;\n$port = &#39;80&#39;;\n$user = &#39;&lt;User_AK&gt;&#39;; //用户AK\n$pwd = &#39;&lt;User_SK&gt;&#39;;  //用户SK\n\ntry {\n    /*建立连接后，在进行集合操作前，需要先进行auth验证*/\n    $redis = new Redis();\n    $ret = $redis-&gt;connect($host, $port);\n    if ($ret === false) {\n    die($redis-&gt;getLastError());\n    }\n\n    $ret = $redis-&gt;auth($user . &quot;-&quot; . $pwd . &quot;-&quot; . $dbname);\n    if ($ret === false) {\n    die($redis-&gt;getLastError());\n    }\n\n    /*接下来就可以对该库进行操作了，具体操作方法请参考phpredis官方文档*/\n    $redis-&gt;flushdb();\n    $ret = $redis-&gt;set(&quot;key&quot;, &quot;value&quot;);\n    if ($ret === false) {\n    die($redis-&gt;getLastError());\n    } else {\n    echo &quot;OK&quot;;\n    }\n\n} catch (RedisException $e) {\n    die(&quot;Uncaught exception &quot; . $e-&gt;getMessage());\n}\n?&gt;\n</code></pre>\n<h3>Python连接Redis</h3>\n<pre><code>#-*- coding:utf-8 -*-\n\ndef test_redis():\n    ### 开发者在requirements.txt中指定依赖Redis使用\n    import redis\n    ### 从管理控制台获取host, port, db_name, api_key, secret_key值 \n    db_name = &quot;&lt;DB_Name&gt;&quot; # 数据库名称\n    api_key = &quot;&lt;User_AK&gt;&quot; # 用户AK\n    secret_key = &quot;&lt;User_SK&gt;&quot; # 用户SK\n    myauth = &quot;%s-%s-%s&quot;%(api_key, secret_key, db_name)\n\n    ### 连接Redis服务\n    r = redis.Redis(host = &quot;redis.duapp.com&quot;, port = 80, password = myauth)\n\n    ### 进行各种Redis操作，如set、get\n    r.set(&quot;foo&quot;, &quot;bar&quot;)\n    return &quot;get foo=&gt; %s success!&quot;%r.get(&quot;foo&quot;)\n</code></pre>\n<h3>Java连接Redis</h3>\n<pre><code>import redis.clients.jedis.Jedis;\n\nimport java.io.IOException;\nimport java.io.PrintWriter;\n\nimport javax.servlet.ServletException;\nimport javax.servlet.http.HttpServlet;\nimport javax.servlet.http.HttpServletRequest;\nimport javax.servlet.http.HttpServletResponse;\n\n\npublic class RedisBasic extends HttpServlet {\n    @Override\n    protected void doGet(HttpServletRequest req, HttpServletResponse resp)\n        throws ServletException, IOException {\n        try {\n            /*****填写数据库相关信息(请查找数据库详情页)*****/\n            String databaseName = &quot;&lt;DB_Name&gt;&quot;; //数据库名称\n            String host = &quot;redis.duapp.com&quot;;\n            String portStr = &quot;80&quot;;\n            int port = Integer.parseInt(portStr);\n            String username = &quot;&lt;User_AK&gt;&quot;; //用户AK\n            String password = &quot;&lt;User_SK&gt;&quot;; //密码SK\n\n            /******接着连接并选择数据库名为databaseName的服务器******/\n            Jedis jedis = new Jedis(host, port);\n            jedis.connect();\n            jedis.auth(username + &quot;-&quot; + password + &quot;-&quot; + databaseName);\n\n            /*至此连接已完全建立，就可对当前数据库进行相应的操作了*/\n            /*接下来就可以使用redis数据库语句进行数据库操作,详细操作方法请参考java-redis官方文档*/\n            PrintWriter out = resp.getWriter();\n            //删除所有redis数据库中的key-value\n            jedis.flushDB();\n            //简单的key-value设置\n            jedis.set(&quot;name&quot;, &quot;bae&quot;);\n            System.out.println(&quot;name | &quot; + jedis.get(&quot;name&quot;));\n        } catch (Exception e) {\n            e.printStackTrace(resp.getWriter());\n        }\n    }\n }\n</code></pre>\n","createTime":1462430313000,"updatedTime":1785052462140},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

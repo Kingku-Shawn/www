@@ -1,0 +1,356 @@
+/* ============================================================
+   清逸的博客 · 工具页统一主题（参考 soulsoft/blog 白玻璃拟态）
+   通过 !important 覆盖原站 Vue 组件样式，不影响功能逻辑
+   ============================================================ */
+:root {
+  --gh-blue: #2563eb;
+  --gh-blue-hover: #1d4ed8;
+  --gh-orange: #0ea5e9;
+  --gh-text: #0f172a;
+  --gh-muted: #475569;
+  --gh-border: #e6edf5;
+  --gh-card: #ffffff;
+  --gh-btn: #f3f7fc;
+  --gh-btn-hover: #e8f0f9;
+  --gh-bg: #f5f8fc;
+}
+
+/* ---- FR-X12 深色模式：跟随系统 + html[data-theme] 手动覆盖 ----
+ * 变量化后，html,body 的 !important 背景与文字色会自动跟随主题，
+ * 不再出现「卡片深了、正文和标题却看不见」的错位。 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --gh-text: #e2e8f0;
+    --gh-muted: #94a3b8;
+    --gh-border: #1e293b;
+    --gh-card: #111a2c;
+    --gh-btn: #1e293b;
+    --gh-btn-hover: #263449;
+    --gh-bg: #0b1220;
+  }
+}
+:root[data-theme="dark"] {
+  --gh-text: #e2e8f0;
+  --gh-muted: #94a3b8;
+  --gh-border: #1e293b;
+  --gh-card: #111a2c;
+  --gh-btn: #1e293b;
+  --gh-btn-hover: #263449;
+  --gh-bg: #0b1220;
+}
+
+/* ---- 全局基底 ---- */
+html, body {
+  background: var(--gh-bg) !important;
+  color: var(--gh-text) !important;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", Arial, sans-serif !important;
+}
+a { color: var(--gh-blue); transition: color .15s ease; }
+a:hover { color: var(--gh-blue-hover); }
+
+/* 柔和滚动条 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(148,163,184,.08); }
+::-webkit-scrollbar-thumb { background: #c4d3e4; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #9db2c9; }
+
+/* ---- 页脚：玻璃卡片（深色下自动跟随 --gh-card） ---- */
+footer.xw-footer {
+  background: var(--gh-card) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--gh-border) !important;
+  color: var(--gh-muted) !important;
+  padding: 22px 16px;
+  margin-top: 40px;
+}
+footer.xw-footer a { color: var(--gh-blue) !important; }
+
+/* ---- 主体容器：白玻璃卡片 ---- */
+.page-container,
+.content-container,
+.app-lv-list,
+.app-pinlun-wrap,
+[class*="page-container"] {
+  background: var(--gh-card) !important;
+  border: 1px solid var(--gh-border) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 18px 48px rgba(15,23,42,.07) !important;
+  padding: 26px !important;
+  box-sizing: border-box;
+}
+
+/* ---- 通用按钮：白玻璃圆角 ---- */
+.btn, .xw-button, button,
+[class*="btn"], [class*="button"] {
+  border-radius: 999px !important;
+  transition: all .15s ease !important;
+  font-family: inherit;
+}
+button:hover { transform: translateY(-1px); }
+
+/* ---- 乐器卡片 / 和弦卡片 ---- */
+.instrument-card,
+.quick-card {
+  background: var(--gh-card) !important;
+  border: 1px solid var(--gh-border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 30px rgba(15,23,42,.06) !important;
+  transition: all .18s ease !important;
+}
+.instrument-card:hover,
+.quick-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 20px 44px rgba(15,23,42,.10) !important;
+  border-color: rgba(37,99,235,.25) !important;
+}
+
+/* ---- 输入框：soulsoft 风格 ---- */
+input, textarea, select {
+  border-radius: 14px !important;
+  border: 1px solid var(--gh-border) !important;
+  background: var(--gh-card) !important;
+  padding: 9px 14px !important;
+  color: var(--gh-text) !important;
+  box-shadow: inset 0 1px 1px rgba(148,163,184,.08);
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--gh-blue) !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+}
+
+
+/* ---- 分页 ---- */
+.pagination, .xw-pagination, [class*="pagination"] a, [class*="pagination"] span {
+  border-radius: 999px !important;
+}
+
+/* ---- 音乐页 / 钢琴页 ---- */
+.piano-wrap, .piano-container, [class*="piano"] {
+  border-radius: 24px !important;
+}
+#keyboard, .piano-keys, [class*="keyboard"] {
+  border-radius: 20px !important;
+  box-shadow: 0 16px 40px rgba(15,23,42,.10) !important;
+}
+
+/* ---- 调音器 / 节拍器 ---- */
+.tuner-wrap, .metronome-wrap, [class*="tuner"], [class*="metronome"] {
+  border-radius: 24px !important;
+}
+
+/* ---- 评论区 ---- */
+.pinlun, .app-pinlun-wrap, [class*="pinlun"] {
+  background: var(--gh-card) !important;
+  border: 1px solid var(--gh-border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 14px 34px rgba(15,23,42,.05) !important;
+}
+
+/* ============================================================
+   移动端适配：右侧汉堡侧边菜单（H5 窄屏）
+   ============================================================ */
+.mobile-hamburger,
+.mobile-drawer,
+.mobile-drawer-mask {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .mobile-hamburger {
+    position: fixed;
+    top: 7px;
+    right: 12px;
+    z-index: 1500;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: var(--gh-btn);
+    border-radius: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    margin-left: 6px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .08);
+    transition: background .15s ease;
+  }
+  .mobile-hamburger:hover {
+    background: var(--gh-btn-hover);
+    transform: none;
+  }
+  .mobile-hamburger span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--gh-text);
+    border-radius: 2px;
+    position: relative;
+    transition: background .2s ease;
+  }
+  .mobile-hamburger span::before,
+  .mobile-hamburger span::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 2px;
+    background: var(--gh-text);
+    border-radius: 2px;
+    transition: transform .2s ease, top .2s ease;
+  }
+  .mobile-hamburger span::before { top: -5px; }
+  .mobile-hamburger span::after { top: 5px; }
+  .mobile-hamburger.active span { background: transparent; }
+  .mobile-hamburger.active span::before { top: 0; transform: rotate(45deg); }
+  .mobile-hamburger.active span::after { top: 0; transform: rotate(-45deg); }
+
+  /* 侧边抽屉 */
+  .mobile-drawer {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 264px;
+    max-width: 82vw;
+    background: var(--gh-card);
+    z-index: 2100;
+    transform: translateX(100%);
+    transition: transform .26s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: -10px 0 34px rgba(15, 23, 42, .14);
+    padding: 22px 16px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-drawer.open { transform: translateX(0); }
+  .mobile-drawer .drawer-logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--gh-blue);
+    letter-spacing: .5px;
+    padding: 0 8px 14px;
+    border-bottom: 1px solid var(--gh-border);
+    margin-bottom: 12px;
+  }
+  .mobile-drawer .drawer-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .mobile-drawer .drawer-nav li { margin: 0 0 2px; }
+  .mobile-drawer .drawer-nav a {
+    display: block;
+    padding: 11px 14px;
+    border-radius: 12px;
+    color: var(--gh-text);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all .12s ease;
+  }
+  .mobile-drawer .drawer-nav a:hover,
+  .mobile-drawer .drawer-nav li.active a {
+    background: var(--gh-btn);
+    color: var(--gh-blue);
+  }
+  .mobile-drawer .drawer-user {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--gh-border);
+  }
+  .mobile-drawer .drawer-user a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 14px;
+    border-radius: 999px;
+    color: var(--gh-blue);
+    font-weight: 600;
+    text-decoration: none;
+    background: var(--gh-btn);
+    transition: all .12s ease;
+  }
+  .mobile-drawer .drawer-user a:hover {
+    background: var(--gh-btn-hover);
+  }
+
+  /* 遮罩 */
+  .mobile-drawer-mask {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .42);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s ease, visibility .25s ease;
+  }
+  .mobile-drawer-mask.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* ---- 乐器/练习/乐理分组：横向多列 + 居中 + 双端（本轮新增） ---- */
+.container.main-container {
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 28px 16px !important;
+}
+.instrument-group {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  margin-bottom: 30px;
+  align-items: start;
+}
+.instrument-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+  justify-content: center !important;
+  gap: 14px !important;
+}
+.instrument-card {
+  width: auto !important;
+  margin: 0 auto !important;
+  max-width: 240px;
+}
+@media (min-width: 901px) {
+  .instrument-group { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .instrument-group { grid-template-columns: 1fr; }
+  .instrument-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important; }
+}
+
+/* ---- 调音器页：容器居中 + 分组多列（本轮新增） ---- */
+.tiaoyin-list-page {
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 28px 16px !important;
+}
+
+/* ---- 通用工具页容器居中（本轮新增） ---- */
+.page-container { max-width: 1280px !important; margin: 0 auto !important; }
+/* ---- 标签 / 徽章 ---- */
+.tag, .tag-item, .xw-tag {
+  border-radius: 999px !important;
+  background: var(--gh-btn) !important;
+  border: 1px solid var(--gh-border) !important;
+  color: var(--ink2) !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: .18s !important;
+}
+.tag:hover, .tag-item:hover { color: var(--primary) !important; border-color: rgba(37,99,235,.35) !important; background: rgba(37,99,235,.06) !important; }
+.tag-cloud { background: transparent !important; padding: 0 !important; }
+.tag.on, .tag-item.on { color: #fff !important; background: linear-gradient(135deg,#2563eb,#06b6d4) !important; border-color: transparent !important; }

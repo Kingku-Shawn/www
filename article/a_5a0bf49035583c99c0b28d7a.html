@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>node-python:在nodejs中调用python代码</title><meta name="keywords" content="node-python,npm install node-python,nodejs安装node-python,nodejs中调用python代码"><meta name="description" content="在npmjs.com中有一个包node-python，顾名思义，是不是就是在node中使用python呢？让我们往下看：（这里是它的地址：https://www.npmjs.com/package/node-python）用法&nbsp;//&nbsp;python&nbsp;部分\n&nbsp;\n&">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">node-python:在nodejs中调用python代码</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/image/articleimg/4e3e9cbdd6daf2114f15855f42b445a2_16727.png" title="node-python:在nodejs中调用python代码" alt="node-python:在nodejs中调用python代码"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-3-26 08:28:00">2016-3-26 08:28:00</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>在npmjs.com中有一个包node-python，顾名思义，是不是就是在node中使用python呢？让我们往下看：</p>
+<p>（这里是它的地址：<a href="../../link?next=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fnode-python%EF%BC%89" target="_blank">https://www.npmjs.com/package/node-python）</a>  </p>
+<p><img src="../o/uploads/image/articleimg/4e3e9cbdd6daf2114f15855f42b445a2_16727.png" alt="node-python:在nodejs中调用python代码" title="node-python:在nodejs中调用python代码" /></p>
+<h2>用法</h2>
+<pre><code class="language-js"> // python 部分
+ 
+ var python = require(&#39;node-python&#39;);
+ var os = python.import(&#39;os&#39;); 
+ 
+ // nodejs 部分 
+ var path = require(&#39;path&#39;); 
+ 
+ //用assert来检查一下，通过python获得的内容是否和通过node获得的内容是否相同
+ assert(os.path.basename(os.getcwd()) == path.basename(process.cwd()))
+</code></pre>
+<p>nodejs中调用python的代码，这库看上去是不是有点意思？  </p>
+<h2>下面说一下安装方式，步骤包括了nodejs的安装</h2>
+<p>先安装nodejs环境：  </p>
+<h3>Mac</h3>
+<p>进入 <a href="../link@next=https%253A%252F%252Fnodejs.org%252F.html" target="_blank">nodejs.org</a>, 点击 ‘install’, 执行整个安装过程.</p>
+<h3>Ubuntu</h3>
+<p>在命令行运行下面的代码去安装为nodejs准备的源代码</p>
+<pre><code>curl -sL https://deb.nodesource.com/setup | sudo -E bash -
+</code></pre>
+<p>然后运行下面的代码获得最新的nodejs包</p>
+<pre><code>sudo apt-get install -y nodejs
+</code></pre>
+<h3>Windows</h3>
+<p>直接下载windows安装包 <a href="../link@next=https%253A%252F%252Fnodejs.org%252Fdownload%252F.html" target="_blank">Windows binary</a> 运行安装.</p>
+<h2>测试一下</h2>
+<pre><code>在命令行敲入下面的代码来检查nodejs环境和npm环境是否正常
+node -v
+</code></pre>
+<pre><code>npm -v
+</code></pre>
+<h2>安装 node-python</h2>
+<pre><code>npm install node-python
+</code></pre>
+<p>在命令行中输入上面的命令，把这个npm包添加到您的本地机器上,。你会注意到一个node_modules目录现在出现在你的根目录，那个就是node模块文件夹。</p>
+<h2>其它有用的命令</h2>
+<pre><code>npm init
+</code></pre>
+<p>在你的当前目录下创建一个package.json文件</p>
+<p>npm list</p>
+<p>列出所有已经安装了的包</p>
+<pre><code>npm prune
+</code></pre>
+<p>根据你的package.json文件，移除项目中安装过的不需要的包</p>
+<pre><code>npm outdated
+</code></pre>
+<p>运行这个命令将会告诉你你安装的包中哪些是过时的。貌似会忽略你在package.json中指定了版本号的包。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d7a","article":{"id":"5a0bf49035583c99c0b28d7a","title":"node-python:在nodejs中调用python代码","snippet":"在npmjs.com中有一个包node-python，顾名思义，是不是就是在node中使用python呢？让我们往下看：（这里是它的地址：https://www.npmjs.com/package/node-python）用法&nbsp;//&nbsp;python&nbsp;部分\n&nbsp;\n&","image":"../o/uploads/image/articleimg/4e3e9cbdd6daf2114f15855f42b445a2_16727.png","tags":["nodejs","python"],"category":["编程"],"keywords":["node-python","npm install node-python","nodejs安装node-python","nodejs中调用python代码"],"content":"<p>在npmjs.com中有一个包node-python，顾名思义，是不是就是在node中使用python呢？让我们往下看：</p>\n<p>（这里是它的地址：<a href=%5C%22https://www.npmjs.com/package/node-python%E9%94%9B%E5%A1%A1%22\">https://www.npmjs.com/package/node-python）</a>  </p>\n<p><img src=\"../o/uploads/image/articleimg/4e3e9cbdd6daf2114f15855f42b445a2_16727.png\" alt=\"node-python:在nodejs中调用python代码\" title=\"node-python:在nodejs中调用python代码\" /></p>\n<h2>用法</h2>\n<pre><code class=\"language-js\"> // python 部分\n \n var python = require(&#39;node-python&#39;);\n var os = python.import(&#39;os&#39;); \n \n // nodejs 部分 \n var path = require(&#39;path&#39;); \n \n //用assert来检查一下，通过python获得的内容是否和通过node获得的内容是否相同\n assert(os.path.basename(os.getcwd()) == path.basename(process.cwd()))\n</code></pre>\n<p>nodejs中调用python的代码，这库看上去是不是有点意思？  </p>\n<h2>下面说一下安装方式，步骤包括了nodejs的安装</h2>\n<p>先安装nodejs环境：  </p>\n<h3>Mac</h3>\n<p>进入 <a href=\\&quot;https://nodejs.org/\\&quot;\">nodejs.org</a>, 点击 ‘install’, 执行整个安装过程.</p>\n<h3>Ubuntu</h3>\n<p>在命令行运行下面的代码去安装为nodejs准备的源代码</p>\n<pre><code>curl -sL https://deb.nodesource.com/setup | sudo -E bash -\n</code></pre>\n<p>然后运行下面的代码获得最新的nodejs包</p>\n<pre><code>sudo apt-get install -y nodejs\n</code></pre>\n<h3>Windows</h3>\n<p>直接下载windows安装包 <a href=\\&quot;https://nodejs.org/download/\\&quot;\">Windows binary</a> 运行安装.</p>\n<h2>测试一下</h2>\n<pre><code>在命令行敲入下面的代码来检查nodejs环境和npm环境是否正常\nnode -v\n</code></pre>\n<pre><code>npm -v\n</code></pre>\n<h2>安装 node-python</h2>\n<pre><code>npm install node-python\n</code></pre>\n<p>在命令行中输入上面的命令，把这个npm包添加到您的本地机器上,。你会注意到一个node_modules目录现在出现在你的根目录，那个就是node模块文件夹。</p>\n<h2>其它有用的命令</h2>\n<pre><code>npm init\n</code></pre>\n<p>在你的当前目录下创建一个package.json文件</p>\n<p>npm list</p>\n<p>列出所有已经安装了的包</p>\n<pre><code>npm prune\n</code></pre>\n<p>根据你的package.json文件，移除项目中安装过的不需要的包</p>\n<pre><code>npm outdated\n</code></pre>\n<p>运行这个命令将会告诉你你安装的包中哪些是过时的。貌似会忽略你在package.json中指定了版本号的包。</p>\n","createTime":1458952080000,"updatedTime":1785052468430},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

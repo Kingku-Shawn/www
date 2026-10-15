@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>MPU6050的DMP数据获取的示例代码</title><meta name="keywords" content="MPU6050,DMP"><meta name="description" content="MPU6050是一种集成了三轴加速度计和三轴陀螺仪的惯性测量单元。DMP（数字运动处理器）是在MPU6050内部嵌入的一个可编程处理器，可用于实现复杂的传感器融合算法。\n\n要获取MPU6050的DMP数据，您需要使用适当的硬件连接将 MPU6050 连接到您的开发板上，然后使用相应的库或驱动程序来访">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">MPU6050的DMP数据获取的示例代码</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/article/pics/70666f6f17e3877d305ab828bfb6efef_299823.png" title="MPU6050的DMP数据获取的示例代码" alt="MPU6050的DMP数据获取的示例代码"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2023-3-23 20:05:09">2023-3-23 20:05:09</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>MPU6050是一种集成了三轴加速度计和三轴陀螺仪的惯性测量单元。DMP（数字运动处理器）是在MPU6050内部嵌入的一个可编程处理器，可用于实现复杂的传感器融合算法。</p>
+<p><img src="../o/uploads/article/pics/70666f6f17e3877d305ab828bfb6efef_299823.png" alt="MPU6050的DMP数据获取的示例代码" /></p>
+<p>要获取MPU6050的DMP数据，您需要使用适当的硬件连接将 MPU6050 连接到您的开发板上，然后使用相应的库或驱动程序来访问和读取 MPU6050 的传感器数据。具体的步骤和实现方式可能因所选的开发板和编程语言而不同，建议查阅相关文档或教程以获取更详细的信息。</p>
+<p>以下是使用 MPU6050 中的 DMP 获取数据的示例代码：</p>
+<pre><code class="language-cpp">#include &lt;Wire.h&gt;
+#include &lt;MPU6050_6Axis_MotionApps20.h&gt;
+
+// 初始化 MPU6050
+MPU6050 mpu;
+
+// 用于 DMP 初始化的变量
+Quaternion q;
+VectorFloat gravity;
+
+void setup() {
+  // 初始化串口
+  Serial.begin(9600);
+
+  // 初始化 I2C 总线
+  Wire.begin();
+
+  // 初始化 MPU6050
+  mpu.initialize();
+
+  // 激活 DMP
+  mpu.dmpInitialize();
+
+  // 开启 DMP
+  mpu.setDMPEnabled(true);
+
+  // 设置采样率
+  mpu.setRate(50);
+
+  // 获取重力加速度向量
+  mpu.getGravity(&amp;gravity);
+
+  // 获取初始四元数
+  mpu.dmpGetQuaternion(&amp;q, mpu.dmpGetFIFOBytes());
+}
+
+void loop() {
+  // 获取最新的姿态数据
+  Quaternion quat;
+  VectorFloat accel;
+  VectorFloat gyro;
+  int32_t fifoCount = mpu.getFIFOCount();
+  if (fifoCount &gt; 0) {
+    mpu.getFIFOBytes(fifoBuffer, fifoCount);
+    mpu.dmpGetQuaternion(&amp;quat, fifoBuffer);
+    mpu.dmpGetAccel(&amp;accel, quat);
+    mpu.dmpGetGyro(&amp;gyro, quat);
+
+    // 输出姿态数据
+    Serial.print(&quot;qW: &quot;);
+    Serial.print(q.w);
+    Serial.print(&quot;\tqX: &quot;);
+    Serial.print(q.x);
+    Serial.print(&quot;\tqY: &quot;);
+    Serial.print(q.y);
+    Serial.print(&quot;\tqZ: &quot;);
+    Serial.print(q.z);
+    Serial.print(&quot;\troll: &quot;);
+    Serial.print(atan2(2*q.y*q.w - 2*q.x*q.z, 1 - 2*q.y*q.y - 2*q.z*q.z) * 180/M_PI);
+    Serial.print(&quot;\tpitch: &quot;);
+    Serial.print(asin(2*q.x*q.y + 2*q.z*q.w) * 180/M_PI);
+    Serial.print(&quot;\tyaw: &quot;);
+    Serial.println(atan2(2*q.x*q.w - 2*q.y*q.z, 1 - 2*q.x*q.x - 2*q.z*q.z) * 180/M_PI);
+  }
+}
+</code></pre>
+<p>这段代码假设你已经下载了 MPU6050 库，并将其添加到 Arduino IDE 中。要使用此代码，你需要将 MPU6050 的 SDA 和 SCL 引脚连接到 Arduino 的对应引脚。此外，还需要安装 MPU6050 的 DMP 库。</p>
+<p>此代码从 MPU6050 获取姿态数据并通过串口输出。它首先初始化了 MPU6050 并激活了 DMP，然后获取了初始的四元数和重力加速度向量。在主循环中，它不断获取最新的姿态数据，并通过四元数计算出滚转、俯仰和偏航角度。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"641c407504cec4da3d3db0d8","article":{"id":"641c407504cec4da3d3db0d8","title":"MPU6050的DMP数据获取的示例代码","snippet":"MPU6050是一种集成了三轴加速度计和三轴陀螺仪的惯性测量单元。DMP（数字运动处理器）是在MPU6050内部嵌入的一个可编程处理器，可用于实现复杂的传感器融合算法。\n\n要获取MPU6050的DMP数据，您需要使用适当的硬件连接将 MPU6050 连接到您的开发板上，然后使用相应的库或驱动程序来访","image":"../o/uploads/article/pics/70666f6f17e3877d305ab828bfb6efef_299823.png","tags":["MPU6050","DMP"],"category":["编程"],"keywords":["MPU6050","DMP"],"content":"<p>MPU6050是一种集成了三轴加速度计和三轴陀螺仪的惯性测量单元。DMP（数字运动处理器）是在MPU6050内部嵌入的一个可编程处理器，可用于实现复杂的传感器融合算法。</p>\n<p><img src=\"../o/uploads/article/pics/70666f6f17e3877d305ab828bfb6efef_299823.png\" alt=\"MPU6050的DMP数据获取的示例代码\" /></p>\n<p>要获取MPU6050的DMP数据，您需要使用适当的硬件连接将 MPU6050 连接到您的开发板上，然后使用相应的库或驱动程序来访问和读取 MPU6050 的传感器数据。具体的步骤和实现方式可能因所选的开发板和编程语言而不同，建议查阅相关文档或教程以获取更详细的信息。</p>\n<p>以下是使用 MPU6050 中的 DMP 获取数据的示例代码：</p>\n<pre><code class=\"language-cpp\">#include &lt;Wire.h&gt;\n#include &lt;MPU6050_6Axis_MotionApps20.h&gt;\n\n// 初始化 MPU6050\nMPU6050 mpu;\n\n// 用于 DMP 初始化的变量\nQuaternion q;\nVectorFloat gravity;\n\nvoid setup() {\n  // 初始化串口\n  Serial.begin(9600);\n\n  // 初始化 I2C 总线\n  Wire.begin();\n\n  // 初始化 MPU6050\n  mpu.initialize();\n\n  // 激活 DMP\n  mpu.dmpInitialize();\n\n  // 开启 DMP\n  mpu.setDMPEnabled(true);\n\n  // 设置采样率\n  mpu.setRate(50);\n\n  // 获取重力加速度向量\n  mpu.getGravity(&amp;gravity);\n\n  // 获取初始四元数\n  mpu.dmpGetQuaternion(&amp;q, mpu.dmpGetFIFOBytes());\n}\n\nvoid loop() {\n  // 获取最新的姿态数据\n  Quaternion quat;\n  VectorFloat accel;\n  VectorFloat gyro;\n  int32_t fifoCount = mpu.getFIFOCount();\n  if (fifoCount &gt; 0) {\n    mpu.getFIFOBytes(fifoBuffer, fifoCount);\n    mpu.dmpGetQuaternion(&amp;quat, fifoBuffer);\n    mpu.dmpGetAccel(&amp;accel, quat);\n    mpu.dmpGetGyro(&amp;gyro, quat);\n\n    // 输出姿态数据\n    Serial.print(&quot;qW: &quot;);\n    Serial.print(q.w);\n    Serial.print(&quot;\\tqX: &quot;);\n    Serial.print(q.x);\n    Serial.print(&quot;\\tqY: &quot;);\n    Serial.print(q.y);\n    Serial.print(&quot;\\tqZ: &quot;);\n    Serial.print(q.z);\n    Serial.print(&quot;\\troll: &quot;);\n    Serial.print(atan2(2*q.y*q.w - 2*q.x*q.z, 1 - 2*q.y*q.y - 2*q.z*q.z) * 180/M_PI);\n    Serial.print(&quot;\\tpitch: &quot;);\n    Serial.print(asin(2*q.x*q.y + 2*q.z*q.w) * 180/M_PI);\n    Serial.print(&quot;\\tyaw: &quot;);\n    Serial.println(atan2(2*q.x*q.w - 2*q.y*q.z, 1 - 2*q.x*q.x - 2*q.z*q.z) * 180/M_PI);\n  }\n}\n</code></pre>\n<p>这段代码假设你已经下载了 MPU6050 库，并将其添加到 Arduino IDE 中。要使用此代码，你需要将 MPU6050 的 SDA 和 SCL 引脚连接到 Arduino 的对应引脚。此外，还需要安装 MPU6050 的 DMP 库。</p>\n<p>此代码从 MPU6050 获取姿态数据并通过串口输出。它首先初始化了 MPU6050 并激活了 DMP，然后获取了初始的四元数和重力加速度向量。在主循环中，它不断获取最新的姿态数据，并通过四元数计算出滚转、俯仰和偏航角度。</p>\n","createTime":1679573109259,"updatedTime":1785059239824},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>node-images库介绍</title><meta name="keywords" content="node-images,nodejs image codec,nodejs轻量级图片框架"><meta name="description" content="node-images 是一个跨平台的node.js图像处理库，有着类似于JQuery的链式调用风格，简单易用。示例代码：var&nbsp;images&nbsp;=&nbsp;require(&quot;images&quot;);&nbsp;\nimages(&quot;input.jpg&quo">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">node-images库介绍</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/image/articleimg/66f0b5aa36c93b1f6bb9b166663528fe_40900.png" title="node-images库介绍" alt="node-images库介绍"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-3-28 09:12:00">2016-3-28 09:12:00</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p><img src="../o/uploads/image/articleimg/66f0b5aa36c93b1f6bb9b166663528fe_40900.png" alt="node-images库介绍" title="node-images库介绍" /></p>
+<p>node-images 是一个跨平台的node.js图像处理库，有着类似于JQuery的链式调用风格，简单易用。</p>
+<p>示例代码：</p>
+<pre><code class="language-js">var images = require(&quot;images&quot;); 
+images(&quot;input.jpg&quot;)   //Load image from file                                                                                  //加载图像文件     
+    .size(400)              //Geometric scaling the image to 400 pixels width                                                       //等比缩放图像到400像素宽     
+    .draw(images(&quot;logo.png&quot;), 10, 10)  //Drawn logo at coordinates (10,10)                                                                     //在(10,10)处绘制Logo     
+    .save(&quot;output.jpg&quot;, {     //Save the image to a file,whih quality 50         
+    quality : 50       //保存图片到文件,图片质量为50 	
+  });
+</code></pre>
+<h2>Features 功能特性</h2>
+<ul>
+<li><p>Lightweight:no need to install any image processing library.</p>
+</li>
+<li><p>轻量级：无需安装任何图像处理库。</p>
+</li>
+<li><p>Cross-platform: Released a compiled .node file on windows, just download and start.</p>
+</li>
+<li><p>跨平台：Windows下发布了编译好的.node文件,下载就能用。</p>
+</li>
+<li><p>Easy-to-use: Provide jQuery-like chaining API.Simple and reliable!</p>
+</li>
+<li><p>方便用：jQuery风格的API，简单可依赖。</p>
+</li>
+</ul>
+<h2>Installation 安装</h2>
+<pre><code class="language-bash">$ npm install images
+</code></pre>
+<p>You will also need to install:</p>
+<ul>
+<li><p>giflib 4.x.x</p>
+</li>
+<li><p>libpng 1.5.x</p>
+</li>
+<li><p>jpeg-turbo 1.x.x</p>
+</li>
+</ul>
+<h2>API 接口</h2>
+<p>node-images provide jQuery-like Chaining API,You can start the chain like this:<br>node-images 提供了类似jQuery的链式调用API,您可以这样开始:</p>
+<pre><code class="language-js">/* Load and decode image from file */
+/* 从指定文件加载并解码图像 */
+images(file) 
+
+/* Create a new transparent image */
+/* 创建一个指定宽高的透明图像 */
+images(width, height) 
+
+/* Load and decode image from a buffer */
+/* 从Buffer数据中解码图像 */
+images(buffer[, start[, end]]) 
+
+/* Copy from another image */
+/* 从另一个图像中复制区域来创建图像 */
+images(image[, x, y, width, height])
+</code></pre>
+<h3>images(file)</h3>
+<p>Load and decode image from file<br>从指定文件加载并解码图像</p>
+<h3>images(width, height)</h3>
+<p>Create a new transparent image<br>创建一个指定宽高的透明图像</p>
+<h3>images(buffer[, start[, end]])</h3>
+<p>Load and decode image from a buffer<br>从Buffer数据中解码图像</p>
+<h3>images(image[, x, y, width, height])</h3>
+<p>Copy from another image<br>从另一个图像中复制区域来创建图像</p>
+<h3>.fill(red, green, blue[, alpha])</h3>
+<p>eg:images(200, 100).fill(0xff, 0x00, 0x00, 0.5) Fill image with color<br>以指定颜色填充图像</p>
+<h3>.draw(image, x, y)</h3>
+<p>Draw image on the current image position( x , y )<br>在当前图像( x , y )上绘制 image 图像</p>
+<h3>.encode(type[, config])</h3>
+<p>eg : images(&quot;input.png&quot;).encode(&quot;jpg&quot;, {operation:50})  Encode image to buffer, config is image setting.<br>以指定格式编码当前图像到Buffer，config为图片设置，目前支持设置JPG图像质量<br>Return buffer<br>返回填充好的Buffer<br>Note:The operation will cut off the chain<br>注意:该操作将会切断调用链<br>See:.save(file[, type[, config]]) 参考:.save(file[, type[, config]])</p>
+<h3>.save(file[, type[, config]])</h3>
+<p>eg:images(&quot;input.png&quot;).encode(&quot;output.jpg&quot;, {operation:50}) Encoding and save the current image to a file, if the type is not specified, type well be automatically determined according to the file, config is image setting. eg: { operation:50 }<br>编码并保存当前图像到 file ,如果type未指定,则根据 file 自动判断文件类型，config为图片设置，目前支持设置JPG图像质量</p>
+<h3>.size([width[, height]])</h3>
+<p>Get size of the image or set the size of the image,if the height is not specified, then scaling based on the current width and height<br>获取或者设置图像宽高，如果height未指定，则根据当前宽高等比缩放</p>
+<h3>.resize(width[, height])</h3>
+<p>Set the size of the image,if the height is not specified, then scaling based on the current width and height<br>设置图像宽高，如果height未指定，则根据当前宽高等比缩放, 默认采用 bicubic 算法。</p>
+<h3>.width([width])</h3>
+<p>Get width for the image or set width of the image<br>获取或设置图像宽度</p>
+<h3>.height([height])</h3>
+<p>Get height for the image or set height of the image<br>获取或设置图像高度</p>
+<h3>images.setLimit(width, height)</h3>
+<p>Set the limit size of each image<br>设置库处理图片的大小限制,设置后对所有新的操作生效(如果超限则抛出异常)</p>
+<h3>images.setGCThreshold(value)</h3>
+<p>Set the garbage collection threshold<br>设置图像处理库自动gc的阈值(当新增内存使用超过该阈值时，执行垃圾回收)</p>
+<h3>images.getUsedMemory()</h3>
+<p>Get used memory (in bytes)<br>得到图像处理库占用的内存大小(单位为字节)</p>
+<h3>images.gc()</h3>
+<p>Forced call garbage collection<br>强制调用V8的垃圾回收机制</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d7b","article":{"id":"5a0bf49035583c99c0b28d7b","title":"node-images库介绍","snippet":"node-images 是一个跨平台的node.js图像处理库，有着类似于JQuery的链式调用风格，简单易用。示例代码：var&nbsp;images&nbsp;=&nbsp;require(&quot;images&quot;);&nbsp;\nimages(&quot;input.jpg&quo","image":"../o/uploads/image/articleimg/66f0b5aa36c93b1f6bb9b166663528fe_40900.png","tags":["nodejs"],"category":["编程"],"keywords":["node-images","nodejs image codec","nodejs轻量级图片框架"],"content":"<p><img src=\"../o/uploads/image/articleimg/66f0b5aa36c93b1f6bb9b166663528fe_40900.png\" alt=\"node-images库介绍\" title=\"node-images库介绍\" /></p>\n<p>node-images 是一个跨平台的node.js图像处理库，有着类似于JQuery的链式调用风格，简单易用。</p>\n<p>示例代码：</p>\n<pre><code class=\"language-js\">var images = require(&quot;images&quot;); \nimages(&quot;input.jpg&quot;)   //Load image from file                                                                                  //加载图像文件     \n    .size(400)              //Geometric scaling the image to 400 pixels width                                                       //等比缩放图像到400像素宽     \n    .draw(images(&quot;logo.png&quot;), 10, 10)  //Drawn logo at coordinates (10,10)                                                                     //在(10,10)处绘制Logo     \n    .save(&quot;output.jpg&quot;, {     //Save the image to a file,whih quality 50         \n    quality : 50       //保存图片到文件,图片质量为50 \t\n  });\n</code></pre>\n<h2>Features 功能特性</h2>\n<ul>\n<li><p>Lightweight:no need to install any image processing library.</p>\n</li>\n<li><p>轻量级：无需安装任何图像处理库。</p>\n</li>\n<li><p>Cross-platform: Released a compiled .node file on windows, just download and start.</p>\n</li>\n<li><p>跨平台：Windows下发布了编译好的.node文件,下载就能用。</p>\n</li>\n<li><p>Easy-to-use: Provide jQuery-like chaining API.Simple and reliable!</p>\n</li>\n<li><p>方便用：jQuery风格的API，简单可依赖。</p>\n</li>\n</ul>\n<h2>Installation 安装</h2>\n<pre><code class=\"language-bash\">$ npm install images\n</code></pre>\n<p>You will also need to install:</p>\n<ul>\n<li><p>giflib 4.x.x</p>\n</li>\n<li><p>libpng 1.5.x</p>\n</li>\n<li><p>jpeg-turbo 1.x.x</p>\n</li>\n</ul>\n<h2>API 接口</h2>\n<p>node-images provide jQuery-like Chaining API,You can start the chain like this:<br>node-images 提供了类似jQuery的链式调用API,您可以这样开始:</p>\n<pre><code class=\"language-js\">/* Load and decode image from file */\n/* 从指定文件加载并解码图像 */\nimages(file) \n\n/* Create a new transparent image */\n/* 创建一个指定宽高的透明图像 */\nimages(width, height) \n\n/* Load and decode image from a buffer */\n/* 从Buffer数据中解码图像 */\nimages(buffer[, start[, end]]) \n\n/* Copy from another image */\n/* 从另一个图像中复制区域来创建图像 */\nimages(image[, x, y, width, height])\n</code></pre>\n<h3>images(file)</h3>\n<p>Load and decode image from file<br>从指定文件加载并解码图像</p>\n<h3>images(width, height)</h3>\n<p>Create a new transparent image<br>创建一个指定宽高的透明图像</p>\n<h3>images(buffer[, start[, end]])</h3>\n<p>Load and decode image from a buffer<br>从Buffer数据中解码图像</p>\n<h3>images(image[, x, y, width, height])</h3>\n<p>Copy from another image<br>从另一个图像中复制区域来创建图像</p>\n<h3>.fill(red, green, blue[, alpha])</h3>\n<p>eg:images(200, 100).fill(0xff, 0x00, 0x00, 0.5) Fill image with color<br>以指定颜色填充图像</p>\n<h3>.draw(image, x, y)</h3>\n<p>Draw image on the current image position( x , y )<br>在当前图像( x , y )上绘制 image 图像</p>\n<h3>.encode(type[, config])</h3>\n<p>eg : images(&quot;input.png&quot;).encode(&quot;jpg&quot;, {operation:50})  Encode image to buffer, config is image setting.<br>以指定格式编码当前图像到Buffer，config为图片设置，目前支持设置JPG图像质量<br>Return buffer<br>返回填充好的Buffer<br>Note:The operation will cut off the chain<br>注意:该操作将会切断调用链<br>See:.save(file[, type[, config]]) 参考:.save(file[, type[, config]])</p>\n<h3>.save(file[, type[, config]])</h3>\n<p>eg:images(&quot;input.png&quot;).encode(&quot;output.jpg&quot;, {operation:50}) Encoding and save the current image to a file, if the type is not specified, type well be automatically determined according to the file, config is image setting. eg: { operation:50 }<br>编码并保存当前图像到 file ,如果type未指定,则根据 file 自动判断文件类型，config为图片设置，目前支持设置JPG图像质量</p>\n<h3>.size([width[, height]])</h3>\n<p>Get size of the image or set the size of the image,if the height is not specified, then scaling based on the current width and height<br>获取或者设置图像宽高，如果height未指定，则根据当前宽高等比缩放</p>\n<h3>.resize(width[, height])</h3>\n<p>Set the size of the image,if the height is not specified, then scaling based on the current width and height<br>设置图像宽高，如果height未指定，则根据当前宽高等比缩放, 默认采用 bicubic 算法。</p>\n<h3>.width([width])</h3>\n<p>Get width for the image or set width of the image<br>获取或设置图像宽度</p>\n<h3>.height([height])</h3>\n<p>Get height for the image or set height of the image<br>获取或设置图像高度</p>\n<h3>images.setLimit(width, height)</h3>\n<p>Set the limit size of each image<br>设置库处理图片的大小限制,设置后对所有新的操作生效(如果超限则抛出异常)</p>\n<h3>images.setGCThreshold(value)</h3>\n<p>Set the garbage collection threshold<br>设置图像处理库自动gc的阈值(当新增内存使用超过该阈值时，执行垃圾回收)</p>\n<h3>images.getUsedMemory()</h3>\n<p>Get used memory (in bytes)<br>得到图像处理库占用的内存大小(单位为字节)</p>\n<h3>images.gc()</h3>\n<p>Forced call garbage collection<br>强制调用V8的垃圾回收机制</p>\n","createTime":1459127520000,"updatedTime":1785052463264},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

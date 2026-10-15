@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>博客管理后台</title>
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+<style>
+  /* 前台统一配色（浅色为主，深色由 data-theme 切换） */
+  :root {
+    --bg: #f5f7fb; --bg2: #ffffff; --bg3: #eef2f8;
+    --border: #e6edf5; --text: #0f172a; --muted: #64748b;
+    --accent: #2563eb; --accent2: #0ea5e9; --green: #22c55e;
+    --red: #ef4444; --yellow: #f59e0b;
+  }
+  /* 深色（跟随系统 + 手动 data-theme=dark） */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1220; --bg2: #111a2c; --bg3: #1e293b;
+      --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8;
+      --accent: #60a5fa; --accent2: #38bdf8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1220; --bg2: #111a2c; --bg3: #1e293b;
+    --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8;
+    --accent: #60a5fa; --accent2: #38bdf8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+  a { color: var(--accent2); text-decoration: none; }
+  button { cursor: pointer; font-family: inherit; }
+
+  /* 登录页 */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #eef4ff 0%, #f5f9ff 45%, #e8f6fd 100%); }
+  :root[data-theme="dark"] .login-wrap { background: radial-gradient(ellipse at 30% 20%, #16223a 0%, #0b1220 60%); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .login-wrap { background: radial-gradient(ellipse at 30% 20%, #16223a 0%, #0b1220 60%); } }
+  .login-card { width: 380px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 36px 32px; }
+  .login-card h1 { font-size: 22px; margin-bottom: 6px; }
+  .login-card .sub { color: var(--muted); margin-bottom: 26px; }
+  .login-card label { display: block; color: var(--muted); margin: 14px 0 6px; font-size: 13px; }
+  .login-card input { width: 100%; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); outline: none; }
+  .login-card input:focus { border-color: var(--accent); }
+  .btn-primary { width: 100%; margin-top: 22px; padding: 11px; background: linear-gradient(135deg, #2563eb, #0ea5e9); border: none; border-radius: 8px; color: #fff; font-size: 15px; font-weight: 600; }
+  .btn-primary:hover { opacity: .92; }
+  .hint-box { margin-top: 18px; padding: 12px; background: var(--bg3); border: 1px dashed var(--border); border-radius: 8px; color: var(--muted); font-size: 12.5px; line-height: 1.9; }
+  .err-msg { color: var(--red); margin-top: 10px; min-height: 18px; font-size: 13px; }
+
+  /* 主框架 */
+  .app { display: none; height: 100vh; }
+  .sidebar { width: 230px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .brand { padding: 18px 20px; font-size: 17px; font-weight: 700; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #0ea5e9); }
+  .nav { flex: 1; padding: 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; color: var(--muted); margin-bottom: 2px; }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(37,99,235,.12); color: var(--accent2); }
+  .nav-item .ico { width: 18px; text-align: center; }
+  .side-user { border-top: 1px solid var(--border); padding: 14px 18px; color: var(--muted); }
+  .side-user .name { color: var(--text); font-weight: 600; }
+  .side-user .logout { color: var(--red); cursor: pointer; margin-top: 4px; display: inline-block; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 54px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; background: var(--bg2); }
+  .topbar .title { font-size: 16px; font-weight: 600; }
+  .topbar .spacer { flex: 1; }
+  .topbar .user-chip { color: var(--muted); }
+  .content { flex: 1; overflow-y: auto; padding: 24px; }
+
+  /* 卡片/统计 */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .stat .num { font-size: 26px; font-weight: 700; }
+  .stat .label { color: var(--muted); margin-top: 4px; font-size: 13px; }
+  .stat.warn .num { color: var(--yellow); }
+
+  .panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; }
+  .panel .p-head { padding: 14px 18px; border-bottom: 1px solid var(--border); font-weight: 600; display: flex; align-items: center; }
+  .panel .p-head .spacer { flex: 1; }
+  .panel .p-body { padding: 6px 18px; }
+
+  /* 表格 */
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  th { color: var(--muted); font-weight: 500; font-size: 12.5px; white-space: nowrap; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; }
+  .tag-green { background: rgba(63,185,80,.15); color: var(--green); }
+  .tag-gray { background: rgba(139,148,158,.15); color: var(--muted); }
+  .tag-blue { background: rgba(37,99,235,.12); color: var(--accent2); }
+  .tag-red { background: rgba(248,81,73,.15); color: var(--red); }
+  .tag-yellow { background: rgba(210,153,34,.15); color: var(--yellow); }
+
+  /* 按钮 */
+  .btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 13px; }
+  .btn:hover { border-color: var(--muted); }
+  .btn-green { background: var(--green); border: none; color: #fff; font-weight: 600; }
+  .btn-green:hover { background: #2ea043; }
+  .btn-blue { background: var(--accent); border: none; color: #fff; }
+  .btn-blue:hover { background: var(--accent2); }
+  .btn-red { background: transparent; border: 1px solid var(--red); color: var(--red); }
+  .btn-red:hover { background: rgba(248,81,73,.12); }
+  .btn-sm { padding: 4px 10px; font-size: 12.5px; }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .toolbar .spacer { flex: 1; }
+
+  /* 弹窗 */
+  .modal-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 50; align-items: center; justify-content: center; }
+  .modal { width: 520px; max-width: 92vw; max-height: 88vh; overflow-y: auto; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .modal h3 { margin-bottom: 18px; }
+  .modal label { display: block; color: var(--muted); margin: 12px 0 6px; font-size: 13px; }
+  .modal input, .modal select, .modal textarea { width: 100%; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); outline: none; font-family: inherit; font-size: 13.5px; }
+  .modal input:focus, .modal select:focus, .modal textarea:focus { border-color: var(--accent); }
+  .modal textarea { min-height: 140px; resize: vertical; }
+  .rte-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--bg); }
+  .rte-bar { display: flex; flex-wrap: wrap; gap: 3px; background: var(--bg); padding: 6px 8px; border-bottom: 1px solid var(--border); align-items: center; }
+  .rte-bar button { background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 9px; font-size: 13px; color: var(--text); cursor: pointer; line-height: 1.3; }
+  .rte-bar button:hover { background: var(--border); border-color: var(--border); }
+  .rte-sep { width: 1px; height: 18px; background: var(--border); margin: 0 5px; display: inline-block; }
+  .rte-editor { min-height: 280px; max-height: 480px; overflow-y: auto; background: #fff; color: #1e293b; padding: 14px; font-size: 14.5px; line-height: 1.8; outline: none; }
+  .rte-editor img { max-width: 100%; border-radius: 6px; }
+  .rte-editor video { max-width: 100%; border-radius: 6px; }
+  .rte-editor audio { width: 100%; }
+  .rte-editor:empty:before { content: attr(data-placeholder); color: #94a3b8; }
+  .rte-editor blockquote { border-left: 3px solid #94a3b8; margin: 8px 0; padding: 2px 12px; color: #475569; }
+  .rte-editor pre { background: #f1f5f9; border-radius: 6px; padding: 10px; overflow-x: auto; }
+  .rte-editor a { color: #2563eb; }
+  .tag-chip-new { display: inline-flex; align-items: center; gap: 6px; background: rgba(37,99,235,.15); color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 3px 10px; font-size: 12px; margin: 3px 6px 3px 0; }
+  .tag-chip-new .x { cursor: pointer; color: var(--danger); font-weight: 700; }
+  .modal .row2 { display: flex; gap: 14px; }
+  .modal .row2 > div { flex: 1; }
+  .modal .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+  .modal .actions .btn { padding: 9px 20px; }
+  .modal .checkbox { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: var(--text); }
+  .modal .checkbox input { width: auto; }
+
+  /* 提示 */
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 22px; z-index: 99; display: none; }
+  .toast.ok { border-color: var(--green); color: var(--green); }
+  .toast.err { border-color: var(--red); color: var(--red); }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; }
+  .muted { color: var(--muted); }
+  .p10 { padding: 10px 0; }
+
+  /* ---- 评论审核面板 ---- */
+  .cr-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cr-tab { padding: 5px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg3); color: var(--muted); font-size: 13px; cursor: pointer; }
+  .cr-tab:hover { border-color: var(--muted); color: var(--text); }
+  .cr-tab.active { border-color: var(--accent); color: var(--accent2); background: rgba(37,99,235,.12); }
+  .cr-item { border-bottom: 1px solid var(--border); padding: 14px 0; }
+  .cr-item:last-child { border-bottom: 0; }
+  .cr-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .cr-content { margin: 8px 0; line-height: 1.75; white-space: pre-wrap; word-break: break-word; }
+  .cr-meta { color: var(--muted); font-size: 12.5px; }
+  .cr-note { background: var(--bg3); border-left: 3px solid var(--border); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 8px 0; color: var(--muted); font-size: 13px; }
+  .cr-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .cr-form > div { display: flex; flex-direction: column; gap: 5px; }
+  .cr-form label { color: var(--muted); font-size: 12.5px; }
+  .cr-form input, .cr-form select { padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: inherit; font-size: 13px; }
+  .cr-cb { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+
+  /* ---- FR-X9 版本对比 diff ---- */
+  .diff-wrap { max-height: 56vh; overflow: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.6; }
+  .diff-line { white-space: pre-wrap; word-break: break-word; padding: 1px 0; }
+  .diff-line.dl-add { background: rgba(22, 163, 74, 0.16); color: #15803d; }
+  .diff-line.dl-del { background: rgba(220, 38, 38, 0.14); color: #b91c1c; }
+  .diff-line.diff-skip { color: var(--muted); font-size: 12px; }
+  .diff-leg { display: inline-flex; align-items: center; gap: 5px; margin-right: 14px; font-size: 12px; }
+  .diff-leg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+  .diff-leg .dl-add { background: rgba(22, 163, 74, 0.35); }
+  .diff-leg .dl-del { background: rgba(220, 38, 38, 0.35); }
+
+  /* ---- 移动端适配 ---- */
+  .menu-btn { display: none; background: none; border: 0; color: var(--text); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+  @media (max-width: 768px) {
+    .app { flex-direction: column !important; height: auto; min-height: 100vh; }
+    .sidebar { width: 100%; border-right: 0; border-bottom: 1px solid var(--border); flex-direction: column; }
+    .sidebar .brand { padding: 12px 16px; font-size: 15px; }
+    .sidebar .brand { display: flex; align-items: center; justify-content: space-between; }
+    .menu-btn { display: block; }
+    .sidebar .nav { display: none; padding: 8px; }
+    .sidebar.menu-open .nav { display: block; }
+    .sidebar .side-user { display: none; }
+    .sidebar.menu-open .side-user { display: block; padding: 10px 16px; border-top: 1px solid var(--border); }
+    .nav-item { padding: 11px 14px; }
+    .main { flex: 1; overflow: visible; }
+    .topbar { height: auto; min-height: 48px; padding: 8px 14px; flex-wrap: wrap; gap: 6px; }
+    .topbar .title { font-size: 15px; }
+    .content { padding: 14px; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .panel .p-body { padding: 6px 10px; }
+    table { display: block; overflow-x: auto; white-space: nowrap; }
+    th, td { padding: 8px 8px; font-size: 12.5px; }
+    .toolbar { flex-wrap: wrap; }
+    .toolbar .spacer { display: none; }
+    .modal { width: 94vw; max-height: 92vh; padding: 18px; }
+    .modal .row2 { flex-direction: column; gap: 8px; }
+    .login-card { width: 92vw; padding: 28px 22px; }
+    .rte-editor { min-height: 220px; }
+    .rte-bar { padding: 4px 6px; }
+    .rte-bar button { padding: 4px 7px; font-size: 12px; }
+    .stats { display: grid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 登录页：已关闭内嵌登录表单，改为跳转前台登录页（防爆破注入）。
+     默认隐藏，由 boot() 校验完登录态后决定是否显示——避免已登录用户每次都闪现拦截页。 -->
+<div class="login-wrap" id="loginWrap" style="display:none">
+  <div class="login-card">
+    <h1>博客管理后台</h1>
+    <div class="sub" id="loginSub">正在验证登录状态…</div>
+    <div class="err-msg" id="loginErr"></div>
+    <button class="btn-primary" id="loginBtn" style="display:none" onclick="window.location.href='/user/login.html?next=%2Fadmin%2Findex.html'">前往登录</button>
+    <div class="hint-box" id="loginHint" style="display:none">
+      登录成功后会自动返回后台。<br>
+      若登录后仍无法进入，说明账号无管理员权限。
+    </div>
+  </div>
+</div>
+
+<!-- 主应用 -->
+<div class="app" id="app">
+  <div class="sidebar" id="sidebar">
+    <div class="brand"><span><span class="dot"></span> 博客管理后台</span><button class="menu-btn" id="menuBtn" onclick="toggleSidebar()">☰</button></div>
+    <div class="nav" id="nav"></div>
+    <div class="side-user">
+      <div class="name" id="sideName">-</div>
+      <div class="muted" id="sideRole">-</div>
+      <span class="logout" onclick="logout()">退出登录</span>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <span class="title" id="pageTitle">仪表盘</span>
+      <span class="spacer"></span>
+      <span class="user-chip" id="topUser">-</span>
+      <button type="button" id="themeToggle" aria-label="切换深浅色" title="切换深浅色" style="margin-left:14px;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;font-size:13px;padding:5px 12px;border-radius:999px;line-height:1.4">🌙 深色</button>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal" id="modalBody"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+let TOKEN = localStorage.getItem("shawn_admin_token") || "";
+let ME = null;            // {username, role, role_name, nickname, email, perms:[]}
+let CUR_PAGE = "dashboard";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hasPerm = p => ME && ME.perms && ME.perms.includes(p);
+
+async function api(path, body, method) {
+  const opt = { method: method || (body ? "POST" : "GET"), headers: { "X-Token": TOKEN } };
+  if (body) { opt.headers["Content-Type"] = "application/json"; opt.body = JSON.stringify(body); }
+  const res = await fetch(path, opt);
+  const data = await res.json().catch(() => ({ ok: false, msg: "响应解析失败" }));
+  if (res.status === 401 && path !== "/api/login") { showLogin(); }
+  return data;
+}
+
+let toastTimer = null;
+function toast(msg, ok = true) {
+  const t = $("toast");
+  t.textContent = msg; t.className = "toast " + (ok ? "ok" : "err"); t.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = "none", 2600);
+}
+
+function openModal(html) {
+  $("modalBody").innerHTML = html;
+  $("modalMask").style.display = "flex";
+}
+function closeModal() { $("modalMask").style.display = "none"; }
+$("modalMask").addEventListener("click", e => { if (e.target === $("modalMask")) closeModal(); });
+
+function showLogin() {
+  // 登录窗口已关闭：清 token 并展示拦截页（按钮指向登录页，不再自动跳转，避免循环闪现）
+  TOKEN = ""; localStorage.removeItem("shawn_admin_token");
+  const sub = $("loginSub"), err = $("loginErr"), btn = $("loginBtn"), hint = $("loginHint");
+  if (sub) sub.textContent = "请先登录后再访问后台";
+  if (err) err.textContent = "";
+  if (btn) btn.style.display = "inline-block";
+  if (hint) hint.style.display = "block";
+  $("loginWrap").style.display = "flex";
+}
+
+function toggleSidebar() {
+  $("sidebar").classList.toggle("menu-open");
+}
+
+async function boot() {
+  // 拦截页默认隐藏（HTML 里 display:none）；这里先进入「验证中」状态，校验失败才展示拦截页，
+  // 避免已登录用户每次进后台都闪现「请先登录」。
+  const sub = $("loginSub"), err = $("loginErr"), btn = $("loginBtn"), hint = $("loginHint");
+  function showVerifying() {
+    $("loginWrap").style.display = "flex";
+    if (sub) sub.textContent = "正在验证登录状态…";
+    if (err) err.textContent = "";
+    if (btn) btn.style.display = "none";
+    if (hint) hint.style.display = "none";
+  }
+  function showDenied() {
+    if (sub) sub.textContent = "请先登录后再访问后台";
+    if (err) err.textContent = "";
+    if (btn) btn.style.display = "inline-block";
+    if (hint) hint.style.display = "block";
+    $("loginWrap").style.display = "flex";
+  }
+  function enterApp() {
+    $("loginWrap").style.display = "none";
+    $("app").style.display = "flex";
+    $("sideName").textContent = ME.nickname || ME.username;
+    $("sideRole").textContent = ME.role_name;
+    $("topUser").textContent = ME.username + "（" + ME.role_name + "）";
+    renderNav();
+    navTo("dashboard");
+  }
+
+  // TOKEN 为空时，先尝试用前台登录态的 token（xw_token / shawn_site_token）升级：
+  // 该用户若确实是管理员，直接把它补写为 shawn_admin_token，避免「前台已登录却进不了后台」的死循环。
+  if (!TOKEN) {
+    const alt = localStorage.getItem("xw_token") || localStorage.getItem("shawn_site_token") || "";
+    if (alt) {
+      try {
+        const res = await fetch("/api/me", { headers: { "X-Token": alt } });
+        const me = await res.json().catch(() => ({}));
+        const role = me && me.user && me.user.role;
+        if (me && me.ok && (role === "admin" || role === "super_admin")) {
+          TOKEN = alt;
+          localStorage.setItem("shawn_admin_token", alt);
+          localStorage.setItem("shawn_admin_role", role);
+        }
+      } catch (e) { /* 忽略，走正常 showLogin */ }
+    }
+  }
+  if (!TOKEN) { showLogin(); return; }
+  showVerifying();
+  const r = await api("/api/me");
+  if (!r.ok) { showLogin(); return; }
+  ME = r.user;
+  ME.perms = r.perms || [];
+  // 非管理员：回首页（Worker 的 guardAdmin 也会兜底拦截 API 之外的路径）
+  const role = ME.role || "";
+  if (role !== "admin" && role !== "super_admin") {
+    window.location.href = "/index.html";
+    return;
+  }
+  enterApp();
+}
+
+function renderNav() {
+  const items = [
+    ["dashboard", "📊", "仪表盘", "dashboard"],
+    ["posts", "📝", "文章管理", "posts"],
+    ["categories", "🗂", "分类管理", "categories"],
+    ["tags", "🏷", "标签管理", "tags"],
+    ["columns", "📚", "分栏管理", "columns"],
+    ["comments", "💬", "评论管理", "comments"],
+    ["comment_review", "🛡", "评论审核", "comments"],
+    ["content_ops", "📦", "内容运营", "posts"],
+    ["users", "👥", "用户管理", "users"],
+    ["tools", "🧰", "工具设置", "settings"],
+    ["about", "👤", "关于我编辑", "settings"],
+    ["layout", "🧱", "页面装修", "settings"],
+    ["settings", "⚙", "个人设置", "settings"],
+  ];
+  $("nav").innerHTML = items.filter(it => hasPerm(it[3])).map(it =>
+    `<div class="nav-item ${CUR_PAGE === it[0] ? "active" : ""}" onclick="navTo('${it[0]}')">
+       <span class="ico">${it[1]}</span>${it[2]}</div>`).join("");
+}
+
+function navTo(page) {
+  CUR_PAGE = page;
+  renderNav();
+  const titles = { dashboard: "仪表盘", posts: "文章管理", categories: "分类管理", tags: "标签管理", columns: "分栏管理", comments: "评论管理", comment_review: "评论审核", content_ops: "内容运营", users: "用户管理", tools: "工具设置", about: "关于我编辑", layout: "页面装修", settings: "个人设置" };
+  $("pageTitle").textContent = titles[page] || page;
+  const fn = { dashboard: loadDashboard, posts: loadPosts, categories: loadCategories, tags: loadTagsPage, columns: loadColumnsPage, comments: loadComments, comment_review: loadCommentReview, content_ops: loadContentOps, users: loadUsers, tools: loadToolsPage, about: loadAboutPage, layout: loadLayoutPage, settings: loadSettings };
+  (fn[page] || loadDashboard)();
+}
+
+async function logout() {
+  await api("/api/logout", {});
+  showLogin();
+}
+
+/* ---------- 登录：改为跳转前台登录页（登录后回后台） ---------- */
+function doLogin() {
+  window.location.href = "/user/login.html?next=" + encodeURIComponent("/admin/index.html");
+}
+$("loginBtn").onclick = doLogin;
+
+/* ---------- 仪表盘 ---------- */
+async function loadDashboard() {
+  const r = await api("/api/dashboard");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const d = r.data;
+  const stats = [
+    ["文章总数", d.posts, ""], ["待发布文章", d.pending_posts, "warn"],
+    ["分类数量", d.categories, ""], ["评论总数", d.comments, ""],
+    ["待审评论", d.pending_comments, "warn"], ["用户总数", d.users, ""],
+  ].map(s => `<div class="stat ${s[2]}"><div class="num">${s[1]}</div><div class="label">${s[0]}</div></div>`).join("");
+  const rows = d.recent_posts.length ? d.recent_posts.map(p =>
+    `<tr><td>${esc(p.title)}</td>
+      <td>${p.is_top ? '<span class="tag tag-yellow">置顶</span>' : ""} ${p.status ? '<span class="tag tag-green">已发布</span>' : '<span class="tag tag-gray">草稿</span>'}</td>
+      <td>${p.views}</td><td class="muted">${esc(p.created_at)}</td></tr>`).join("")
+    : `<tr><td colspan="4"><div class="empty">暂无文章</div></td></tr>`;
+  $("content").innerHTML = `
+    <div class="stats">${stats}</div>
+    <div class="panel">
+      <div class="p-head">最近文章</div>
+      <div class="p-body"><table><thead><tr><th>标题</th><th>状态</th><th>浏览</th><th>创建时间</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+}
+
+/* ---------- 文章管理 ---------- */
+async function loadPosts() {
+  const r = await api("/api/posts");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const cats = await api("/api/categories");
+  const catMap = {}; (cats.data || []).forEach(c => catMap[c.id] = c.name);
+  const canEdit = hasPerm("posts");
+  // 内容运营面板的「定时」按钮回调只收数字 id：标题统一由这张表查（避免把标题拼进 onclick 字符串）
+  CO.postTitles = {}; r.data.forEach(p => { CO.postTitles[Number(p.id)] = p.title; });
+  const rows = r.data.map(p => `
+    <tr>
+      <td>${p.is_top ? '<span class="tag tag-yellow">置顶</span> ' : ""}${esc(p.title)}</td>
+      <td>${esc(catMap[p.category_id] || "未分类")}</td>
+      <td>${(p.tags || []).map(t => `<span class="tag tag-blue">#${esc(t)}</span>`).join(" ") || `<span class="muted">-</span>`}</td>
+      <td>${(p.columns || []).map(c => `<span class="tag tag-green">${esc(c)}</span>`).join(" ") || `<span class="muted">-</span>`}</td>
+      <td>${p.status ? '<span class="tag tag-green">已发布</span>' : '<span class="tag tag-gray">草稿</span>'}</td>
+      <td>${p.views}</td>
+      <td class="muted">${esc(p.created_at)}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="editPost(${p.id})">编辑</button>
+          <button class="btn btn-sm" onclick="coGotoRevisions(${Number(p.id) || 0})">历史</button>
+          <button class="btn btn-sm" onclick="coSchedulePrompt(${Number(p.id) || 0})">定时</button>
+          <button class="btn btn-sm btn-red" onclick="delPost(${p.id})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar">
+      <span class="muted">共 ${r.data.length} 篇文章</span>
+      <span class="spacer"></span>
+      ${canEdit ? `<button class="btn btn-blue" onclick="editPost(0)">＋ 新建文章</button>
+      <button class="btn" onclick="importPosts()">从离线镜像导入</button>` : ""}
+    </div>
+    <div class="panel"><div class="p-body">
+      <table><thead><tr><th>标题</th><th>分类</th><th>标签</th><th>分栏</th><th>状态</th><th>浏览</th><th>创建时间</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="8"><div class="empty">暂无文章</div></td></tr>`}</tbody></table>
+    </div></div>`;
+}
+
+async function importPosts() {
+  if (!confirm("从离线镜像 shawn.qingyi.dpdns.org\\article 扫描文章标题并导入文章表？")) return;
+  const r = await api("/api/import_posts", {});
+  toast(r.msg, r.ok); if (r.ok) loadPosts();
+}
+
+async function editPost(id) {
+  // 内置页面编辑（保留侧边栏），而非 modal 弹窗
+  openPostEditor(id);
+}
+
+/* ---------- 内置文章编辑器页面（Markdown / HTML 双模式） ---------- */
+let _editorMode = "html";   // html | markdown
+let _editingId = 0;
+
+async function openPostEditor(id) {
+  _editingId = id || 0;
+  CUR_PAGE = "post_editor";
+  renderNav();
+  $("pageTitle").textContent = (id ? "编辑文章" : "新建文章");
+  const cats = await api("/api/categories");
+  const tagRes = await api("/api/tags");
+  const colRes = await api("/api/columns");
+  const catOpts = (cats.data || []).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  const tagAll = tagRes.data || [];
+  const colAll = colRes.data || [];
+  let pre = { title: "", category_id: "", summary: "", content: "", status: 1, is_top: 0, cover_image: "", tags: [], columns: [] };
+  if (id) {
+    const list = await api("/api/posts");
+    const p = (list.data || []).find(x => x.id === id);
+    if (p) { pre = { title: p.title, category_id: p.category_id || "", summary: p.summary, content: p.content, status: p.status, is_top: p.is_top, cover_image: p.cover_image || "", tags: p.tags || [], columns: p.columns || [] }; }
+  }
+  const curTags = {}; pre.tags.forEach(t => curTags[t] = 1);
+  const curCols = {}; pre.columns.forEach(c => curCols[c] = 1);
+  const tagBoxes = tagAll.map(t =>
+    `<label style="display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0;font-size:13px"><input type="checkbox" class="ptag" value="${t.id}" data-name="${esc(t.name)}" ${curTags[t.name] ? "checked" : ""}> ${esc(t.name)}</label>`).join("") || `<div class="muted">暂无标签，可直接在下方用 # 前缀创建</div>`;
+  const colBoxes = colAll.map(c =>
+    `<label style="display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0;font-size:13px"><input type="checkbox" class="pcol" value="${c.id}" ${curCols[c.name] ? "checked" : ""}> ${esc(c.name)}</label>`).join("") || `<div class="muted">暂无分栏，可先到「分栏管理」创建</div>`;
+
+  $("content").innerHTML = `
+    <div class="panel" style="min-height:calc(100vh - 130px)">
+      <div class="p-head">${id ? "编辑文章" : "新建文章"}
+        <span class="spacer"></span>
+        <button class="btn btn-sm" onclick="navTo('posts')">← 返回文章管理</button>
+      </div>
+      <div class="p-body" style="padding:18px">
+        <label style="display:block;color:var(--muted);margin:8px 0 6px">标题</label>
+        <input id="f_title" value="${esc(pre.title)}" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px">
+        <div style="display:flex;gap:18px;margin-top:14px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px"><label style="display:block;color:var(--muted);margin:8px 0 6px">分类</label>
+            <select id="f_cat" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)"><option value="">未分类</option>${catOpts}</select></div>
+          <div style="flex:1;min-width:120px"><label style="display:block;color:var(--muted);margin:8px 0 6px">状态</label>
+            <select id="f_status" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+              <option value="1" ${pre.status ? "selected" : ""}>已发布</option>
+              <option value="0" ${!pre.status ? "selected" : ""}>草稿</option></select></div>
+          <div style="flex:1;min-width:120px"><label style="display:block;color:var(--muted);margin:8px 0 6px">置顶</label>
+            <select id="f_top" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+              <option value="0" ${!pre.is_top ? "selected" : ""}>普通</option>
+              <option value="1" ${pre.is_top ? "selected" : ""}>置顶</option></select></div>
+        </div>
+        <div style="display:flex;gap:18px;margin-top:14px;flex-wrap:wrap">
+          <div style="flex:2;min-width:280px">
+            <label style="display:block;color:var(--muted);margin:8px 0 6px">标签</label>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">${tagBoxes}<div id="f_newTags"></div>
+              <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+                <input id="f_tagInput" placeholder="输入 #标签 或 标签名后点添加/回车" style="flex:1;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+                <button type="button" class="btn btn-sm" onclick="addCustomTag()">添加</button>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1;min-width:220px">
+            <label style="display:block;color:var(--muted);margin:8px 0 6px">分栏</label>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">${colBoxes}</div>
+            <label style="display:block;color:var(--muted);margin:14px 0 6px">摘要 <button type="button" class="btn btn-sm btn-blue" onclick="aiSummary()" style="margin-left:8px">✨ AI 生成</button></label>
+            <input id="f_summary" value="${esc(pre.summary)}" style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+          </div>
+        </div>
+        <div style="margin:16px 0 6px;display:flex;align-items:center;gap:10px">
+          <label style="color:var(--muted)">封面图（可选，列表/分享卡片用）</label>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input id="f_cover" value="${esc(pre.cover_image || '')}" placeholder="图片 URL，或点右侧上传" style="flex:1;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+          <button type="button" class="btn btn-sm" onclick="coverUpload()">📤 上传封面</button>
+          <button type="button" class="btn btn-sm" onclick="$('f_cover').value='';return false;">清除</button>
+        </div>
+        <div id="f_coverPrev" style="${pre.cover_image ? '' : 'display:none'};margin-top:8px"><img src="${esc(pre.cover_image)}" style="max-width:260px;max-height:140px;border-radius:8px;border:1px solid var(--border)"></div>
+        <div style="margin:16px 0 6px;display:flex;align-items:center;gap:10px">
+          <label style="color:var(--muted)">正文</label>
+        </div>
+        <div id="quill_wrap" style="background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <div id="quill_toolbar" style="border-bottom:1px solid var(--border)">
+            <span class="ql-formats">
+              <button class="ql-bold" title="加粗"></button><button class="ql-italic" title="斜体"></button>
+              <button class="ql-underline" title="下划线"></button><button class="ql-strike" title="删除线"></button>
+              <select class="ql-color" title="文字颜色"></select><select class="ql-background" title="背景高亮"></select>
+            </span>
+            <span class="ql-formats">
+              <select class="ql-font" title="字体"></select>
+              <select class="ql-size" title="字号"></select>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-header" value="2" title="二级标题"></button>
+              <button class="ql-header" value="3" title="三级标题"></button>
+              <button class="ql-header" value="4" title="四级标题"></button>
+              <button class="ql-blockquote" title="引用"></button>
+              <button class="ql-code-block" title="代码块"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-list" value="ordered" title="有序列表"></button>
+              <button class="ql-list" value="bullet" title="无序列表"></button>
+              <button class="ql-list" value="checked" title="待办清单"></button>
+              <button class="ql-indent" value="-1" title="减少缩进"></button>
+              <button class="ql-indent" value="+1" title="增加缩进"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-align" value="" title="左对齐"></button>
+              <button class="ql-align" value="center" title="居中"></button>
+              <button class="ql-align" value="right" title="右对齐"></button>
+              <button class="ql-align" value="justify" title="两端对齐"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-link" title="插入链接"></button>
+              <button class="ql-image" title="插入图片（本地上传）"></button>
+              <button class="ql-video" title="插入视频"></button>
+              <button class="ql-formula" title="公式"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-table" title="插入表格"></button>
+              <button class="ql-clean" title="清除格式"></button>
+            </span>
+          </div>
+          <div id="quill_editor" style="min-height:55vh"></div>
+        </div>
+        <input type="file" id="f_media" accept="image/*,audio/*,video/*" style="display:none">
+        <input type="file" id="f_coverfile" accept="image/*" style="display:none">
+        <div class="actions" style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn" onclick="navTo('posts')">取消</button>
+          <button class="btn btn-green" onclick="savePost(${id || 0})">保存并返回</button>
+        </div>
+      </div>
+    </div>`;
+  $("f_cat").value = String(pre.category_id || "");
+  window.newTagNames = [];
+  initQuill(pre.content || "");
+}
+
+/* ---------- 富文本编辑器（Quill 2，图文/表格/公式/代码高亮） ---------- */
+let _quill = null;
+
+function initQuill(html){
+  if (window.Quill === undefined) {
+    // CDN 未加载（离线/网络问题）：退化为纯 textarea，避免编辑器空白
+    const w = $("quill_wrap");
+    if (w) w.innerHTML = `<textarea id="quill_fallback" style="width:100%;min-height:55vh;background:var(--bg);border:0;color:var(--text);padding:14px;font-family:inherit;font-size:14px;line-height:1.8">${esc(html)}</textarea>`;
+    toast("富文本库加载失败，已退化为纯文本编辑（保存时按纯文本处理）", false);
+    return;
+  }
+  // 注册 Quill 内建的表单/表格模块（Quill 2 内置，无需额外注册）
+  const toolbar = document.getElementById("quill_toolbar");
+  _quill = new Quill("#quill_editor", {
+    modules: {
+      toolbar: { container: toolbar },
+      syntax: { highlight: window.hljs ? function (text) { return window.hljs.highlightAuto(text).value; } : undefined },
+    },
+    placeholder: "在此输入正文…",
+    theme: "snow",
+  });
+  // 载入既有内容
+  if (html) {
+    // Quill 用 clipboard.dangerouslyPasteHTML 会触发模块；用 root.innerHTML 直接注入最稳
+    _quill.root.innerHTML = html;
+  }
+  // 图片上传：覆盖默认 image handler，改为走 /api/upload（本地上传）
+  const tb = _quill.getModule("toolbar");
+  if (tb) {
+    tb.addHandler("image", function () { $("f_media").click(); });
+  }
+  // 文件选择 → 上传 → 插入
+  $("f_media").onchange = function () {
+    const f = this.files[0]; if (!f) return;
+    uploadFile(f).then(function (url) {
+      const range = _quill.getSelection(true);
+      _quill.insertEmbed(range.index, "image", url);
+      _quill.setSelection(range.index + 1);
+      toast("图片已插入");
+    });
+    this.value = "";
+  };
+}
+
+/* 统一上传：图片/音频/视频 → /api/upload，返回可访问 URL */
+function uploadFile(file){
+  const fd = new FormData(); fd.append("file", file);
+  return fetch("/api/upload", { method: "POST", headers: { "X-Token": TOKEN }, body: fd })
+    .then(r => r.json())
+    .then(j => {
+      if (!j || !j.ok) throw new Error((j && j.msg) || "上传失败");
+      return j.data.url;
+    });
+}
+
+/* AI 摘要：调 /api/admin/ai-summary（自建模型），返回摘要填入摘要框 */
+async function aiSummary(){
+  const content = _quill ? _quill.root.textContent : (($("quill_fallback") && $("quill_fallback").value) || "");
+  if (!content || !content.trim()) { toast("正文为空，无法生成摘要", false); return; }
+  const btn = event && event.target ? event.target : null;
+  const old = btn ? btn.textContent : "";
+  if (btn) { btn.disabled = true; btn.textContent = "生成中…"; }
+  try {
+    const r = await api("/api/admin/ai-summary", { content: content });
+    if (r.ok && r.data && r.data.summary) {
+      $("f_summary").value = r.data.summary;
+      toast("摘要已生成");
+    } else {
+      toast((r && r.msg) || "生成失败", false);
+    }
+  } catch (e) {
+    toast("生成失败：" + (e.message || "网络异常"), false);
+  }
+  if (btn) { btn.disabled = false; btn.textContent = old; }
+}
+
+/* 封面图上传 */
+function coverUpload(){
+  $("f_coverfile").value = "";
+  $("f_coverfile").click();
+}
+(function(){
+  // 封面图文件选择
+  document.addEventListener("change", function(e){
+    if (e.target && e.target.id === "f_coverfile") {
+      const f = e.target.files[0]; if (!f) return;
+      uploadFile(f).then(function(url){
+        $("f_cover").value = url;
+        const pv = $("f_coverPrev");
+        pv.style.display = "";
+        pv.innerHTML = `<img src="${esc(url)}" style="max-width:260px;max-height:140px;border-radius:8px;border:1px solid var(--border)">`;
+        toast("封面已上传");
+      }).catch(function(e){ toast(e.message || "上传失败", false); });
+      e.target.value = "";
+    }
+  });
+})();
+
+/* 清除格式（供外部按钮调用） */
+function rteClear(){ if (_quill) { const r = _quill.getSelection(true); _quill.removeFormat(r.index, r.length || 1); } }
+function addCustomTag(){
+  const inp = $("f_tagInput"); const v = (inp.value || "").trim().replace(/^#+/, "");
+  if (!v) return;
+  const cb = Array.from(document.querySelectorAll(".ptag")).find(x => x.getAttribute("data-name") === v);
+  if (cb) { cb.checked = true; inp.value = ""; return; }
+  const list = window.newTagNames || (window.newTagNames = []);
+  if (list.includes(v)) { inp.value = ""; return; }
+  list.push(v);
+  $("f_newTags").innerHTML = list.map((n,i) => `<span class="tag-chip-new">#${esc(n)}<span class="x" data-i="${i}" onclick="delNewTag(${i})">×</span></span>`).join("");
+  inp.value = "";
+}
+function delNewTag(i){
+  window.newTagNames.splice(i, 1);
+  $("f_newTags").innerHTML = window.newTagNames.map((n,j) => `<span class="tag-chip-new">#${esc(n)}<span class="x" data-i="${j}" onclick="delNewTag(${j})">×</span></span>`).join("");
+}
+
+async function savePost(id) {
+  const tags = Array.from(document.querySelectorAll(".ptag:checked")).map(x => Number(x.value));
+  (window.newTagNames || []).forEach(n => tags.push(n));
+  const columns = Array.from(document.querySelectorAll(".pcol:checked")).map(x => Number(x.value));
+  // 正文：Quill 优先；CDN 加载失败退化为 textarea
+  let content = "";
+  if (_quill) content = _quill.root.innerHTML;
+  else { const fb = $("quill_fallback"); content = fb ? fb.value : ""; }
+  let summary = $("f_summary").value.trim();
+  // 摘要为空时自动生成（AI 未配置/失败则静默跳过，保留空摘要，不阻断保存）
+  if (!summary && content && content.trim()) {
+    try {
+      const r = await api("/api/admin/ai-summary", { content: _quill ? _quill.root.textContent : content });
+      if (r.ok && r.data && r.data.summary) {
+        summary = r.data.summary;
+        $("f_summary").value = summary;
+        toast("摘要已自动生成");
+      }
+    } catch (e) { /* 自动生成失败不阻断保存 */ }
+  }
+  const body = {
+    id, title: $("f_title").value.trim(), category_id: $("f_cat").value || null,
+    summary, content,
+    cover_image: $("f_cover").value.trim(),
+    status: Number($("f_status").value), is_top: Number($("f_top").value),
+    tags, columns,
+  };
+  if (!body.title) { toast("请输入标题", false); return; }
+  const r = await api(id ? "/api/posts/update" : "/api/posts/create", body);
+  toast(r.msg, r.ok);
+  if (r.ok) { navTo("posts"); }  // 保存后返回文章管理（内置页面，非窗口）
+}
+
+async function delPost(id) {
+  if (!confirm("确定删除该文章？关联评论将一并删除。")) return;
+  const r = await api("/api/posts/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadPosts();
+}
+
+/* ---------- 分类管理 ---------- */
+async function loadCategories() {
+  const r = await api("/api/categories");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("categories");
+  const rows = r.data.map(c => `
+    <tr><td>${esc(c.name)}</td><td>${c.sort}</td><td>${c.cnt}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="editCat(${c.id})">编辑</button>
+        <button class="btn btn-sm btn-red" onclick="delCat(${c.id})">删除</button>` : ""}</td></tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar"><span class="muted">共 ${r.data.length} 个分类</span><span class="spacer"></span>
+      ${canEdit ? `<button class="btn btn-blue" onclick="editCat(0)">＋ 新增分类</button>` : ""}</div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>名称</th><th>排序</th><th>文章数</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="4"><div class="empty">暂无分类</div></td></tr>`}</tbody></table></div></div>`;
+}
+
+function editCat(id) {
+  let name = "", sort = 0;
+  if (id) {
+    // 从列表里找
+    api("/api/categories").then(r => {
+      const c = (r.data || []).find(x => x.id === id);
+      if (c) { name = c.name; sort = c.sort; }
+      showCatModal(id, name, sort);
+    });
+  } else showCatModal(0, "", 0);
+}
+function showCatModal(id, name, sort) {
+  openModal(`
+    <h3>${id ? "编辑分类" : "新增分类"}</h3>
+    <label>分类名称</label><input id="f_cat_name" value="${esc(name)}">
+    <label>排序值（越小越靠前）</label><input id="f_cat_sort" value="${sort}">
+    <div class="actions"><button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveCat(${id})">保存</button></div>`);
+}
+async function saveCat(id) {
+  const body = { id, name: $("f_cat_name").value.trim(), sort: Number($("f_cat_sort").value) || 0 };
+  if (!body.name) { toast("请输入分类名称", false); return; }
+  const r = await api(id ? "/api/categories/update" : "/api/categories/create", body);
+  toast(r.msg, r.ok); if (r.ok) { closeModal(); loadCategories(); }
+}
+async function delCat(id) {
+  if (!confirm("确定删除该分类？其下文章将移至未分类。")) return;
+  const r = await api("/api/categories/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadCategories();
+}
+
+/* ---------- 评论管理 ---------- */
+async function loadComments() {
+  const r = await api("/api/comments");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("comments");
+  const rows = r.data.map(m => `
+    <tr>
+      <td>${esc(m.post_title || "（已删除文章）")}</td>
+      <td>${esc(m.author || "匿名")}</td>
+      <td>${esc(m.content.slice(0, 60))}${m.content.length > 60 ? "…" : ""}</td>
+      <td>${m.status ? '<span class="tag tag-green">已通过</span>' : '<span class="tag tag-yellow">待审核</span>'}</td>
+      <td class="muted">${esc(m.created_at)}</td>
+      <td>${canEdit ? `${m.status ? `<button class="btn btn-sm" onclick="setComment(${m.id},0)">驳回</button>` : `<button class="btn btn-sm btn-green" onclick="setComment(${m.id},1)">通过</button>`}
+        <button class="btn btn-sm btn-red" onclick="delComment(${m.id})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar"><span class="muted">共 ${r.data.length} 条评论</span></div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>文章</th><th>作者</th><th>内容</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="6"><div class="empty">暂无评论</div></td></tr>`}</tbody></table></div></div>`;
+}
+async function setComment(id, status) {
+  const r = await api("/api/comments/update", { id, status });
+  toast(r.msg, r.ok); if (r.ok) loadComments();
+}
+async function delComment(id) {
+  if (!confirm("确定删除该评论？")) return;
+  const r = await api("/api/comments/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadComments();
+}
+
+/* ---------- 评论审核（待审队列 / 举报处理 / 评论配置 / 黑名单） ---------- */
+const CR_BL_TYPES = [["word", "敏感词"], ["ip", "IP"], ["ua", "User-Agent"], ["email", "邮箱"], ["client", "客户端指纹"]];
+const CR_FILTERS = [["pending", "待审"], ["all", "全部"], ["hidden", "已隐藏"]];
+const CR = {
+  loadedComments: false, loadedReports: false, loadedSettings: false, loadedBlacklist: false,
+  comments: [], reports: [], blacklist: [],
+  settings: { moderate: false, words: [], linkLimit: 0 },
+  filter: "pending", expanded: {}, expandedRep: {}, sel: {},
+  errs: { comments: "", reports: "", settings: "", blacklist: "" },
+};
+
+/* 统一请求封装：网络异常与 ok:false 都不静默，返回明确 msg 供界面提示 */
+async function crReq(path, body, method) {
+  try {
+    const r = await api(path, body, method);
+    if (!r || r.ok !== true) return { ok: false, msg: (r && r.msg) || "请求失败，请稍后重试" };
+    return r;
+  } catch (e) {
+    return { ok: false, msg: "请求失败，请检查网络或登录状态" };
+  }
+}
+
+/* 面板入口：沿用 navTo 的 #content 渲染机制 */
+function loadCommentReview() {
+  $("content").innerHTML = `
+    <section id="crPanel">
+      <div class="panel" style="margin-bottom:18px">
+        <div class="p-head">待审队列<span class="spacer"></span>
+          <span class="muted" style="font-weight:400" id="crQueueCount"></span></div>
+        <div class="p-body" style="padding:14px 18px">
+          <div class="toolbar" style="flex-wrap:wrap">
+            <div class="cr-tabs" id="crTabs">
+              ${CR_FILTERS.map(f => `<button class="cr-tab ${CR.filter === f[0] ? "active" : ""}" onclick="crSetFilter('${f[0]}')">${f[1]}</button>`).join("")}
+            </div>
+            <span class="spacer"></span>
+            <label class="muted" style="display:flex;align-items:center;gap:6px"><input type="checkbox" class="cr-cb" id="crAll" onchange="crToggleAll(this.checked)"> 全选</label>
+            <button class="btn btn-sm btn-green" onclick="crBulk('approve')">批量通过</button>
+            <button class="btn btn-sm" onclick="crBulk('reject')">批量隐藏</button>
+            <button class="btn btn-sm btn-red" onclick="crBulk('delete')">批量删除</button>
+          </div>
+          <div id="crQueue"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:18px">
+        <div class="p-head">举报处理<span class="spacer"></span>
+          <span class="muted" style="font-weight:400" id="crRepCount"></span>
+          <button class="btn btn-sm" style="margin-left:10px" onclick="crReloadReports()">刷新</button></div>
+        <div class="p-body" style="padding:6px 18px" id="crReports"></div>
+      </div>
+      <div class="panel" style="margin-bottom:18px">
+        <div class="p-head">评论配置</div>
+        <div class="p-body" style="padding:16px 18px" id="crSettings"></div>
+      </div>
+      <div class="panel">
+        <div class="p-head">评论黑名单<span class="spacer"></span>
+          <button class="btn btn-sm" onclick="crReloadBlacklist()">刷新</button></div>
+        <div class="p-body" style="padding:16px 18px" id="crBlacklist"></div>
+      </div>
+    </section>`;
+  crLoadAll(false);
+}
+
+/* 首次进入才请求；再次进入直接用内存里的数据重绘（不重复请求） */
+async function crLoadAll(force) {
+  const jobs = [];
+  if (force || !CR.loadedComments) jobs.push(crLoadComments());
+  if (force || !CR.loadedReports) jobs.push(crLoadReports());
+  if (force || !CR.loadedSettings) jobs.push(crLoadSettings());
+  if (force || !CR.loadedBlacklist) jobs.push(crLoadBlacklist());
+  if (jobs.length) await Promise.all(jobs);
+  crRenderQueue(); crRenderReports(); crRenderSettings(); crRenderBlacklist();
+}
+
+/* ---- 1) 待审队列 / 全部评论 ---- */
+async function crLoadComments() {
+  const r = await crReq("/api/comments");
+  if (!r.ok) { CR.errs.comments = r.msg; toast(r.msg, false); return; }
+  CR.errs.comments = "";
+  CR.comments = Array.isArray(r.data) ? r.data : [];
+  CR.loadedComments = true;
+}
+async function crRefreshComments() {
+  const r = await crReq("/api/comments");
+  if (!r.ok) { toast(r.msg, false); return; }
+  CR.comments = Array.isArray(r.data) ? r.data : [];
+  CR.loadedComments = true; CR.errs.comments = ""; CR.sel = {};
+  const all = $("crAll"); if (all) all.checked = false;
+  crRenderQueue();
+}
+function crFilterList() {
+  const list = CR.comments || [];
+  if (CR.filter === "all") return list;
+  // 后端 comments.status 只有 0/1：0 = 待审/隐藏，1 = 已通过
+  return list.filter(c => Number(c.status) === 0);
+}
+function crTitleOf(c) {
+  if (c.post_title) return c.post_title;
+  if (Number(c.post_id) > 0) return "文章 #" + Number(c.post_id);
+  if (c.page_id) return "页面 " + c.page_id;
+  return "（未知来源）";
+}
+function crRenderQueue() {
+  const box = $("crQueue"); if (!box) return;
+  const cnt = $("crQueueCount");
+  if (CR.errs.comments) {
+    if (cnt) cnt.textContent = "";
+    box.innerHTML = `<div class="empty">${esc(CR.errs.comments)}</div>`;
+    return;
+  }
+  const list = CR.filterList();
+  const pendingN = (CR.comments || []).filter(c => Number(c.status) === 0).length;
+  if (cnt) cnt.textContent = `待审/隐藏 ${pendingN} 条 · 共 ${CR.comments.length} 条 · 当前显示 ${list.length} 条`;
+  const canEdit = hasPerm("comments");
+  const hint = CR.filter === "hidden"
+    ? `<div class="cr-note">后端 comments.status 只有 0/1 两种状态，「隐藏」与「待审」同为 status=0，因此本列表与「待审」内容一致。</div>`
+    : "";
+  if (!list.length) {
+    box.innerHTML = hint + `<div class="empty">${CR.filter === "all" ? "暂无评论" : "没有待审评论 🎉"}</div>`;
+    return;
+  }
+  const rows = list.map(c => {
+    const id = Number(c.id);
+    const full = String(c.content == null ? "" : c.content);
+    const open = !!CR.expanded[id];
+    const shown = (open || full.length <= 200) ? full : full.slice(0, 200) + "…";
+    const st = Number(c.status) === 1 ? `<span class="tag tag-green">已通过</span>` : `<span class="tag tag-yellow">待审/已隐藏</span>`;
+    return `<div class="cr-item">
+      <div class="cr-head">
+        <input type="checkbox" class="cr-cb cr-pick" data-id="${id}" ${CR.sel[id] ? "checked" : ""} onchange="crPick(${id}, this.checked)">
+        <b>${esc(c.author || "匿名")}</b>${st}
+        <span class="cr-meta">📄 ${esc(crTitleOf(c))}</span>
+        <span class="cr-meta">🕒 ${esc(c.created_at || "")}</span>
+      </div>
+      <div class="cr-content">${esc(shown)}${full.length > 200 ? ` <a href="javascript:void(0)" onclick="crExpand(${id})">${open ? "收起" : "展开"}</a>` : ""}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-green" ${(!canEdit || Number(c.status) === 1) ? "disabled" : ""} onclick="crOne(${id}, 1)">通过</button>
+        <button class="btn btn-sm" ${(!canEdit || Number(c.status) === 0) ? "disabled" : ""} onclick="crOne(${id}, 0)">隐藏</button>
+        <button class="btn btn-sm btn-red" ${canEdit ? "" : "disabled"} onclick="crOne(${id}, -1)">删除</button>
+      </div>
+    </div>`;
+  }).join("");
+  box.innerHTML = hint + rows;
+}
+function crSetFilter(f) {
+  CR.filter = f;
+  const tabs = $("crTabs");
+  if (tabs) tabs.innerHTML = CR_FILTERS.map(x => `<button class="cr-tab ${CR.filter === x[0] ? "active" : ""}" onclick="crSetFilter('${x[0]}')">${x[1]}</button>`).join("");
+  crRenderQueue();
+}
+function crExpand(id) { CR.expanded[id] = !CR.expanded[id]; crRenderQueue(); }
+function crPick(id, checked) { CR.sel[id] = !!checked; }
+function crToggleAll(checked) {
+  crFilterList().forEach(c => { CR.sel[Number(c.id)] = !!checked; });
+  crRenderQueue();
+}
+function crSelectedIds() { return Object.keys(CR.sel).filter(k => CR.sel[k]).map(Number).filter(n => n > 0); }
+
+/* 单条：通过 / 隐藏（status 0|1） / 删除（物理删除） */
+async function crOne(id, status) {
+  if (!hasPerm("comments")) { toast("权限不足", false); return; }
+  if (status === -1) {
+    if (!confirm("确定删除这条评论？\n\n⚠ 物理删除，不可恢复！")) return;
+    const r = await crReq("/api/comments/delete", { id });
+    toast(r.msg || (r.ok ? "评论已删除" : "删除失败"), r.ok);
+    if (r.ok) await crRefreshComments();
+    return;
+  }
+  const r = await crReq("/api/comments/update", { id, status });
+  toast(r.msg || (r.ok ? "评论状态已更新" : "操作失败"), r.ok);
+  if (r.ok) await crRefreshComments();
+}
+/* 批量：通过 / 隐藏 / 删除 */
+async function crBulk(action) {
+  if (!hasPerm("comments")) { toast("权限不足", false); return; }
+  const ids = crSelectedIds();
+  if (!ids.length) { toast("请先勾选要处理的评论", false); return; }
+  const label = { approve: "通过", reject: "隐藏", delete: "删除" }[action] || action;
+  const extra = action === "delete" ? "\n\n⚠ 物理删除，不可恢复！" : "";
+  const capped = ids.length > 100 ? `\n\n注意：后端单次最多处理 100 条，超出部分不会被处理。` : "";
+  if (!confirm(`确定批量${label}选中的 ${ids.length} 条评论？${extra}${capped}`)) return;
+  const r = await crReq("/api/admin/comments/bulk", { ids, action });
+  toast(r.msg || (r.ok ? "批量操作成功" : "批量操作失败"), r.ok);
+  if (r.ok) await crRefreshComments();
+}
+
+/* ---- 2) 举报处理 ---- */
+async function crLoadReports() {
+  const r = await crReq("/api/admin/comments/report");
+  if (!r.ok) { CR.errs.reports = r.msg; toast(r.msg, false); return; }
+  CR.errs.reports = "";
+  CR.reports = Array.isArray(r.data) ? r.data : [];
+  CR.loadedReports = true;
+}
+async function crReloadReports() { await crLoadReports(); crRenderReports(); }
+function crReportPostTitle(rep) {
+  const pid = Number(rep.post_id) || 0;
+  if (!pid) return rep.page_id ? "页面 " + rep.page_id : "（来源未知）";
+  const hit = (CR.comments || []).find(c => Number(c.post_id) === pid && c.post_title);
+  return hit ? hit.post_title : "文章 #" + pid;
+}
+function crRenderReports() {
+  const box = $("crReports"); if (!box) return;
+  const cnt = $("crRepCount");
+  if (CR.errs.reports) {
+    if (cnt) cnt.textContent = "";
+    box.innerHTML = `<div class="empty">${esc(CR.errs.reports)}</div>`;
+    return;
+  }
+  const list = (CR.reports || []).filter(r => Number(r.status) === 0);
+  if (cnt) cnt.textContent = `待处理 ${list.length} 条`;
+  if (!list.length) { box.innerHTML = `<div class="empty">暂无待处理举报</div>`; return; }
+  const canEdit = hasPerm("comments");
+  box.innerHTML = list.map(rep => {
+    const rid = Number(rep.id);
+    const content = String(rep.content || rep.comment_content || "");
+    const author = rep.author || rep.comment_author || "匿名";
+    const open = !!CR.expandedRep[rid];
+    const shown = (open || content.length <= 120) ? content : content.slice(0, 120) + "…";
+    return `<div class="cr-item">
+      <div class="cr-head">
+        <span class="tag tag-red">举报 #${rid}</span>
+        <span class="cr-meta">评论 #${Number(rep.comment_id) || 0}</span>
+        <b>${esc(author)}</b>
+        <span class="cr-meta">📄 ${esc(crReportPostTitle(rep))}</span>
+        <span class="cr-meta">🕒 ${esc(rep.created_at || "")}</span>
+      </div>
+      <div class="cr-note"><b>理由：</b>${esc(rep.reason || "（未填写）")}${rep.detail ? ` · ${esc(rep.detail)}` : ""}</div>
+      <div class="cr-content">${esc(shown)}${content.length > 120 ? ` <a href="javascript:void(0)" onclick="crExpandRep(${rid})">${open ? "收起" : "展开"}</a>` : ""}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-green" ${canEdit ? "" : "disabled"} onclick="crHandleReport(${rid}, 1)">成立（隐藏评论）</button>
+        <button class="btn btn-sm" ${canEdit ? "" : "disabled"} onclick="crHandleReport(${rid}, 2)">忽略</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function crExpandRep(id) { CR.expandedRep[id] = !CR.expandedRep[id]; crRenderReports(); }
+async function crHandleReport(id, status) {
+  if (!hasPerm("comments")) { toast("权限不足", false); return; }
+  if (!confirm(status === 1 ? "确认举报成立？将同时隐藏该评论。" : "确认忽略这条举报？")) return;
+  const body = status === 1 ? { id, status: 1, hide: true } : { id, status: 2 };
+  const r = await crReq("/api/admin/comments/report", body);
+  toast(r.msg || (r.ok ? "处理成功" : "处理失败"), r.ok);
+  if (r.ok) { await crLoadReports(); crRenderReports(); if (status === 1) await crRefreshComments(); }
+}
+
+/* ---- 3) 评论配置 ---- */
+async function crLoadSettings() {
+  const r = await crReq("/api/admin/settings/comment");
+  if (!r.ok) { CR.errs.settings = r.msg; toast(r.msg, false); return; }
+  const d = r.data || {};
+  CR.settings = {
+    moderate: d.moderate === true || d.moderate === 1 || d.moderate === "1" || d.moderate === "true",
+    words: Array.isArray(d.words) ? d.words.map(w => String(w)) : [],
+    linkLimit: Number(d.linkLimit) || 0,
+  };
+  CR.errs.settings = ""; CR.loadedSettings = true;
+}
+function crRenderSettings() {
+  const box = $("crSettings"); if (!box) return;
+  if (CR.errs.settings) { box.innerHTML = `<div class="empty">${esc(CR.errs.settings)}</div>`; return; }
+  const s = CR.settings;
+  box.innerHTML = `
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <input type="checkbox" class="cr-cb" id="crModerate" ${s.moderate ? "checked" : ""}>
+      <span>先审后发（开启后新评论默认待审，需人工通过）</span>
+    </label>
+    <label style="display:block;color:var(--muted);margin:12px 0 6px">敏感词（每行一个，命中即拦截或转入待审）</label>
+    <textarea id="crWords" placeholder="一行一个词" style="width:100%;min-height:140px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px;font-family:inherit;font-size:13.5px;line-height:1.7">${esc(s.words.join("\n"))}</textarea>
+    <label style="display:block;color:var(--muted);margin:14px 0 6px">评论中允许的链接数上限（0-20，0 表示不允许带链接）</label>
+    <input type="number" id="crLinkLimit" min="0" max="20" step="1" value="${Number(s.linkLimit) || 0}" style="width:150px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+    <div style="margin-top:18px"><button class="btn btn-green" style="padding:9px 26px" onclick="crSaveSettings()">保存</button></div>`;
+}
+async function crSaveSettings() {
+  if (!hasPerm("comments")) { toast("权限不足", false); return; }
+  const words = ($("crWords") ? $("crWords").value : "").split("\n").map(w => w.trim()).filter(Boolean);
+  let limit = parseInt($("crLinkLimit") ? $("crLinkLimit").value : "0", 10);
+  if (isNaN(limit) || limit < 0) limit = 0;
+  if (limit > 20) limit = 20;
+  const body = { moderate: !!($("crModerate") && $("crModerate").checked), words, linkLimit: limit };
+  const r = await crReq("/api/admin/settings/comment", body);
+  toast(r.msg || (r.ok ? "评论设置已保存" : "保存失败"), r.ok);
+  if (r.ok) { CR.settings = body; CR.errs.settings = ""; CR.loadedSettings = true; crRenderSettings(); }
+}
+
+/* ---- 4) 黑名单 ---- */
+async function crLoadBlacklist() {
+  const r = await crReq("/api/admin/comment-blacklist");
+  if (!r.ok) { CR.errs.blacklist = r.msg; toast(r.msg, false); return; }
+  CR.errs.blacklist = "";
+  CR.blacklist = Array.isArray(r.data) ? r.data : [];
+  CR.loadedBlacklist = true;
+}
+async function crReloadBlacklist() { await crLoadBlacklist(); crRenderBlacklist(); }
+function crFmtExpire(v) {
+  const n = Number(v);
+  if (v === null || v === undefined || v === "" || !isFinite(n) || n <= 0) return "永不过期";
+  const d = new Date(n);
+  return isNaN(d.getTime()) ? String(v) : d.toLocaleString("zh-CN", { hour12: false });
+}
+function crRenderBlacklist() {
+  const box = $("crBlacklist"); if (!box) return;
+  if (CR.errs.blacklist) {
+    box.innerHTML = `<div class="empty">${esc(CR.errs.blacklist)}</div>`;
+    return;
+  }
+  const canEdit = hasPerm("comments");
+  const typeOpts = CR_BL_TYPES.map(t => `<option value="${t[0]}">${t[1]}（${t[0]}）</option>`).join("");
+  const rows = (CR.blacklist || []).map(b => `
+    <tr>
+      <td>${esc((CR_BL_TYPES.find(t => t[0] === b.type) || [b.type, b.type])[1])}</td>
+      <td style="word-break:break-all">${esc(b.value || "")}</td>
+      <td class="muted">${esc(b.reason || "-")}</td>
+      <td class="muted">${esc(crFmtExpire(b.expire_at))}</td>
+      <td>${canEdit ? `<button class="btn btn-sm btn-red" onclick="crDelBlacklist(${Number(b.id)})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  box.innerHTML = `
+    <div class="cr-form" style="margin-bottom:16px">
+      <div><label>类型</label><select id="crBlType">${typeOpts}</select></div>
+      <div style="flex:1;min-width:180px"><label>值（敏感词 / IP / UA / 邮箱 / 客户端指纹）</label><input id="crBlValue" maxlength="200" placeholder="要拦截的内容"></div>
+      <div style="flex:1;min-width:140px"><label>原因（可选）</label><input id="crBlReason" maxlength="200" placeholder="备注"></div>
+      <div><label>过期日期（可选，留空＝永不过期）</label><input type="date" id="crBlExpire"></div>
+      <div><button class="btn btn-green" style="padding:9px 22px" ${canEdit ? "" : "disabled"} onclick="crAddBlacklist()">加入黑名单</button></div>
+    </div>
+    <table>
+      <thead><tr><th>类型</th><th>值</th><th>原因</th><th>过期时间</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="5"><div class="empty">暂无黑名单记录</div></td></tr>`}</tbody>
+    </table>`;
+}
+async function crAddBlacklist() {
+  if (!hasPerm("comments")) { toast("权限不足", false); return; }
+  const type = $("crBlType") ? $("crBlType").value : "word";
+  const value = ($("crBlValue") ? $("crBlValue").value : "").trim();
+  const reason = ($("crBlReason") ? $("crBlReason").value : "").trim();
+  const dateStr = $("crBlExpire") ? $("crBlExpire").value : "";
+  if (!value) { toast("请输入要加入黑名单的值", false); return; }
+  // expire_at 必须是毫秒时间戳；留空传 0 = 永不过期（传秒级时间戳会被当成毫秒 → 立即过期）
+  let expire_at = 0;
+  if (dateStr) {
+    const p = dateStr.split("-").map(Number);
+    const d = new Date(p[0], (p[1] || 1) - 1, p[2] || 1, 23, 59, 59, 999);
+    expire_at = isNaN(d.getTime()) ? 0 : d.getTime();
+  }
+  const r = await crReq("/api/admin/comment-blacklist", { type, value, reason, expire_at });
+  toast(r.msg || (r.ok ? "已加入黑名单" : "保存失败"), r.ok);
+  if (r.ok) {
+    if ($("crBlValue")) $("crBlValue").value = "";
+    if ($("crBlReason")) $("crBlReason").value = "";
+    if ($("crBlExpire")) $("crBlExpire").value = "";
+    await crReloadBlacklist();
+  }
+}
+async function crDelBlacklist(id) {
+  if (!hasPerm("comments")) { toast("权限不足", false); return; }
+  if (!confirm("确定删除该黑名单记录？删除后该值将不再被拦截。")) return;
+  const r0 = await crReq("/api/admin/comment-blacklist", { id }, "DELETE");
+  // 首选 DELETE（同源后台无跨域预检）；若部署环境不支持，回退到模块内置的 POST {action:"delete"}
+  const r = r0.ok ? r0 : await crReq("/api/admin/comment-blacklist", { action: "delete", id });
+  toast(r.msg || (r.ok ? "已删除" : "删除失败"), r.ok);
+  if (r.ok) await crReloadBlacklist();
+}
+
+/* ---------- 内容运营（修订历史 / 导入导出 / 重定向 / 定时发布） ---------- */
+/* 请求封装：crReq 只是 api() 的「不静默失败」包装，与评论面板无耦合，这里直接复用，不重复实现 */
+const coReq = (path, body, method) => crReq(path, body, method);
+
+const CO = {
+  loadedRevisions: false, loadedRedirects: false,
+  revPostId: 0, revisions: [], revNote: "",
+  redirects: [], redirNote: "",
+  errs: { revisions: "", redirects: "" },
+  importResult: null, importMsg: "",
+  postTitles: {}, schedPostId: 0,
+};
+
+/** 毫秒时间戳 → 本地可读时间；非法值原样返回（后端 created_text 缺失时的兜底） */
+function coFmtMs(v) {
+  const n = Number(v);
+  if (!isFinite(n) || n <= 0) return String(v == null || v === "" ? "-" : v);
+  const d = new Date(n);
+  return isNaN(d.getTime()) ? String(v) : d.toLocaleString("zh-CN", { hour12: false });
+}
+function coFmtSize(v) {
+  const n = Number(v);
+  if (!isFinite(n) || n <= 0) return "0 B";
+  if (n < 1024) return n + " B";
+  if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+  return (n / 1024 / 1024).toFixed(2) + " MB";
+}
+function coToday() {
+  const d = new Date(), p = n => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+/** 下载 Blob：接口要带 X-Token，window.open 无法带自定义头，所以走 fetch + Blob */
+function coDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => {
+    try { URL.revokeObjectURL(url); } catch (e) { /* 忽略 */ }
+    if (a.parentNode) a.parentNode.removeChild(a);
+  }, 1500);
+}
+
+/* 面板入口：沿用 navTo 的 #content 渲染机制 + CR.loaded* 式懒加载标记 */
+function loadContentOps() {
+  $("content").innerHTML = `
+    <section id="coPanel">
+      <div class="cr-note">
+        本面板全部请求走 <b>X-Token</b> 鉴权；回滚 / 删除快照 / 导入 / 重定向增删 / 定时都需二次确认。
+        四个分区首次进入面板才请求数据，再次进入直接用内存里的数据重绘（点「刷新」可强制重取）。
+      </div>
+      <div class="panel" style="margin-bottom:18px" id="coRevPanel">
+        <div class="p-head">A · 修订历史与回滚<span class="spacer"></span>
+          <span class="muted" style="font-weight:400" id="coRevCount"></span></div>
+        <div class="p-body" style="padding:16px 18px">
+          <div class="cr-form" style="margin-bottom:14px">
+            <div><label>文章 ID（留空＝全部文章的最近快照）</label>
+              <input id="coRevPostId" type="number" min="0" style="width:170px" placeholder="如 12" value="${CO.revPostId ? CO.revPostId : ""}"></div>
+            <div><button class="btn" style="padding:9px 18px" onclick="coApplyRevFilter()">按文章查询</button></div>
+            <div><button class="btn" style="padding:9px 18px" onclick="coForceRevisions()">刷新</button></div>
+          </div>
+          <div id="coRevList"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:18px" id="coIoPanel">
+        <div class="p-head">B · 导出 / 导入</div>
+        <div class="p-body" style="padding:16px 18px">
+          <div class="cr-form" style="margin-bottom:10px">
+            <div><label>文章 ID（留空＝全量，后端上限 200 篇）</label>
+              <input id="coExpId" type="number" min="0" style="width:180px" placeholder="留空＝全量"></div>
+            <div><button class="btn btn-blue" style="padding:9px 18px" onclick="coExport('json')">导出 JSON</button></div>
+            <div><button class="btn" style="padding:9px 18px" onclick="coExport('markdown')">导出 Markdown</button></div>
+          </div>
+          <div class="cr-note">导出的 JSON 是「文章数组」（文件名 posts-日期.json），可直接粘贴到下面的导入框；Markdown 为 YAML front-matter + 正文，多篇顺序拼成一个 .md 文件。</div>
+          <div style="height:1px;background:var(--border);margin:18px 0"></div>
+          <div class="cr-form" style="margin-bottom:8px">
+            <div><label>导入模式</label>
+              <select id="coImpMode">
+                <option value="create">create（新建文章）</option>
+                <option value="update">update（按 source_file / id 匹配更新）</option>
+              </select></div>
+            <div><button class="btn btn-green" style="padding:9px 22px" onclick="coImport()">导入</button></div>
+          </div>
+          <textarea id="coImpData" placeholder='在此粘贴 JSON 数组，例如 [{"title":"标题","summary":"摘要","content":"&lt;p&gt;正文&lt;/p&gt;","tags":["标签"],"columns":["分栏"]}]' style="width:100%;min-height:150px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.6"></textarea>
+          <div class="muted" style="font-size:12px;margin-top:6px">可直接粘贴「导出 JSON」的原文（若外层是 {"ok":true,"data":[...]} 会自动取 data）；每条必须有 title；单次最多处理 200 条，超出部分被截断。</div>
+          <div id="coImpResult" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:18px" id="coRedirPanel">
+        <div class="p-head">C · 重定向管理<span class="spacer"></span>
+          <span class="muted" style="font-weight:400" id="coRedirCount"></span>
+          <button class="btn btn-sm" style="margin-left:10px" onclick="coForceRedirects()">刷新</button></div>
+        <div class="p-body" style="padding:16px 18px" id="coRedirBox"></div>
+      </div>
+      <div class="panel" id="coSchedPanel">
+        <div class="p-head">D · 定时发布</div>
+        <div class="p-body" style="padding:16px 18px">
+          <div class="cr-form" style="margin-bottom:10px">
+            <div><label>文章 ID</label>
+              <input id="coSchedId" type="number" min="0" style="width:150px" placeholder="如 12"></div>
+            <div><label>发布时间（本地时间）</label>
+              <input type="datetime-local" id="coSchedAt2"></div>
+            <div><button class="btn btn-blue" style="padding:9px 18px" onclick="coScheduleFromForm()">设置定时</button></div>
+            <div><button class="btn" style="padding:9px 18px" onclick="coCancelScheduleFromForm()">取消定时（转草稿）</button></div>
+          </div>
+          <div class="cr-note">⚠ 定时期间后端会把文章置为草稿（status=0）；到期后需要「打开后台仪表盘」时才会被自动转为已发布 —— 本项目没有 Cron，这是后端的设计如此。「取消定时」提交 publish_at=0，会清掉定时并保持草稿。</div>
+          <div class="cr-note">「文章管理」列表里每篇文章也有「历史 / 定时」按钮，效果与本面板相同。</div>
+        </div>
+      </div>
+    </section>`;
+  coLoadAll(false);
+}
+
+/* 首次进入才请求；再次进入直接用内存里的数据重绘（照 CR 的懒加载标记） */
+async function coLoadAll(force) {
+  const jobs = [];
+  if (force || !CO.loadedRevisions) jobs.push(coLoadRevisions());
+  if (force || !CO.loadedRedirects) jobs.push(coLoadRedirects());
+  if (jobs.length) await Promise.all(jobs);
+  coRenderRevisions(); coRenderRedirects(); coRenderImportResult();
+}
+
+/* ---- A) 修订历史 / 预览 / 回滚 / 删除快照 ---- */
+async function coLoadRevisions() {
+  const pid = Number(CO.revPostId) || 0;
+  const r = await coReq("/api/admin/revisions" + (pid > 0 ? "?post_id=" + pid : "?limit=100"));
+  if (!r.ok) { CO.errs.revisions = r.msg; toast(r.msg, false); return; }
+  CO.errs.revisions = "";
+  CO.revisions = Array.isArray(r.data) ? r.data : [];
+  CO.revNote = r.note || "";
+  CO.loadedRevisions = true;
+}
+function coRevNoteHtml() {
+  if (!CO.revNote) return "";
+  const t = CO.revNote.indexOf("扩展表未创建") >= 0
+    ? " —— article_revisions 扩展表尚未部署（需先执行扩展表建表脚本），修订历史 / 回滚暂不可用。"
+    : "";
+  return `<div class="cr-note">后端提示：<b>${esc(CO.revNote)}</b>${t}</div>`;
+}
+async function coForceRevisions() {
+  const el = $("coRevPostId");
+  CO.revPostId = el ? (Number(el.value) || 0) : 0;
+  CO.loadedRevisions = false;
+  await coLoadRevisions();
+  coRenderRevisions();
+}
+function coApplyRevFilter() { coForceRevisions(); }
+/* 文章管理行的「历史」按钮：切到内容运营面板并按该文章查询（换 post_id 必须重拉，不能吃缓存） */
+function coGotoRevisions(postId) {
+  CO.revPostId = Number(postId) || 0;
+  CO.loadedRevisions = false;
+  navTo("content_ops");
+  const el = $("coRevPostId"); if (el) el.value = CO.revPostId ? String(CO.revPostId) : "";
+  window.scrollTo(0, 0);
+}
+function coRenderRevisions() {
+  const box = $("coRevList"); if (!box) return;
+  const cnt = $("coRevCount");
+  if (CO.errs.revisions) {
+    if (cnt) cnt.textContent = "";
+    box.innerHTML = `<div class="empty">${esc(CO.errs.revisions)}</div>`;
+    return;
+  }
+  const canEdit = hasPerm("posts");
+  const list = CO.revisions || [];
+  if (cnt) cnt.textContent = CO.revPostId ? `文章 #${CO.revPostId} · ${list.length} 个快照` : `全部文章 · ${list.length} 个快照`;
+  const noteHtml = coRevNoteHtml();
+  if (!list.length) {
+    box.innerHTML = noteHtml + `<div class="empty">${noteHtml ? "后端未返回快照数据" : "暂无修订快照"}</div>`;
+    return;
+  }
+  const rows = list.map(v => `
+    <tr>
+      <td>#${Number(v.id) || 0}</td>
+      <td>#${Number(v.post_id) || 0}</td>
+      <td>${esc(v.title || "(无标题)")}</td>
+      <td class="muted">${esc(v.note || "-")}</td>
+      <td class="muted">${Number(v.editor_id) ? "#" + (Number(v.editor_id) || 0) : "-"}</td>
+      <td class="muted">${esc(v.created_text || coFmtMs(v.created_at))}</td>
+      <td class="muted">${esc(coFmtSize(v.size))}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="coViewRevision(${Number(v.id) || 0})">预览</button>
+        <button class="btn btn-sm btn-blue" onclick="coRestoreRevision(${Number(v.id) || 0})">回滚</button>
+        <button class="btn btn-sm" onclick="coDiffRevision(${Number(v.id) || 0})">对比</button>
+        <button class="btn btn-sm btn-red" onclick="coDelRevision(${Number(v.id) || 0})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  box.innerHTML = noteHtml + `
+    <table>
+      <thead><tr><th>快照</th><th>文章</th><th>标题</th><th>备注</th><th>编辑者</th><th>创建时间</th><th>大小</th><th>操作</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="muted" style="font-size:12px;margin-top:8px">每篇文章后端只保留最近 20 个快照（超出自动清理）。「回滚」前后端会先把当前内容再存一份快照，所以回滚本身也可以再回滚。</div>`;
+}
+async function coViewRevision(id) {
+  const rid = Number(id) || 0;
+  if (!rid) { toast("快照 id 无效", false); return; }
+  const r = await coReq("/api/admin/revisions?id=" + rid);
+  if (!r.ok) { toast(r.msg, false); return; }
+  if (!r.data) { toast(r.note ? ("无法预览：" + r.note) : "快照不存在", false); return; }
+  const d = r.data;
+  openModal(`
+    <h3>快照预览 #${Number(d.id) || rid}</h3>
+    <div class="muted" style="font-size:12.5px;margin-bottom:10px">
+      文章 #${Number(d.post_id) || 0} · ${esc(d.created_text || coFmtMs(d.created_at))} · ${esc(coFmtSize(d.size))} · 备注：${esc(d.note || "-")}
+    </div>
+    <label>标题</label>
+    <input value="${esc(d.title || "")}" disabled>
+    <label>正文（原样展示，已转义）</label>
+    <div style="max-height:46vh;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.6">${esc(d.content || "(正文为空)")}</div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal()">关闭</button>
+      <button class="btn btn-green" onclick="coRestoreRevision(${Number(d.id) || rid})">回滚到此版本</button>
+    </div>`);
+}
+async function coRestoreRevision(id) {
+  if (!hasPerm("posts")) { toast("权限不足", false); return; }
+  const rid = Number(id) || 0;
+  if (!rid) { toast("快照 id 无效", false); return; }
+  if (!confirm(`确定回滚到快照 #${rid}？\n\n⚠ 回滚前会自动把当前内容再存一份快照（所以回滚本身也能再回滚）；该快照的标题 / 摘要 / 正文会覆盖当前文章，source_file（文章 URL 身份）不变。`)) return;
+  const r = await coReq("/api/admin/revisions", { action: "restore", id: rid });
+  toast(r.msg || (r.ok ? "已回滚到该版本" : "回滚失败"), r.ok);
+  if (r.ok) { closeModal(); await coForceRevisions(); }
+}
+async function coDelRevision(id) {
+  if (!hasPerm("posts")) { toast("权限不足", false); return; }
+  const rid = Number(id) || 0;
+  if (!rid) { toast("快照 id 无效", false); return; }
+  if (!confirm(`确定删除快照 #${rid}？\n\n⚠ 快照一旦删除无法恢复（不会影响文章当前内容）。`)) return;
+  // 后端两种写法都支持：POST {action:"delete"} 优先，失败回退 DELETE（body {id} + ?id= 双保险）
+  let r = await coReq("/api/admin/revisions", { action: "delete", id: rid });
+  if (!r.ok) r = await coReq("/api/admin/revisions?id=" + rid, { id: rid }, "DELETE");
+  toast(r.msg || (r.ok ? "快照已删除" : "删除失败"), r.ok);
+  if (r.ok) await coForceRevisions();
+}
+
+/* ---- FR-X9：版本对比（行级 diff）---- */
+async function coDiffRevision(id) {
+  const rid = Number(id) || 0;
+  if (!rid) { toast("快照 id 无效", false); return; }
+  const cur = (CO.revisions || []).find(v => Number(v.id) === rid);
+  if (!cur) { toast("快照数据未加载，请刷新列表", false); return; }
+
+  // 默认对比「当前线上内容」；读不到（扩展表/文章异常）再回退「前一个快照」
+  let rB = await coReq("/api/admin/revisions?post_id=" + Number(cur.post_id) + "&current=1");
+  let baseLabel = "当前线上内容";
+  let baseId = 0;
+  if (!rB.ok || !rB.data) {
+    const base = (CO.revisions || [])
+      .filter(v => Number(v.post_id) === Number(cur.post_id) && Number(v.id) < rid)
+      .sort((a, b) => Number(b.id) - Number(a.id))[0];
+    if (!base) { toast("这是该文章最早的一份快照，且当前内容读取失败，无法对比", false); return; }
+    rB = await coReq("/api/admin/revisions?id=" + Number(base.id));
+    baseLabel = "快照 #" + Number(base.id);
+    baseId = Number(base.id);
+  }
+
+  const rA = await coReq("/api/admin/revisions?id=" + rid);
+  if (!rA.ok || !rA.data) { toast("无法读取快照 #" + rid, false); return; }
+  if (!rB.ok || !rB.data) { toast("无法读取对比基准内容", false); return; }
+
+  const aText = String(rA.data.content || "");
+  const bText = String(rB.data.content || "");
+  const diffHtml = coDiffHtml(bText, aText);   // 左=基准（旧），右=快照（新）
+
+  openModal(`
+    <h3>版本对比：快照 #${rid} ← ${esc(baseLabel)}</h3>
+    <div class="muted" style="font-size:12.5px;margin-bottom:10px">
+      快照：<b>#${rid}</b>（${esc(rA.data.created_text || coFmtMs(rA.data.created_at))}） · 基准：<b>${esc(baseLabel)}</b>（${esc(rB.data.created_text || "")}）<br>
+      <span class="diff-leg"><i class="dl-add"></i>快照新增/修改后</span>
+      <span class="diff-leg"><i class="dl-del"></i>基准有而快照没有</span>
+      <span class="diff-leg">相同内容已折叠</span>
+    </div>
+    <div class="diff-wrap">${diffHtml}</div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal()">关闭</button>
+      <button class="btn btn-green" onclick="coRestoreRevision(${rid})">回滚到快照 #${rid}</button>
+    </div>`);
+}
+/* 行级 diff：LCS 动态规划；行数超上限时降级为「整段对比」避免卡死 */
+function coDiffHtml(oldText, newText) {
+  const a = String(oldText || "").split("\n");
+  const b = String(newText || "").split("\n");
+  const MAX = 600;
+  if (a.length + b.length > MAX) {
+    return `<div class="diff-line dl-del">（旧版全文 ${a.length} 行）</div><div class="diff-line dl-add">（新版全文 ${b.length} 行，内容差异过大，已省略逐行对比）</div>`;
+  }
+  // LCS 表
+  const n = a.length, m = b.length;
+  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+  const out = [];
+  let i = 0, j = 0;
+  let sameRun = 0;
+  function flushSame() {
+    if (sameRun > 0) {
+      out.push(`<div class="diff-line diff-skip">⋯ 中间 ${sameRun} 行相同 ⋯</div>`);
+      sameRun = 0;
+    }
+  }
+  while (i < n && j < m) {
+    if (a[i] === b[j]) { sameRun++; i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { flushSame(); out.push(`<div class="diff-line dl-del">- ${esc(a[i])}</div>`); i++; }
+    else { flushSame(); out.push(`<div class="diff-line dl-add">+ ${esc(b[j])}</div>`); j++; }
+  }
+  while (i < n) { flushSame(); out.push(`<div class="diff-line dl-del">- ${esc(a[i])}</div>`); i++; }
+  while (j < m) { flushSame(); out.push(`<div class="diff-line dl-add">+ ${esc(b[j])}</div>`); j++; }
+  flushSame();
+  return out.join("") || `<div class="muted">两个版本内容完全相同</div>`;
+}
+
+/* ---- C) 重定向管理 ---- */
+const CO_REDIR_CODES = [301, 302, 307, 308];
+async function coLoadRedirects() {
+  const r = await coReq("/api/admin/redirects");
+  if (!r.ok) { CO.errs.redirects = r.msg; toast(r.msg, false); return; }
+  CO.errs.redirects = "";
+  CO.redirects = Array.isArray(r.data) ? r.data : [];
+  CO.redirNote = r.note || "";
+  CO.loadedRedirects = true;
+}
+async function coForceRedirects() {
+  CO.loadedRedirects = false;
+  await coLoadRedirects();
+  coRenderRedirects();
+}
+function coRenderRedirects() {
+  const box = $("coRedirBox"); if (!box) return;
+  const cnt = $("coRedirCount");
+  if (CO.errs.redirects) {
+    if (cnt) cnt.textContent = "";
+    box.innerHTML = `<div class="empty">${esc(CO.errs.redirects)}</div>`;
+    return;
+  }
+  const canEdit = hasPerm("posts");
+  const list = CO.redirects || [];
+  if (cnt) cnt.textContent = `共 ${list.length} 条`;
+  const noteHtml = CO.redirNote
+    ? `<div class="cr-note">后端提示：<b>${esc(CO.redirNote)}</b>${CO.redirNote.indexOf("扩展表未创建") >= 0 ? " —— redirects 扩展表尚未部署（需先执行扩展表建表脚本），重定向管理暂不可用。" : ""}</div>`
+    : "";
+  const rows = list.map(r => `
+    <tr>
+      <td style="word-break:break-all">${esc(r.from_path || "")}</td>
+      <td style="word-break:break-all">${esc(r.to_path || "")}</td>
+      <td><span class="tag tag-blue">${Number(r.code) || 301}</span></td>
+      <td>${Number(r.status) === 1 ? '<span class="tag tag-green">启用</span>' : '<span class="tag tag-gray">停用</span>'}</td>
+      <td>${Number(r.hits) || 0}</td>
+      <td class="muted">${esc(r.created_text || coFmtMs(r.created_at))}</td>
+      <td>${canEdit ? `<button class="btn btn-sm btn-red" onclick="coDelRedirect(${Number(r.id) || 0})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  const codeOpts = CO_REDIR_CODES.map(c => `<option value="${c}">${c}</option>`).join("");
+  box.innerHTML = `
+    <div class="cr-form" style="margin-bottom:14px">
+      <div style="flex:1;min-width:180px"><label>from_path（必须以 / 开头）</label><input id="coRedirFrom" maxlength="300" placeholder="/old-page.html"></div>
+      <div style="flex:1;min-width:180px"><label>to_path（/ 或 http(s):// 开头）</label><input id="coRedirTo" maxlength="500" placeholder="/new-page.html"></div>
+      <div><label>状态码</label><select id="coRedirCode">${codeOpts}</select></div>
+      <div><label>启用</label><input type="checkbox" id="coRedirStatus" checked style="width:auto"></div>
+      <div><button class="btn btn-green" style="padding:9px 22px" ${canEdit ? "" : "disabled"} onclick="coAddRedirect()">新增 / 保存</button></div>
+    </div>
+    ${noteHtml}
+    <table>
+      <thead><tr><th>from_path</th><th>to_path</th><th>code</th><th>状态</th><th>hits</th><th>创建时间</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="7"><div class="empty">暂无重定向规则</div></td></tr>`}</tbody>
+    </table>
+    <div class="muted" style="font-size:12px;margin-top:8px">from_path 已存在时后端会更新那一条（不会报重复）；列表按 id 倒序，最多 200 条。hits 只在真实查库那次 +1（后端有 60 秒内存缓存，缓存命中的跳转不计 hits）。</div>`;
+}
+async function coAddRedirect() {
+  if (!hasPerm("posts")) { toast("权限不足", false); return; }
+  const from = ($("coRedirFrom") ? $("coRedirFrom").value : "").trim();
+  const to = ($("coRedirTo") ? $("coRedirTo").value : "").trim();
+  const code = Number($("coRedirCode") ? $("coRedirCode").value : 301) || 301;
+  const status = ($("coRedirStatus") && $("coRedirStatus").checked) ? 1 : 0;
+  // 本地先校验一遍（后端同样的规则也会再校验一次，错误以 msg 返回）
+  if (!from || from.charAt(0) !== "/") { toast("from_path 必须以 / 开头", false); return; }
+  if (!to || (to.charAt(0) !== "/" && to.indexOf("http://") !== 0 && to.indexOf("https://") !== 0)) { toast("to_path 必须以 / 或 http(s):// 开头", false); return; }
+  if (from === to) { toast("from_path 与 to_path 不能相同", false); return; }
+  if (!confirm(`确定新增 / 保存这条重定向？\n\n${from}  →  ${to}\n状态码 ${code}，${status ? "启用" : "停用"}\n\n若 from_path 已存在，会覆盖更新那一条。`)) return;
+  const r = await coReq("/api/admin/redirects", { from_path: from, to_path: to, code, status });
+  toast(r.msg || (r.ok ? "重定向已保存" : "保存失败"), r.ok);
+  if (r.ok) {
+    if ($("coRedirFrom")) $("coRedirFrom").value = "";
+    if ($("coRedirTo")) $("coRedirTo").value = "";
+    await coForceRedirects();
+  }
+}
+async function coDelRedirect(id) {
+  if (!hasPerm("posts")) { toast("权限不足", false); return; }
+  const rid = Number(id) || 0;
+  if (!rid) { toast("重定向 id 无效", false); return; }
+  const row = (CO.redirects || []).find(x => Number(x.id) === rid) || {};
+  if (!confirm(`确定删除这条重定向？\n\n${row.from_path || ("#" + rid)}  →  ${row.to_path || ""}`)) return;
+  // 后端只有 DELETE 能删（body {id} 或 ?id=）；它的 POST 分支是「新增 / 更新」，不能用来删除
+  let r = await coReq("/api/admin/redirects", { id: rid }, "DELETE");
+  if (!r.ok) r = await coReq("/api/admin/redirects?id=" + rid, { id: rid }, "DELETE");
+  toast(r.msg || (r.ok ? "重定向已删除" : "删除失败"), r.ok);
+  if (r.ok) await coForceRedirects();
+}
+
+/* ---- B) 导出（fetch + Blob 下载）/ 导入（二次确认后写 D1） ---- */
+async function coExport(format) {
+  if (!hasPerm("posts")) { toast("权限不足", false); return; }
+  const isJson = format === "json";
+  const idRaw = ($("coExpId") ? $("coExpId").value : "").trim();
+  const pid = Number(idRaw) || 0;
+  const url = "/api/admin/export?format=" + (isJson ? "json" : "markdown") + (pid > 0 ? "&id=" + pid : "&all=1");
+  // 必须带 X-Token：window.open 无法携带自定义头，所以 fetch 回来自己存 Blob
+  let res;
+  try { res = await fetch(url, { headers: { "X-Token": TOKEN } }); }
+  catch (e) { toast("导出失败：网络异常", false); return; }
+  if (res.status === 401) { showLogin(); return; }
+  if (isJson) {
+    const r = await res.json().catch(() => null);
+    if (!r || r.ok !== true) { toast((r && r.msg) || "导出失败", false); return; }
+    const list = Array.isArray(r.data) ? r.data : [];
+    const name = "posts-" + coToday() + ".json";
+    coDownload(new Blob([JSON.stringify(list, null, 2)], { type: "application/json;charset=utf-8" }), name);
+    toast(`已下载 ${name}：${list.length} 篇${r.truncated ? "（已达 200 篇上限，结果被截断）" : ""}`, true);
+    return;
+  }
+  const text = await res.text();
+  if (!res.ok) {
+    let msg = "导出失败";
+    try { const j = JSON.parse(text); if (j && j.msg) msg = j.msg; } catch (e) { /* 非 JSON 错误体 */ }
+    toast(msg, false);
+    return;
+  }
+  const name = "posts-" + coToday() + ".md";
+  coDownload(new Blob([text], { type: "text/markdown;charset=utf-8" }), name);
+  toast(`已下载 ${name}：共 ${text.length} 字符`, true);
+}
+
+async function coImport() {
+  if (!hasPerm("posts")) { toast("权限不足", false); return; }
+  const raw = ($("coImpData") ? $("coImpData").value : "").trim();
+  if (!raw) { toast("请先粘贴 JSON 数组", false); return; }
+  let parsed = null;
+  try { parsed = JSON.parse(raw); }
+  catch (e) { toast("JSON 解析失败：" + (e && e.message ? e.message : "格式错误"), false); return; }
+  let list = null;
+  if (Array.isArray(parsed)) list = parsed;
+  else if (parsed && Array.isArray(parsed.data)) list = parsed.data;   // 兼容「导出 JSON」的原始响应体
+  if (!list) { toast("JSON 必须是数组，或含 data 数组的对象", false); return; }
+  if (!list.length) { toast("数组为空，没有可导入的内容", false); return; }
+  const mode = $("coImpMode") ? $("coImpMode").value : "create";
+  const warn = mode === "create"
+    ? "create 模式会新增文章：缺少 source_file 时后端自动生成随机文件名，重复导入会产生重复文章。"
+    : "update 模式按 source_file 优先、其次按 id 匹配已有文章；匹配不到的会被跳过并记进 errors，且不会覆盖 views 与 source_file。";
+  if (!confirm(`确定以 ${mode} 模式导入 ${list.length} 条文章？\n\n⚠ 会直接写入 D1 线上数据库，无法一键撤销。\n${warn}\n单次最多处理 200 条，超出部分会被截断。`)) return;
+  const r = await coReq("/api/admin/import", { format: "json", data: list, mode });
+  if (!r.ok) {
+    CO.importResult = null; CO.importMsg = r.msg || "导入失败";
+    toast(CO.importMsg, false); coRenderImportResult(); return;
+  }
+  CO.importResult = r.data || null;
+  CO.importMsg = r.msg || "导入完成";
+  toast(CO.importMsg, true);
+  coRenderImportResult();
+}
+
+function coRenderImportResult() {
+  const box = $("coImpResult"); if (!box) return;
+  if (!CO.importResult) { box.innerHTML = CO.importMsg ? `<div class="empty">${esc(CO.importMsg)}</div>` : ""; return; }
+  const d = CO.importResult;
+  const errs = Array.isArray(d.errors) ? d.errors : [];
+  const shown = errs.slice(0, 5).map(e => {
+    if (e && typeof e === "object") return `<li>第 ${esc(e.index)} 条：${esc(e.msg || "")}</li>`;
+    return `<li>${esc(e)}</li>`;
+  }).join("");
+  box.innerHTML = `
+    <div class="cr-note" style="border-left-color:var(--green)">
+      导入完成：新增 <b>${Number(d.created) || 0}</b> 篇 · 更新 <b>${Number(d.updated) || 0}</b> 篇 ·
+      跳过 <b>${Number(d.skipped) || 0}</b> 篇 · 错误 <b>${errs.length}</b> 条${d.truncated ? " · ⚠ 数据超过 200 条，只处理了前 200 条" : ""}
+    </div>
+    ${errs.length ? `<div class="muted" style="font-size:12.5px;margin-top:6px">错误明细（只显示前 5 条，共 ${errs.length} 条）：<ul style="margin:6px 0 0 18px">${shown}</ul></div>` : ""}`;
+}
+
+/* ---- D) 定时发布 ---- */
+async function coScheduleSubmit(postId, atMs, title) {
+  const pid = Number(postId) || 0;
+  if (!pid) { toast("文章 id 无效", false); return false; }
+  const head = atMs > 0
+    ? `确定把《${title}》（#${pid}）的发布时间设为 ${coFmtMs(atMs)}？`
+    : `确定取消《${title}》（#${pid}）的定时并转为草稿？`;
+  const extra = atMs > 0
+    ? "\n\n⚠ 定时期间文章状态会先变成草稿；到期后需要在「打开后台仪表盘」时才会被自动转为已发布 —— 本项目没有 Cron，这是后端设计如此。"
+    : "\n\n⚠ 取消定时后文章是草稿状态，需要手动发布。";
+  if (!confirm(head + extra)) return false;
+  const r = await coReq("/api/posts/schedule", { id: pid, publish_at: atMs });
+  toast(r.msg || (r.ok ? "已提交" : "设置失败"), r.ok);
+  return !!r.ok;
+}
+async function coScheduleByValue(pid, value) {
+  const id = Number(pid) || 0;
+  if (!id) { toast("请填写有效的文章 ID", false); return false; }
+  if (!value) { toast("请选择发布时间", false); return false; }
+  // datetime-local 的值形如 2026-01-02T09:30，new Date() 按本地时区解析，正是用户看到的墙上时间
+  const ms = new Date(value).getTime();
+  if (!isFinite(ms)) { toast("时间格式不正确", false); return false; }
+  if (ms <= Date.now()) { toast("发布时间必须晚于当前时间", false); return false; }
+  return await coScheduleSubmit(id, ms, CO.postTitles[id] || ("文章 #" + id));
+}
+/* 文章管理行的「定时」按钮：弹出小窗口选时间（openModal 复用既有弹窗机制） */
+function coSchedulePrompt(id) {
+  if (!hasPerm("posts")) { toast("权限不足", false); return; }
+  const pid = Number(id) || 0;
+  if (!pid) { toast("文章 id 无效", false); return; }
+  CO.schedPostId = pid;
+  const title = CO.postTitles[pid] || ("文章 #" + pid);
+  openModal(`
+    <h3>定时发布</h3>
+    <div class="muted" style="margin-bottom:6px">${esc(title)}（#${pid}）</div>
+    <label>发布时间（本地时间）</label>
+    <input type="datetime-local" id="coSchedAt">
+    <div class="cr-note">⚠ 定时后文章会先转为草稿；到期后要在「打开后台仪表盘」时才会自动转为已发布（本项目没有 Cron，这是后端设计如此）。</div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn" onclick="coCancelSchedule(${pid})">取消定时（转草稿）</button>
+      <button class="btn btn-blue" onclick="coDoSchedule(${pid})">确定定时</button>
+    </div>`);
+}
+async function coDoSchedule(id) {
+  const el = $("coSchedAt");
+  if (await coScheduleByValue(Number(id) || 0, el ? el.value : "")) closeModal();
+}
+async function coCancelSchedule(id) {
+  const pid = Number(id) || 0;
+  if (await coScheduleSubmit(pid, 0, CO.postTitles[pid] || ("文章 #" + pid))) closeModal();
+}
+async function coScheduleFromForm() {
+  const pid = Number((($("coSchedId") || {}).value || "").trim()) || 0;
+  const el = $("coSchedAt2");
+  await coScheduleByValue(pid, el ? el.value : "");
+}
+async function coCancelScheduleFromForm() {
+  const pid = Number((($("coSchedId") || {}).value || "").trim()) || 0;
+  if (!pid) { toast("请填写文章 ID", false); return; }
+  await coScheduleSubmit(pid, 0, CO.postTitles[pid] || ("文章 #" + pid));
+}
+
+/* ---------- 用户管理 ---------- */
+const ROLE_TAG = { super_admin: ["tag-red", "超级管理员"], admin: ["tag-blue", "管理员"], user: ["tag-gray", "普通用户"] };
+async function loadUsers() {
+  const r = await api("/api/users");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canUser = hasPerm("users");
+  const rows = r.data.map(u => {
+    const t = ROLE_TAG[u.role] || ["tag-gray", u.role];
+    return `<tr>
+      <td><b>${esc(u.username)}</b></td>
+      <td>${esc(u.nickname || "-")}</td>
+      <td>${esc(u.email || "-")}</td>
+      <td><span class="tag ${t[0]}">${t[1]}</span></td>
+      <td>${u.status ? '<span class="tag tag-green">正常</span>' : '<span class="tag tag-red">已禁用</span>'}</td>
+      <td class="muted">${esc(u.created_at)}</td>
+      <td>${canUser ? `<button class="btn btn-sm" onclick="editUser(${u.id})">编辑</button>
+        <button class="btn btn-sm" onclick="resetPwd(${u.id})">重置密码</button>
+        ${u.username !== "root" ? `<button class="btn btn-sm btn-red" onclick="delUser(${u.id})">删除</button>` : ""}` : ""}</td>
+    </tr>`;
+  }).join("");
+  $("content").innerHTML = `
+    <div class="toolbar">
+      <span class="muted">共 ${r.data.length} 个账号</span>
+      <span class="spacer"></span>
+      ${canUser ? `<button class="btn btn-green" onclick="editUser(0)">＋ 新增用户</button>` : ""}
+    </div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>用户名</th><th>昵称</th><th>邮箱</th><th>角色</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="7"><div class="empty">暂无用户</div></td></tr>`}</tbody></table>
+    </div></div>`;
+}
+
+async function editUser(id) {
+  let pre = { username: "", role: "user", nickname: "", email: "", status: 1 };
+  if (id) {
+    const r = await api("/api/users");
+    const u = (r.data || []).find(x => x.id === id);
+    if (u) pre = { username: u.username, role: u.role, nickname: u.nickname, email: u.email, status: u.status };
+  }
+  const isRoot = pre.username === "root";
+  openModal(`
+    <h3>${id ? "编辑用户 " + esc(pre.username) : "新增用户"}</h3>
+    ${id ? "" : `<label>用户名</label><input id="f_u_username" placeholder="3-32位字母数字下划线">`}
+    ${id ? "" : `<label>初始密码</label><input id="f_u_pwd" type="password" placeholder="至少6位">`}
+    <label>昵称</label><input id="f_u_nick" value="${esc(pre.nickname)}">
+    <label>邮箱</label><input id="f_u_email" value="${esc(pre.email)}">
+    <label>角色</label>
+    <select id="f_u_role" ${isRoot ? "disabled" : ""}>
+      <option value="super_admin" ${pre.role === "super_admin" ? "selected" : ""}>超级管理员（全部权限，含用户管理）</option>
+      <option value="admin" ${pre.role === "admin" ? "selected" : ""}>管理员（文章/分类/评论管理）</option>
+      <option value="user" ${pre.role === "user" ? "selected" : ""}>普通用户（仅仪表盘）</option>
+    </select>
+    ${isRoot ? `<div class="muted p10">root 为内置超级管理员，角色不可修改</div>` : `
+    <div class="checkbox"><input type="checkbox" id="f_u_status" ${pre.status ? "checked" : ""}> 启用该账号</div>`}
+    <div class="actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveUser(${id || 0}, ${isRoot})">保存</button>
+    </div>`);
+}
+
+async function saveUser(id, isRoot) {
+  const body = {
+    id,
+    nickname: $("f_u_nick").value.trim(),
+    email: $("f_u_email").value.trim(),
+    role: $("f_u_role").value,
+    status: $("f_u_status") ? ($("f_u_status").checked ? 1 : 0) : 1,
+  };
+  if (!id) {
+    body.username = $("f_u_username").value.trim();
+    body.password = $("f_u_pwd").value;
+    if (!body.username) { toast("请输入用户名", false); return; }
+    if (!body.password) { toast("请输入初始密码", false); return; }
+    const r = await api("/api/users/create", body);
+    toast(r.msg, r.ok); if (r.ok) { closeModal(); loadUsers(); }
+  } else {
+    const r = await api("/api/users/update", body);
+    toast(r.msg, r.ok); if (r.ok) { closeModal(); loadUsers(); }
+  }
+}
+
+async function resetPwd(id) {
+  openModal(`
+    <h3>重置密码</h3>
+    <label>新密码（至少6位）</label><input id="f_new_pwd" type="password">
+    <div class="actions"><button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveReset(${id})">确认重置</button></div>`);
+}
+async function saveReset(id) {
+  const pwd = $("f_new_pwd").value;
+  if (pwd.length < 6) { toast("密码至少6位", false); return; }
+  const r = await api("/api/users/resetpwd", { id, password: pwd });
+  toast(r.msg, r.ok); if (r.ok) closeModal();
+}
+async function delUser(id) {
+  if (!confirm("确定删除该用户？此操作不可恢复。")) return;
+  const r = await api("/api/users/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadUsers();
+}
+
+/* ---------- 标签管理 ---------- */
+async function loadTagsPage() {
+  const r = await api("/api/tags");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("tags");
+  const rows = r.data.map(t => `
+    <tr>
+      <td><span class="tag" style="background:${esc(t.color)}22;color:${esc(t.color)}"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${esc(t.color)};margin-right:6px"></span>${esc(t.name)}</span></td>
+      <td>${t.cnt}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="editTag(${t.id})">编辑</button>
+        <button class="btn btn-sm btn-red" onclick="delTag(${t.id})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar"><span class="muted">共 ${r.data.length} 个标签（文章分类即 #标签）</span><span class="spacer"></span>
+      ${canEdit ? `<button class="btn btn-blue" onclick="editTag(0)">＋ 新增标签</button>` : ""}</div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>标签</th><th>文章数</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="3"><div class="empty">暂无标签</div></td></tr>`}</tbody></table></div></div>`;
+}
+function editTag(id) {
+  let name = "", color = "#58a6ff";
+  if (id) {
+    api("/api/tags").then(r => {
+      const t = (r.data || []).find(x => x.id === id);
+      if (t) { name = t.name; color = t.color || "#58a6ff"; }
+      showTagModal(id, name, color);
+    });
+  } else showTagModal(0, "", "#58a6ff");
+}
+function showTagModal(id, name, color) {
+  openModal(`
+    <h3>${id ? "编辑标签" : "新增标签"}</h3>
+    <label>标签名称（前端显示为 #名称）</label><input id="f_tag_name" value="${esc(name)}" maxlength="30">
+    <label>标签颜色（十六进制，如 #58a6ff）</label><div class="row2">
+      <div><input id="f_tag_color" value="${esc(color)}" maxlength="7"></div>
+      <div style="flex:0 0 120px"><input type="color" id="f_tag_picker" value="${esc(color)}" onchange="document.getElementById('f_tag_color').value=this.value" style="height:38px;padding:2px"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveTag(${id})">保存</button></div>`);
+}
+async function saveTag(id) {
+  const body = { id, name: $("f_tag_name").value.trim(), color: $("f_tag_color").value.trim() };
+  if (!body.name) { toast("请输入标签名称", false); return; }
+  const r = await api(id ? "/api/tags/update" : "/api/tags/create", body);
+  toast(r.msg, r.ok); if (r.ok) { closeModal(); loadTagsPage(); }
+}
+async function delTag(id) {
+  if (!confirm("确定删除该标签？相关文章的标签关联将解除。")) return;
+  const r = await api("/api/tags/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadTagsPage();
+}
+
+/* ---------- 分栏管理 ---------- */
+async function loadColumnsPage() {
+  const r = await api("/api/columns");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("columns");
+  const rows = r.data.map(c => `
+    <tr><td>${esc(c.name)}</td><td>${c.sort}</td><td>${c.cnt}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="editColumn(${c.id})">编辑</button>
+        <button class="btn btn-sm btn-red" onclick="delColumn(${c.id})">删除</button>` : ""}</td></tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar"><span class="muted">共 ${r.data.length} 个分栏</span><span class="spacer"></span>
+      ${canEdit ? `<button class="btn btn-blue" onclick="editColumn(0)">＋ 新增分栏</button>` : ""}</div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>分栏名称</th><th>排序</th><th>文章数</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="4"><div class="empty">暂无分栏</div></td></tr>`}</tbody></table></div></div>`;
+}
+function editColumn(id) {
+  let name = "", sort = 0;
+  if (id) {
+    api("/api/columns").then(r => {
+      const c = (r.data || []).find(x => x.id === id);
+      if (c) { name = c.name; sort = c.sort; }
+      showColumnModal(id, name, sort);
+    });
+  } else showColumnModal(0, "", 0);
+}
+function showColumnModal(id, name, sort) {
+  openModal(`
+    <h3>${id ? "编辑分栏" : "新增分栏"}</h3>
+    <label>分栏名称</label><input id="f_col_name" value="${esc(name)}" maxlength="30">
+    <label>排序值（越小越靠前）</label><input id="f_col_sort" value="${sort}">
+    <div class="actions"><button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveColumn(${id})">保存</button></div>`);
+}
+async function saveColumn(id) {
+  const body = { id, name: $("f_col_name").value.trim(), sort: Number($("f_col_sort").value) || 0 };
+  if (!body.name) { toast("请输入分栏名称", false); return; }
+  const r = await api(id ? "/api/columns/update" : "/api/columns/create", body);
+  toast(r.msg, r.ok); if (r.ok) { closeModal(); loadColumnsPage(); }
+}
+async function delColumn(id) {
+  if (!confirm("确定删除该分栏？相关文章的关联将解除。")) return;
+  const r = await api("/api/columns/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadColumnsPage();
+}
+
+/* ---------- 工具设置 ---------- */
+async function loadToolsPage() {
+  const r = await api("/api/settings/tools");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const tools = r.data || [];
+  const rows = tools.map((t, i) => `
+    <tr>
+      <td><b>${esc(t.name)}</b></td>
+      <td class="muted">/${esc(t.path)}</td>
+      <td class="muted">${esc(t.desc || "")}</td>
+      <td>${t.enabled ? '<span class="tag tag-green">展示中</span>' : '<span class="tag tag-red">已关闭</span>'}</td>
+      <td>
+        <label class="sw" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" data-k="${esc(t.key)}" ${t.enabled ? "checked" : ""} onchange="saveTools(${i})">
+        </label>
+      </td>
+    </tr>`).join("");
+  $("content").innerHTML = `
+    <div class="panel"><div class="p-head">工具展示开关
+      <span class="spacer"></span>
+      <span class="muted" style="font-weight:400">关闭后，前台导航与首页工具区将不再显示该工具</span>
+    </div>
+    <div class="p-body"><table>
+      <thead><tr><th>工具</th><th>路径</th><th>说明</th><th>状态</th><th>开关</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="5"><div class="empty">暂无工具配置</div></td></tr>`}</tbody></table></div></div>`;
+}
+async function saveTools(idx) {
+  const r = await api("/api/settings/tools");
+  if (!r.ok) return;
+  const tools = r.data || [];
+  const all = document.querySelectorAll('input[data-k]');
+  const state = {}; all.forEach(x => state[x.getAttribute("data-k")] = x.checked);
+  tools.forEach(t => { if (state[t.key] !== undefined) t.enabled = state[t.key]; });
+  const res = await api("/api/settings/tools", { tools });
+  toast(res.msg, res.ok);
+  if (!res.ok) loadToolsPage();
+}
+
+/* ---------- 关于我编辑 ---------- */
+async function loadAboutPage() {
+  const r = await api("/api/settings/about");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("settings");
+  const latest = r.data[0] || { content: "", created_at: "" };
+  const history = (r.data || []).map(v => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="muted" style="font-size:12px;margin-bottom:6px">${esc(v.created_at)}</div>
+      <div style="max-height:60px;overflow:hidden;font-size:13px;color:var(--muted)">${esc(v.content.replace(/<[^>]+>/g, "").slice(0, 120))}</div>
+    </div>`).join("");
+  $("content").innerHTML = `
+    <div class="panel" style="max-width:860px;margin-bottom:18px">
+      <div class="p-head">关于我 · 图文编辑
+        <span class="spacer"></span>
+        <span class="muted" style="font-weight:400">支持标题、段落、图片、链接、列表等；保存时自动在顶部追加时间戳</span>
+      </div>
+      <div class="p-body" style="padding:18px">
+        <label style="display:block;color:var(--muted);margin:8px 0 6px">正文（HTML，可粘贴图片地址）</label>
+        <textarea id="about_content" style="width:100%;min-height:320px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px;font-family:inherit;font-size:13.5px;line-height:1.7">${esc(latest.content)}</textarea>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="aboutInsert('<h2></h2>')">标题</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<p></p>')">段落</button>
+          <button class="btn btn-sm" onclick="aboutMedia()">图片（本地上传）</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<a href=\\'\\'>链接</a>')">链接</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<ul>\\n<li></li>\\n</ul>')">列表</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<strong></strong>')">加粗</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<blockquote></blockquote>')">引用</button>
+        </div>
+        <div style="margin-top:18px"><button class="btn btn-green" style="padding:9px 26px" onclick="saveAbout()">保存（自动追加时间戳）</button></div>
+      </div>
+    </div>
+    <div class="panel" style="max-width:860px">
+      <div class="p-head">编辑历史（最近 20 条）</div>
+      <div class="p-body" style="padding:0 18px">${history || `<div class="empty">暂无历史</div>`}</div>
+    </div>`;
+}
+function aboutInsert(tag) {
+  const ta = $("about_content");
+  const start = ta.selectionStart || ta.value.length;
+  ta.value = ta.value.slice(0, start) + tag + ta.value.slice(ta.selectionEnd || ta.value.length);
+  ta.focus();
+}
+function aboutMedia() {
+  let fi = $("about_media");
+  if (!fi) {
+    fi = document.createElement("input");
+    fi.type = "file"; fi.accept = "image/*"; fi.id = "about_media"; fi.style.display = "none";
+    document.body.appendChild(fi);
+  }
+  fi.value = "";
+  fi.onchange = () => {
+    const f = fi.files[0]; if (!f) return;
+    const fd = new FormData(); fd.append("file", f);
+    fetch("/api/upload", { method: "POST", headers: { "X-Token": TOKEN }, body: fd })
+      .then(r => r.json()).then(j => {
+        if (!j.ok) { toast("上传失败: " + j.msg, false); return; }
+        aboutInsert(`<img src="${j.data.url}" alt="" style="max-width:100%">`);
+        toast("已插入图片");
+      }).catch(() => toast("上传失败，请确认后台服务已启动", false));
+  };
+  fi.click();
+}
+async function saveAbout() {
+  const content = $("about_content").value;
+  if (!content.trim()) { toast("内容不能为空", false); return; }
+  const r = await api("/api/settings/about", { content });
+  toast(r.msg, r.ok); if (r.ok) loadAboutPage();
+}
+
+/* ---------- 个人设置 ---------- */
+function loadLayoutPage() {
+  $("content").innerHTML = `
+    <div class="panel">
+      <div class="p-head">页面装修（可视化布局编辑器）</div>
+      <div class="p-body" style="padding:26px;text-align:center;line-height:2.2;color:var(--muted)">
+        <div style="font-size:44px;margin-bottom:12px">🧱</div>
+        <div>在装修编辑器中可对首页进行自定义组件装修：</div>
+        <div style="font-size:13px">新增组件、拖拽移动、缩放调整、删除组件、内容排版优化</div>
+        <div style="font-size:13px">支持 PC 桌面与移动 H5 双端独立布局，保存后前台网页同步生效</div>
+        <div style="margin-top:22px">
+          <button class="btn btn-green" style="padding:12px 38px;font-size:15px" onclick="window.open('/admin/web/editor.html','_blank')">打开装修编辑器</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function loadSettings() {
+  $("content").innerHTML = `
+    <div class="panel" style="max-width:560px">
+      <div class="p-head">个人资料</div>
+      <div class="p-body" style="padding:18px">
+        <label style="display:block;color:var(--muted);margin:8px 0 6px">用户名（不可修改）</label>
+        <input disabled value="${esc(ME.username)}" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <label style="display:block;color:var(--muted);margin:14px 0 6px">昵称</label>
+        <input id="s_nick" value="${esc(ME.nickname)}" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <label style="display:block;color:var(--muted);margin:14px 0 6px">邮箱</label>
+        <input id="s_email" value="${esc(ME.email)}" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <div style="height:1px;background:var(--border);margin:22px 0"></div>
+        <div class="muted" style="margin-bottom:10px">修改密码（留空则不修改）</div>
+        <label style="display:block;color:var(--muted);margin:10px 0 6px">原密码</label>
+        <input id="s_old" type="password" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <label style="display:block;color:var(--muted);margin:14px 0 6px">新密码</label>
+        <input id="s_new" type="password" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <div style="margin-top:20px"><button class="btn btn-green" style="padding:9px 26px" onclick="saveSettings()">保存修改</button></div>
+      </div>
+    </div>`;
+}
+async function saveSettings() {
+  const r = await api("/api/settings", {
+    nickname: $("s_nick").value.trim(), email: $("s_email").value.trim(),
+    old_password: $("s_old").value, new_password: $("s_new").value,
+  });
+  toast(r.msg, r.ok);
+  if (r.ok) { boot(); }
+}
+
+/* ---- 深浅色切换（与前台一致：localStorage blog_theme + data-theme）---- */
+(function () {
+  var btn = document.getElementById("themeToggle");
+  function apply() {
+    var saved = null;
+    try { saved = localStorage.getItem("blog_theme"); } catch (e) {}
+    var html = document.documentElement;
+    var dark = saved ? saved === "dark" : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    if (saved) html.setAttribute("data-theme", saved); else html.removeAttribute("data-theme");
+    html.style.colorScheme = dark ? "dark" : "light";
+    if (btn) btn.textContent = dark ? "☀️ 浅色" : "🌙 深色";
+  }
+  if (btn) btn.onclick = function () {
+    var html = document.documentElement;
+    var nowDark = html.getAttribute("data-theme") === "dark" ||
+      (!html.getAttribute("data-theme") && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = nowDark ? "light" : "dark";
+    html.setAttribute("data-theme", next);
+    html.style.colorScheme = next;
+    try { localStorage.setItem("blog_theme", next); } catch (e) {}
+    if (btn) btn.textContent = next === "dark" ? "☀️ 浅色" : "🌙 深色";
+  };
+  apply();
+})();
+
+boot();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>树莓派4安装ubuntu server</title><meta name="keywords" content="树莓派4,树莓派安装ubuntu"><meta name="description" content="树莓派的官方镜像在Docker上面支持不怎么好，我的树莓派打算搭成一个家庭的微型服务器，所以打算装一个ubuntu server。本篇文章是我踩过坑之后的分享。ubuntu server的官方引导下载地址https://ubuntu.com/download/raspberry-pi/thank-y">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">树莓派4安装ubuntu server</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/dft_2020/407741bd618d3aaa966783c32ed94fa2_64658.png" title="树莓派4安装ubuntu server" alt="树莓派4安装ubuntu server"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2020-5-4 12:02:09">2020-5-4 12:02:09</time></div><div class="tags"><!--[--><span> # 树莓派</span><span> # ubuntu</span><!--]--></div></div></section><div class="detail-content"><p>树莓派的官方镜像在Docker上面支持不怎么好，我的树莓派打算搭成一个家庭的微型服务器，所以打算装一个ubuntu server。本篇文章是我踩过坑之后的分享。</p>
+<p>ubuntu server的官方引导下载地址</p>
+<p><a href="../link@next=https%253A%252F%252Fubuntu.com%252Fdownload%252Fraspberry-pi%252Fthank-you%253Fversion=20.04&amp;architecture=arm64+raspi.html" target="_blank">https://ubuntu.com/download/raspberry-pi/thank-you?version=20.04&amp;architecture=arm64+raspi</a></p>
+<p>我下载的20.04版本的下载地址：</p>
+<p><a href="../link@next=http%253A%252F%252Fcdimage.ubuntu.com%252Freleases%252F20.04%252Frelease%252Fubuntu-20.04-preinstalled-server-arm64+raspi.img.xz.html" target="_blank">http://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04-preinstalled-server-arm64+raspi.img.xz</a></p>
+<p>因为国外的cdn下载比较慢，所以我在清华大学的镜像库中找到一个相同的</p>
+<p><a href="../link@next=https%253A%252F%252Fmirrors.tuna.tsinghua.edu.cn%252Fubuntu-cdimage%252Fubuntu%252Freleases%252F20.04%252Frelease%252F.html" target="_blank">https://mirrors.tuna.tsinghua.edu.cn/ubuntu-cdimage/ubuntu/releases/20.04/release/</a></p>
+<p><img src="../o/uploads/dft_2020/407741bd618d3aaa966783c32ed94fa2_64658.png" alt="树莓派4安装ubuntu server" title="树莓派4安装ubuntu server" /></p>
+<p>我下载的是上图这个，arm64版本，因为我在的树莓派上装docker 很多镜像没有对应的arm/v7版本，所以打算装一个arm64版本的ubuntu server。</p>
+<p>下载下来后参考这篇教程进行安装</p>
+<p><a href="../link@next=https%253A%252F%252Fubuntu.com%252Ftutorials%252Fcreate-an-ubuntu-image-for-a-raspberry-pi-on-windows%232-on-your-windows-machine.html" target="_blank">https://ubuntu.com/tutorials/create-an-ubuntu-image-for-a-raspberry-pi-on-windows#2-on-your-windows-machine</a></p>
+<p><img src="../o/uploads/dft_2020/82734104d0e5a3a1f307b5b4ac382f84_77260.png" alt="树莓派4安装ubuntu server" title="树莓派4安装ubuntu server" /></p>
+<p>意思就是在你的windows机器上，使用zip工具解压.xz文件，得到一个.img格式的文件，然后使用Win32DiskImager 加载并Write写入到你的microSD卡</p>
+<p>写入完之后，把卡插到我的树莓派4，然后连上一个键盘+显示器，我就开始了我的树莓派 + ubuntu server之旅。继续踩坑。</p>
+<p>如何连接无线网络看我另一篇文章。</p>
+<p>PS: microSD卡写入前，建议用一个U盘格式化工具进行格式化，如：SD Card Formatter</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5eaf93c18f8e701f90094737","article":{"id":"5eaf93c18f8e701f90094737","title":"树莓派4安装ubuntu server","snippet":"树莓派的官方镜像在Docker上面支持不怎么好，我的树莓派打算搭成一个家庭的微型服务器，所以打算装一个ubuntu server。本篇文章是我踩过坑之后的分享。ubuntu server的官方引导下载地址https://ubuntu.com/download/raspberry-pi/thank-y","image":"../o/uploads/dft_2020/407741bd618d3aaa966783c32ed94fa2_64658.png","tags":["树莓派"],"category":["树莓派","ubuntu"],"keywords":["树莓派4","树莓派安装ubuntu"],"content":"<p>树莓派的官方镜像在Docker上面支持不怎么好，我的树莓派打算搭成一个家庭的微型服务器，所以打算装一个ubuntu server。本篇文章是我踩过坑之后的分享。</p>\n<p>ubuntu server的官方引导下载地址</p>\n<p><a href=\\&quot;https://ubuntu.com/download/raspberry-pi/thank-you?version=20.04&amp;architecture=arm64+raspi\\&quot;\">https://ubuntu.com/download/raspberry-pi/thank-you?version=20.04&amp;architecture=arm64+raspi</a></p>\n<p>我下载的20.04版本的下载地址：</p>\n<p><a href=\\&quot;http://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04-preinstalled-server-arm64+raspi.img.xz\\&quot;\">http://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04-preinstalled-server-arm64+raspi.img.xz</a></p>\n<p>因为国外的cdn下载比较慢，所以我在清华大学的镜像库中找到一个相同的</p>\n<p><a href=\\&quot;https://mirrors.tuna.tsinghua.edu.cn/ubuntu-cdimage/ubuntu/releases/20.04/release/\\&quot;\">https://mirrors.tuna.tsinghua.edu.cn/ubuntu-cdimage/ubuntu/releases/20.04/release/</a></p>\n<p><img src=\"../o/uploads/dft_2020/407741bd618d3aaa966783c32ed94fa2_64658.png\" alt=\"树莓派4安装ubuntu server\" title=\"树莓派4安装ubuntu server\" /></p>\n<p>我下载的是上图这个，arm64版本，因为我在的树莓派上装docker 很多镜像没有对应的arm/v7版本，所以打算装一个arm64版本的ubuntu server。</p>\n<p>下载下来后参考这篇教程进行安装</p>\n<p><a href=\\&quot;https://ubuntu.com/tutorials/create-an-ubuntu-image-for-a-raspberry-pi-on-windows#2-on-your-windows-machine\"\">https://ubuntu.com/tutorials/create-an-ubuntu-image-for-a-raspberry-pi-on-windows#2-on-your-windows-machine</a></p>\n<p><img src=\"../o/uploads/dft_2020/82734104d0e5a3a1f307b5b4ac382f84_77260.png\" alt=\"树莓派4安装ubuntu server\" title=\"树莓派4安装ubuntu server\" /></p>\n<p>意思就是在你的windows机器上，使用zip工具解压.xz文件，得到一个.img格式的文件，然后使用Win32DiskImager 加载并Write写入到你的microSD卡</p>\n<p>写入完之后，把卡插到我的树莓派4，然后连上一个键盘+显示器，我就开始了我的树莓派 + ubuntu server之旅。继续踩坑。</p>\n<p>如何连接无线网络看我另一篇文章。</p>\n<p>PS: microSD卡写入前，建议用一个U盘格式化工具进行格式化，如：SD Card Formatter</p>\n","createTime":1588564929067,"updatedTime":1784998647703},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

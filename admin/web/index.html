@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>博客管理后台</title>
+<style>
+  :root {
+    --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
+    --border: #30363d; --text: #e6edf3; --muted: #8b949e;
+    --accent: #2f81f7; --accent2: #388bfd; --green: #3fb950;
+    --red: #f85149; --yellow: #d29922;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+  a { color: var(--accent2); text-decoration: none; }
+  button { cursor: pointer; font-family: inherit; }
+
+  /* 登录页 */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse at 30% 20%, #1f2937 0%, #0d1117 60%); }
+  .login-card { width: 380px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 36px 32px; }
+  .login-card h1 { font-size: 22px; margin-bottom: 6px; }
+  .login-card .sub { color: var(--muted); margin-bottom: 26px; }
+  .login-card label { display: block; color: var(--muted); margin: 14px 0 6px; font-size: 13px; }
+  .login-card input { width: 100%; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); outline: none; }
+  .login-card input:focus { border-color: var(--accent); }
+  .btn-primary { width: 100%; margin-top: 22px; padding: 11px; background: var(--green); border: none; border-radius: 8px; color: #fff; font-size: 15px; font-weight: 600; }
+  .btn-primary:hover { background: #2ea043; }
+  .hint-box { margin-top: 18px; padding: 12px; background: var(--bg3); border: 1px dashed var(--border); border-radius: 8px; color: var(--muted); font-size: 12.5px; line-height: 1.9; }
+  .err-msg { color: var(--red); margin-top: 10px; min-height: 18px; font-size: 13px; }
+
+  /* 主框架 */
+  .app { display: none; height: 100vh; }
+  .sidebar { width: 230px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .brand { padding: 18px 20px; font-size: 17px; font-weight: 700; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
+  .nav { flex: 1; padding: 12px 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; color: var(--muted); margin-bottom: 2px; }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(47,129,247,.15); color: var(--accent2); }
+  .nav-item .ico { width: 18px; text-align: center; }
+  .side-user { border-top: 1px solid var(--border); padding: 14px 18px; color: var(--muted); }
+  .side-user .name { color: var(--text); font-weight: 600; }
+  .side-user .logout { color: var(--red); cursor: pointer; margin-top: 4px; display: inline-block; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 54px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; background: var(--bg2); }
+  .topbar .title { font-size: 16px; font-weight: 600; }
+  .topbar .spacer { flex: 1; }
+  .topbar .user-chip { color: var(--muted); }
+  .content { flex: 1; overflow-y: auto; padding: 24px; }
+
+  /* 卡片/统计 */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .stat .num { font-size: 26px; font-weight: 700; }
+  .stat .label { color: var(--muted); margin-top: 4px; font-size: 13px; }
+  .stat.warn .num { color: var(--yellow); }
+
+  .panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; }
+  .panel .p-head { padding: 14px 18px; border-bottom: 1px solid var(--border); font-weight: 600; display: flex; align-items: center; }
+  .panel .p-head .spacer { flex: 1; }
+  .panel .p-body { padding: 6px 18px; }
+
+  /* 表格 */
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  th { color: var(--muted); font-weight: 500; font-size: 12.5px; white-space: nowrap; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; }
+  .tag-green { background: rgba(63,185,80,.15); color: var(--green); }
+  .tag-gray { background: rgba(139,148,158,.15); color: var(--muted); }
+  .tag-blue { background: rgba(47,129,247,.15); color: var(--accent2); }
+  .tag-red { background: rgba(248,81,73,.15); color: var(--red); }
+  .tag-yellow { background: rgba(210,153,34,.15); color: var(--yellow); }
+
+  /* 按钮 */
+  .btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 13px; }
+  .btn:hover { border-color: var(--muted); }
+  .btn-green { background: var(--green); border: none; color: #fff; font-weight: 600; }
+  .btn-green:hover { background: #2ea043; }
+  .btn-blue { background: var(--accent); border: none; color: #fff; }
+  .btn-blue:hover { background: var(--accent2); }
+  .btn-red { background: transparent; border: 1px solid var(--red); color: var(--red); }
+  .btn-red:hover { background: rgba(248,81,73,.12); }
+  .btn-sm { padding: 4px 10px; font-size: 12.5px; }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .toolbar .spacer { flex: 1; }
+
+  /* 弹窗 */
+  .modal-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 50; align-items: center; justify-content: center; }
+  .modal { width: 520px; max-width: 92vw; max-height: 88vh; overflow-y: auto; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .modal h3 { margin-bottom: 18px; }
+  .modal label { display: block; color: var(--muted); margin: 12px 0 6px; font-size: 13px; }
+  .modal input, .modal select, .modal textarea { width: 100%; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); outline: none; font-family: inherit; font-size: 13.5px; }
+  .modal input:focus, .modal select:focus, .modal textarea:focus { border-color: var(--accent); }
+  .modal textarea { min-height: 140px; resize: vertical; }
+  .rte-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--bg); }
+  .rte-bar { display: flex; flex-wrap: wrap; gap: 3px; background: var(--bg); padding: 6px 8px; border-bottom: 1px solid var(--border); align-items: center; }
+  .rte-bar button { background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 9px; font-size: 13px; color: var(--text); cursor: pointer; line-height: 1.3; }
+  .rte-bar button:hover { background: var(--border); border-color: var(--border); }
+  .rte-sep { width: 1px; height: 18px; background: var(--border); margin: 0 5px; display: inline-block; }
+  .rte-editor { min-height: 280px; max-height: 480px; overflow-y: auto; background: #fff; color: #1e293b; padding: 14px; font-size: 14.5px; line-height: 1.8; outline: none; }
+  .rte-editor img { max-width: 100%; border-radius: 6px; }
+  .rte-editor video { max-width: 100%; border-radius: 6px; }
+  .rte-editor audio { width: 100%; }
+  .rte-editor:empty:before { content: attr(data-placeholder); color: #94a3b8; }
+  .rte-editor blockquote { border-left: 3px solid #94a3b8; margin: 8px 0; padding: 2px 12px; color: #475569; }
+  .rte-editor pre { background: #f1f5f9; border-radius: 6px; padding: 10px; overflow-x: auto; }
+  .rte-editor a { color: #2563eb; }
+  .tag-chip-new { display: inline-flex; align-items: center; gap: 6px; background: rgba(37,99,235,.15); color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 3px 10px; font-size: 12px; margin: 3px 6px 3px 0; }
+  .tag-chip-new .x { cursor: pointer; color: var(--danger); font-weight: 700; }
+  .modal .row2 { display: flex; gap: 14px; }
+  .modal .row2 > div { flex: 1; }
+  .modal .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+  .modal .actions .btn { padding: 9px 20px; }
+  .modal .checkbox { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: var(--text); }
+  .modal .checkbox input { width: auto; }
+
+  /* 提示 */
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 22px; z-index: 99; display: none; }
+  .toast.ok { border-color: var(--green); color: var(--green); }
+  .toast.err { border-color: var(--red); color: var(--red); }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; }
+  .muted { color: var(--muted); }
+  .p10 { padding: 10px 0; }
+</style>
+</head>
+<body>
+
+<!-- 登录页 -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <h1>博客管理后台</h1>
+    <div class="sub">shawn 离线博客 · 内容与用户管理系统</div>
+    <label>用户名</label>
+    <input id="loginUser" placeholder="请输入用户名" autocomplete="username">
+    <label>密码</label>
+    <input id="loginPass" type="password" placeholder="请输入密码" autocomplete="current-password">
+    <div class="err-msg" id="loginErr"></div>
+    <button class="btn-primary" id="loginBtn">登 录</button>
+    <div class="hint-box">
+      默认账号：<br>
+      超级管理员 <b>root</b> / <b>123456</b>（管理用户与全部内容）<br>
+      管理员 <b>admin</b> / <b>123456</b>（管理文章、分类、评论）<br>
+      可登录后新增管理员与普通用户
+    </div>
+  </div>
+</div>
+
+<!-- 主应用 -->
+<div class="app" id="app">
+  <div class="sidebar">
+    <div class="brand"><span class="dot"></span> 博客管理后台</div>
+    <div class="nav" id="nav"></div>
+    <div class="side-user">
+      <div class="name" id="sideName">-</div>
+      <div class="muted" id="sideRole">-</div>
+      <span class="logout" onclick="logout()">退出登录</span>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <span class="title" id="pageTitle">仪表盘</span>
+      <span class="spacer"></span>
+      <span class="user-chip" id="topUser">-</span>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal" id="modalBody"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+let TOKEN = localStorage.getItem("shawn_admin_token") || "";
+let ME = null;            // {username, role, role_name, nickname, email, perms:[]}
+let CUR_PAGE = "dashboard";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hasPerm = p => ME && ME.perms && ME.perms.includes(p);
+
+async function api(path, body) {
+  const opt = { method: body ? "POST" : "GET", headers: { "X-Token": TOKEN } };
+  if (body) { opt.headers["Content-Type"] = "application/json"; opt.body = JSON.stringify(body); }
+  const res = await fetch(path, opt);
+  const data = await res.json().catch(() => ({ ok: false, msg: "响应解析失败" }));
+  if (res.status === 401 && path !== "/api/login") { showLogin(); }
+  return data;
+}
+
+let toastTimer = null;
+function toast(msg, ok = true) {
+  const t = $("toast");
+  t.textContent = msg; t.className = "toast " + (ok ? "ok" : "err"); t.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = "none", 2600);
+}
+
+function openModal(html) {
+  $("modalBody").innerHTML = html;
+  $("modalMask").style.display = "flex";
+}
+function closeModal() { $("modalMask").style.display = "none"; }
+$("modalMask").addEventListener("click", e => { if (e.target === $("modalMask")) closeModal(); });
+
+function showLogin() {
+  TOKEN = ""; localStorage.removeItem("shawn_admin_token");
+  $("loginWrap").style.display = "flex";
+  $("app").style.display = "none";
+}
+
+async function boot() {
+  if (!TOKEN) { showLogin(); return; }
+  const r = await api("/api/me");
+  if (!r.ok) { showLogin(); return; }
+  ME = r.user;
+  ME.perms = r.perms || [];
+  $("loginWrap").style.display = "none";
+  $("app").style.display = "flex";
+  $("sideName").textContent = ME.nickname || ME.username;
+  $("sideRole").textContent = ME.role_name;
+  $("topUser").textContent = ME.username + "（" + ME.role_name + "）";
+  renderNav();
+  navTo("dashboard");
+}
+
+function renderNav() {
+  const items = [
+    ["dashboard", "📊", "仪表盘", "dashboard"],
+    ["posts", "📝", "文章管理", "posts"],
+    ["categories", "🗂", "分类管理", "categories"],
+    ["tags", "🏷", "标签管理", "tags"],
+    ["columns", "📚", "分栏管理", "columns"],
+    ["comments", "💬", "评论管理", "comments"],
+    ["users", "👥", "用户管理", "users"],
+    ["tools", "🧰", "工具设置", "settings"],
+    ["about", "👤", "关于我编辑", "settings"],
+    ["layout", "🧱", "页面装修", "settings"],
+    ["settings", "⚙", "个人设置", "settings"],
+  ];
+  $("nav").innerHTML = items.filter(it => hasPerm(it[3])).map(it =>
+    `<div class="nav-item ${CUR_PAGE === it[0] ? "active" : ""}" onclick="navTo('${it[0]}')">
+       <span class="ico">${it[1]}</span>${it[2]}</div>`).join("");
+}
+
+function navTo(page) {
+  CUR_PAGE = page;
+  renderNav();
+  const titles = { dashboard: "仪表盘", posts: "文章管理", categories: "分类管理", tags: "标签管理", columns: "分栏管理", comments: "评论管理", users: "用户管理", tools: "工具设置", about: "关于我编辑", layout: "页面装修", settings: "个人设置" };
+  $("pageTitle").textContent = titles[page] || page;
+  const fn = { dashboard: loadDashboard, posts: loadPosts, categories: loadCategories, tags: loadTagsPage, columns: loadColumnsPage, comments: loadComments, users: loadUsers, tools: loadToolsPage, about: loadAboutPage, layout: loadLayoutPage, settings: loadSettings };
+  (fn[page] || loadDashboard)();
+}
+
+async function logout() {
+  await api("/api/logout", {});
+  showLogin();
+}
+
+/* ---------- 登录 ---------- */
+async function doLogin() {
+  const username = $("loginUser").value.trim();
+  const password = $("loginPass").value;
+  if (!username || !password) { $("loginErr").textContent = "请输入用户名和密码"; return; }
+  const r = await api("/api/login", { username, password });
+  if (!r.ok) { $("loginErr").textContent = r.msg; return; }
+  TOKEN = r.token; localStorage.setItem("shawn_admin_token", TOKEN);
+  ME = r.user;
+  $("loginErr").textContent = "";
+  boot();
+}
+$("loginBtn").onclick = doLogin;
+$("loginPass").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+
+/* ---------- 仪表盘 ---------- */
+async function loadDashboard() {
+  const r = await api("/api/dashboard");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const d = r.data;
+  const stats = [
+    ["文章总数", d.posts, ""], ["待发布文章", d.pending_posts, "warn"],
+    ["分类数量", d.categories, ""], ["评论总数", d.comments, ""],
+    ["待审评论", d.pending_comments, "warn"], ["用户总数", d.users, ""],
+  ].map(s => `<div class="stat ${s[2]}"><div class="num">${s[1]}</div><div class="label">${s[0]}</div></div>`).join("");
+  const rows = d.recent_posts.length ? d.recent_posts.map(p =>
+    `<tr><td>${esc(p.title)}</td>
+      <td>${p.is_top ? '<span class="tag tag-yellow">置顶</span>' : ""} ${p.status ? '<span class="tag tag-green">已发布</span>' : '<span class="tag tag-gray">草稿</span>'}</td>
+      <td>${p.views}</td><td class="muted">${esc(p.created_at)}</td></tr>`).join("")
+    : `<tr><td colspan="4"><div class="empty">暂无文章</div></td></tr>`;
+  $("content").innerHTML = `
+    <div class="stats">${stats}</div>
+    <div class="panel">
+      <div class="p-head">最近文章</div>
+      <div class="p-body"><table><thead><tr><th>标题</th><th>状态</th><th>浏览</th><th>创建时间</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+}
+
+/* ---------- 文章管理 ---------- */
+async function loadPosts() {
+  const r = await api("/api/posts");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const cats = await api("/api/categories");
+  const catMap = {}; (cats.data || []).forEach(c => catMap[c.id] = c.name);
+  const canEdit = hasPerm("posts");
+  const rows = r.data.map(p => `
+    <tr>
+      <td>${p.is_top ? '<span class="tag tag-yellow">置顶</span> ' : ""}${esc(p.title)}</td>
+      <td>${esc(catMap[p.category_id] || "未分类")}</td>
+      <td>${(p.tags || []).map(t => `<span class="tag tag-blue">#${esc(t)}</span>`).join(" ") || `<span class="muted">-</span>`}</td>
+      <td>${(p.columns || []).map(c => `<span class="tag tag-green">${esc(c)}</span>`).join(" ") || `<span class="muted">-</span>`}</td>
+      <td>${p.status ? '<span class="tag tag-green">已发布</span>' : '<span class="tag tag-gray">草稿</span>'}</td>
+      <td>${p.views}</td>
+      <td class="muted">${esc(p.created_at)}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="editPost(${p.id})">编辑</button>
+          <button class="btn btn-sm btn-red" onclick="delPost(${p.id})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar">
+      <span class="muted">共 ${r.data.length} 篇文章</span>
+      <span class="spacer"></span>
+      ${canEdit ? `<button class="btn btn-blue" onclick="editPost(0)">＋ 新建文章</button>
+      <button class="btn" onclick="importPosts()">从离线镜像导入</button>` : ""}
+    </div>
+    <div class="panel"><div class="p-body">
+      <table><thead><tr><th>标题</th><th>分类</th><th>标签</th><th>分栏</th><th>状态</th><th>浏览</th><th>创建时间</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="8"><div class="empty">暂无文章</div></td></tr>`}</tbody></table>
+    </div></div>`;
+}
+
+async function importPosts() {
+  if (!confirm("从离线镜像 shawn.qingyi.dpdns.org\\article 扫描文章标题并导入文章表？")) return;
+  const r = await api("/api/import_posts", {});
+  toast(r.msg, r.ok); if (r.ok) loadPosts();
+}
+
+async function editPost(id) {
+  const cats = await api("/api/categories");
+  const tagRes = await api("/api/tags");
+  const colRes = await api("/api/columns");
+  const catOpts = (cats.data || []).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  const tagAll = tagRes.data || [];
+  const colAll = colRes.data || [];
+  let pre = { title: "", category_id: "", summary: "", content: "", status: 1, is_top: 0, tags: [], columns: [] };
+  if (id) {
+    const list = await api("/api/posts");
+    const p = (list.data || []).find(x => x.id === id);
+    if (p) { pre = { title: p.title, category_id: p.category_id || "", summary: p.summary, content: p.content, status: p.status, is_top: p.is_top, tags: p.tags || [], columns: p.columns || [] }; }
+  }
+  const curTags = {}; pre.tags.forEach(t => curTags[t] = 1);
+  const curCols = {}; pre.columns.forEach(c => curCols[c] = 1);
+  const tagBoxes = tagAll.map(t =>
+    `<label style="display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0;font-size:13px"><input type="checkbox" class="ptag" value="${t.id}" data-name="${esc(t.name)}" ${curTags[t.name] ? "checked" : ""}> ${esc(t.name)}</label>`).join("") || `<div class="muted">暂无标签，可直接在下方用 # 前缀创建</div>`;
+  const colBoxes = colAll.map(c =>
+    `<label style="display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0;font-size:13px"><input type="checkbox" class="pcol" value="${c.id}" ${curCols[c.name] ? "checked" : ""}> ${esc(c.name)}</label>`).join("") || `<div class="muted">暂无分栏，可先到「分栏管理」创建</div>`;
+  openModal(`
+    <h3>${id ? "编辑文章" : "新建文章"}</h3>
+    <label>标题</label><input id="f_title" value="${esc(pre.title)}">
+    <label>分类</label><select id="f_cat"><option value="">未分类</option>${catOpts}</select>
+    <label>标签（可用 # 前缀自定义生成新标签）</label><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+      ${tagBoxes}<div id="f_newTags"></div>
+      <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+        <input id="f_tagInput" placeholder="输入 #标签 或 标签名后点添加/回车" style="flex:1">
+        <button type="button" class="btn btn-sm" onclick="addCustomTag()">添加</button>
+      </div>
+    </div>
+    <label>分栏</label><div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">${colBoxes}</div>
+    <label>摘要</label><input id="f_summary" value="${esc(pre.summary)}">
+    <label>正文（图文编辑，图片/音频/视频支持本地上传）</label>
+    <div class="rte-wrap">
+      <div class="rte-bar" id="rte_bar">
+        <button type="button" data-cmd="bold" title="加粗"><b>B</b></button>
+        <button type="button" data-cmd="italic" title="斜体"><i>I</i></button>
+        <button type="button" data-cmd="underline" title="下划线"><u>U</u></button>
+        <button type="button" data-cmd="strikeThrough" title="删除线"><s>S</s></button>
+        <span class="rte-sep"></span>
+        <button type="button" data-cmd="formatBlock" data-val="H2" title="二级标题">H2</button>
+        <button type="button" data-cmd="formatBlock" data-val="H3" title="三级标题">H3</button>
+        <button type="button" data-cmd="formatBlock" data-val="P" title="段落">P</button>
+        <span class="rte-sep"></span>
+        <button type="button" data-cmd="insertUnorderedList" title="无序列表">• 列表</button>
+        <button type="button" data-cmd="insertOrderedList" title="有序列表">1. 列表</button>
+        <button type="button" data-cmd="formatBlock" data-val="BLOCKQUOTE" title="引用">❝ 引用</button>
+        <button type="button" data-cmd="formatBlock" data-val="PRE" title="代码块">&lt;/&gt; 代码</button>
+        <span class="rte-sep"></span>
+        <button type="button" onclick="rteLink()" title="插入链接">🔗 链接</button>
+        <button type="button" onclick="rteMedia('image')" title="插入图片（本地上传）">🖼 图片</button>
+        <button type="button" onclick="rteMedia('audio')" title="插入音频（本地上传）">🎵 音频</button>
+        <button type="button" onclick="rteMedia('video')" title="插入视频（本地上传）">🎬 视频</button>
+        <span class="rte-sep"></span>
+        <button type="button" onclick="rteClear()" title="清除格式">清除格式</button>
+      </div>
+      <div id="rte_editor" contenteditable="true" class="rte-editor" data-placeholder="在此输入正文，支持图文混排、音频视频"></div>
+      <textarea id="f_content" style="display:none"></textarea>
+      <input type="file" id="f_media" style="display:none">
+    </div>
+    <div class="row2">
+      <div><label>状态</label><select id="f_status">
+        <option value="1" ${pre.status ? "selected" : ""}>已发布</option>
+        <option value="0" ${!pre.status ? "selected" : ""}>草稿</option></select></div>
+      <div><label>排序</label><select id="f_top">
+        <option value="0" ${!pre.is_top ? "selected" : ""}>普通</option>
+        <option value="1" ${pre.is_top ? "selected" : ""}>置顶</option></select></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="savePost(${id || 0})">保存</button>
+    </div>`);
+  $("f_cat").value = String(pre.category_id || "");
+  window.newTagNames = [];
+  initRte(pre.content || "");
+}
+
+/* ---------- 富文本编辑器（图文编辑） ---------- */
+function initRte(html){
+  const ed = $("rte_editor");
+  if (ed) {
+    ed.innerHTML = html;
+    const bar = $("rte_bar");
+    bar.querySelectorAll("[data-cmd]").forEach(b => {
+      b.onclick = () => { document.execCommand(b.getAttribute("data-cmd"), false, b.getAttribute("data-val")); ed.focus(); };
+    });
+    const fi = $("f_media");
+    window._rteMediaType = "image";
+    fi.onchange = () => {
+      const f = fi.files[0]; if (!f) return;
+      const fd = new FormData(); fd.append("file", f);
+      fetch("/api/upload", { method: "POST", headers: { "X-Token": TOKEN }, body: fd })
+        .then(r => r.json()).then(j => {
+          if (!j.ok) { toast("上传失败: " + j.msg, false); return; }
+          const u = j.data.url, t = window._rteMediaType;
+          let html = "";
+          if (t === "image") html = `<img src="${u}" alt="" style="max-width:100%">`;
+          else if (t === "audio") html = `<audio src="${u}" controls></audio>`;
+          else html = `<video src="${u}" controls style="max-width:100%"></video>`;
+          document.execCommand("insertHTML", false, html);
+          ed.focus(); toast("已插入");
+        }).catch(() => toast("上传失败，请确认后台服务已启动", false));
+    };
+  }
+}
+function rteLink(){
+  const u = prompt("输入链接地址（以 http 开头）");
+  if (u) document.execCommand("createLink", false, u);
+  $("rte_editor").focus();
+}
+function rteMedia(type){
+  window._rteMediaType = type;
+  const fi = $("f_media");
+  fi.setAttribute("accept", type === "image" ? "image/*" : type === "audio" ? "audio/*" : "video/*");
+  fi.value = ""; fi.click();
+}
+function rteClear(){ document.execCommand("removeFormat", false, null); $("rte_editor").focus(); }
+function addCustomTag(){
+  const inp = $("f_tagInput"); const v = (inp.value || "").trim().replace(/^#+/, "");
+  if (!v) return;
+  const cb = Array.from(document.querySelectorAll(".ptag")).find(x => x.getAttribute("data-name") === v);
+  if (cb) { cb.checked = true; inp.value = ""; return; }
+  const list = window.newTagNames || (window.newTagNames = []);
+  if (list.includes(v)) { inp.value = ""; return; }
+  list.push(v);
+  $("f_newTags").innerHTML = list.map((n,i) => `<span class="tag-chip-new">#${esc(n)}<span class="x" data-i="${i}" onclick="delNewTag(${i})">×</span></span>`).join("");
+  inp.value = "";
+}
+function delNewTag(i){
+  window.newTagNames.splice(i, 1);
+  $("f_newTags").innerHTML = window.newTagNames.map((n,j) => `<span class="tag-chip-new">#${esc(n)}<span class="x" data-i="${j}" onclick="delNewTag(${j})">×</span></span>`).join("");
+}
+
+async function savePost(id) {
+  const tags = Array.from(document.querySelectorAll(".ptag:checked")).map(x => Number(x.value));
+  (window.newTagNames || []).forEach(n => tags.push(n));
+  const columns = Array.from(document.querySelectorAll(".pcol:checked")).map(x => Number(x.value));
+  const body = {
+    id, title: $("f_title").value.trim(), category_id: $("f_cat").value || null,
+    summary: $("f_summary").value, content: $("rte_editor").innerHTML,
+    status: Number($("f_status").value), is_top: Number($("f_top").value),
+    tags, columns,
+  };
+  if (!body.title) { toast("请输入标题", false); return; }
+  const r = await api(id ? "/api/posts/update" : "/api/posts/create", body);
+  toast(r.msg, r.ok); if (r.ok) { closeModal(); loadPosts(); }
+}
+
+async function delPost(id) {
+  if (!confirm("确定删除该文章？关联评论将一并删除。")) return;
+  const r = await api("/api/posts/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadPosts();
+}
+
+/* ---------- 分类管理 ---------- */
+async function loadCategories() {
+  const r = await api("/api/categories");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("categories");
+  const rows = r.data.map(c => `
+    <tr><td>${esc(c.name)}</td><td>${c.sort}</td><td>${c.cnt}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="editCat(${c.id})">编辑</button>
+        <button class="btn btn-sm btn-red" onclick="delCat(${c.id})">删除</button>` : ""}</td></tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar"><span class="muted">共 ${r.data.length} 个分类</span><span class="spacer"></span>
+      ${canEdit ? `<button class="btn btn-blue" onclick="editCat(0)">＋ 新增分类</button>` : ""}</div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>名称</th><th>排序</th><th>文章数</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="4"><div class="empty">暂无分类</div></td></tr>`}</tbody></table></div></div>`;
+}
+
+function editCat(id) {
+  let name = "", sort = 0;
+  if (id) {
+    // 从列表里找
+    api("/api/categories").then(r => {
+      const c = (r.data || []).find(x => x.id === id);
+      if (c) { name = c.name; sort = c.sort; }
+      showCatModal(id, name, sort);
+    });
+  } else showCatModal(0, "", 0);
+}
+function showCatModal(id, name, sort) {
+  openModal(`
+    <h3>${id ? "编辑分类" : "新增分类"}</h3>
+    <label>分类名称</label><input id="f_cat_name" value="${esc(name)}">
+    <label>排序值（越小越靠前）</label><input id="f_cat_sort" value="${sort}">
+    <div class="actions"><button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveCat(${id})">保存</button></div>`);
+}
+async function saveCat(id) {
+  const body = { id, name: $("f_cat_name").value.trim(), sort: Number($("f_cat_sort").value) || 0 };
+  if (!body.name) { toast("请输入分类名称", false); return; }
+  const r = await api(id ? "/api/categories/update" : "/api/categories/create", body);
+  toast(r.msg, r.ok); if (r.ok) { closeModal(); loadCategories(); }
+}
+async function delCat(id) {
+  if (!confirm("确定删除该分类？其下文章将移至未分类。")) return;
+  const r = await api("/api/categories/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadCategories();
+}
+
+/* ---------- 评论管理 ---------- */
+async function loadComments() {
+  const r = await api("/api/comments");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("comments");
+  const rows = r.data.map(m => `
+    <tr>
+      <td>${esc(m.post_title || "（已删除文章）")}</td>
+      <td>${esc(m.author || "匿名")}</td>
+      <td>${esc(m.content.slice(0, 60))}${m.content.length > 60 ? "…" : ""}</td>
+      <td>${m.status ? '<span class="tag tag-green">已通过</span>' : '<span class="tag tag-yellow">待审核</span>'}</td>
+      <td class="muted">${esc(m.created_at)}</td>
+      <td>${canEdit ? `${m.status ? `<button class="btn btn-sm" onclick="setComment(${m.id},0)">驳回</button>` : `<button class="btn btn-sm btn-green" onclick="setComment(${m.id},1)">通过</button>`}
+        <button class="btn btn-sm btn-red" onclick="delComment(${m.id})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar"><span class="muted">共 ${r.data.length} 条评论</span></div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>文章</th><th>作者</th><th>内容</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="6"><div class="empty">暂无评论</div></td></tr>`}</tbody></table></div></div>`;
+}
+async function setComment(id, status) {
+  const r = await api("/api/comments/update", { id, status });
+  toast(r.msg, r.ok); if (r.ok) loadComments();
+}
+async function delComment(id) {
+  if (!confirm("确定删除该评论？")) return;
+  const r = await api("/api/comments/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadComments();
+}
+
+/* ---------- 用户管理 ---------- */
+const ROLE_TAG = { super_admin: ["tag-red", "超级管理员"], admin: ["tag-blue", "管理员"], user: ["tag-gray", "普通用户"] };
+async function loadUsers() {
+  const r = await api("/api/users");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canUser = hasPerm("users");
+  const rows = r.data.map(u => {
+    const t = ROLE_TAG[u.role] || ["tag-gray", u.role];
+    return `<tr>
+      <td><b>${esc(u.username)}</b></td>
+      <td>${esc(u.nickname || "-")}</td>
+      <td>${esc(u.email || "-")}</td>
+      <td><span class="tag ${t[0]}">${t[1]}</span></td>
+      <td>${u.status ? '<span class="tag tag-green">正常</span>' : '<span class="tag tag-red">已禁用</span>'}</td>
+      <td class="muted">${esc(u.created_at)}</td>
+      <td>${canUser ? `<button class="btn btn-sm" onclick="editUser(${u.id})">编辑</button>
+        <button class="btn btn-sm" onclick="resetPwd(${u.id})">重置密码</button>
+        ${u.username !== "root" ? `<button class="btn btn-sm btn-red" onclick="delUser(${u.id})">删除</button>` : ""}` : ""}</td>
+    </tr>`;
+  }).join("");
+  $("content").innerHTML = `
+    <div class="toolbar">
+      <span class="muted">共 ${r.data.length} 个账号</span>
+      <span class="spacer"></span>
+      ${canUser ? `<button class="btn btn-green" onclick="editUser(0)">＋ 新增用户</button>` : ""}
+    </div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>用户名</th><th>昵称</th><th>邮箱</th><th>角色</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="7"><div class="empty">暂无用户</div></td></tr>`}</tbody></table>
+    </div></div>`;
+}
+
+async function editUser(id) {
+  let pre = { username: "", role: "user", nickname: "", email: "", status: 1 };
+  if (id) {
+    const r = await api("/api/users");
+    const u = (r.data || []).find(x => x.id === id);
+    if (u) pre = { username: u.username, role: u.role, nickname: u.nickname, email: u.email, status: u.status };
+  }
+  const isRoot = pre.username === "root";
+  openModal(`
+    <h3>${id ? "编辑用户 " + esc(pre.username) : "新增用户"}</h3>
+    ${id ? "" : `<label>用户名</label><input id="f_u_username" placeholder="3-32位字母数字下划线">`}
+    ${id ? "" : `<label>初始密码</label><input id="f_u_pwd" type="password" placeholder="至少6位">`}
+    <label>昵称</label><input id="f_u_nick" value="${esc(pre.nickname)}">
+    <label>邮箱</label><input id="f_u_email" value="${esc(pre.email)}">
+    <label>角色</label>
+    <select id="f_u_role" ${isRoot ? "disabled" : ""}>
+      <option value="super_admin" ${pre.role === "super_admin" ? "selected" : ""}>超级管理员（全部权限，含用户管理）</option>
+      <option value="admin" ${pre.role === "admin" ? "selected" : ""}>管理员（文章/分类/评论管理）</option>
+      <option value="user" ${pre.role === "user" ? "selected" : ""}>普通用户（仅仪表盘）</option>
+    </select>
+    ${isRoot ? `<div class="muted p10">root 为内置超级管理员，角色不可修改</div>` : `
+    <div class="checkbox"><input type="checkbox" id="f_u_status" ${pre.status ? "checked" : ""}> 启用该账号</div>`}
+    <div class="actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveUser(${id || 0}, ${isRoot})">保存</button>
+    </div>`);
+}
+
+async function saveUser(id, isRoot) {
+  const body = {
+    id,
+    nickname: $("f_u_nick").value.trim(),
+    email: $("f_u_email").value.trim(),
+    role: $("f_u_role").value,
+    status: $("f_u_status") ? ($("f_u_status").checked ? 1 : 0) : 1,
+  };
+  if (!id) {
+    body.username = $("f_u_username").value.trim();
+    body.password = $("f_u_pwd").value;
+    if (!body.username) { toast("请输入用户名", false); return; }
+    if (!body.password) { toast("请输入初始密码", false); return; }
+    const r = await api("/api/users/create", body);
+    toast(r.msg, r.ok); if (r.ok) { closeModal(); loadUsers(); }
+  } else {
+    const r = await api("/api/users/update", body);
+    toast(r.msg, r.ok); if (r.ok) { closeModal(); loadUsers(); }
+  }
+}
+
+async function resetPwd(id) {
+  openModal(`
+    <h3>重置密码</h3>
+    <label>新密码（至少6位）</label><input id="f_new_pwd" type="password">
+    <div class="actions"><button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveReset(${id})">确认重置</button></div>`);
+}
+async function saveReset(id) {
+  const pwd = $("f_new_pwd").value;
+  if (pwd.length < 6) { toast("密码至少6位", false); return; }
+  const r = await api("/api/users/resetpwd", { id, password: pwd });
+  toast(r.msg, r.ok); if (r.ok) closeModal();
+}
+async function delUser(id) {
+  if (!confirm("确定删除该用户？此操作不可恢复。")) return;
+  const r = await api("/api/users/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadUsers();
+}
+
+/* ---------- 标签管理 ---------- */
+async function loadTagsPage() {
+  const r = await api("/api/tags");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("tags");
+  const rows = r.data.map(t => `
+    <tr>
+      <td><span class="tag" style="background:${esc(t.color)}22;color:${esc(t.color)}"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${esc(t.color)};margin-right:6px"></span>${esc(t.name)}</span></td>
+      <td>${t.cnt}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="editTag(${t.id})">编辑</button>
+        <button class="btn btn-sm btn-red" onclick="delTag(${t.id})">删除</button>` : ""}</td>
+    </tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar"><span class="muted">共 ${r.data.length} 个标签（文章分类即 #标签）</span><span class="spacer"></span>
+      ${canEdit ? `<button class="btn btn-blue" onclick="editTag(0)">＋ 新增标签</button>` : ""}</div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>标签</th><th>文章数</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="3"><div class="empty">暂无标签</div></td></tr>`}</tbody></table></div></div>`;
+}
+function editTag(id) {
+  let name = "", color = "#58a6ff";
+  if (id) {
+    api("/api/tags").then(r => {
+      const t = (r.data || []).find(x => x.id === id);
+      if (t) { name = t.name; color = t.color || "#58a6ff"; }
+      showTagModal(id, name, color);
+    });
+  } else showTagModal(0, "", "#58a6ff");
+}
+function showTagModal(id, name, color) {
+  openModal(`
+    <h3>${id ? "编辑标签" : "新增标签"}</h3>
+    <label>标签名称（前端显示为 #名称）</label><input id="f_tag_name" value="${esc(name)}" maxlength="30">
+    <label>标签颜色（十六进制，如 #58a6ff）</label><div class="row2">
+      <div><input id="f_tag_color" value="${esc(color)}" maxlength="7"></div>
+      <div style="flex:0 0 120px"><input type="color" id="f_tag_picker" value="${esc(color)}" onchange="document.getElementById('f_tag_color').value=this.value" style="height:38px;padding:2px"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveTag(${id})">保存</button></div>`);
+}
+async function saveTag(id) {
+  const body = { id, name: $("f_tag_name").value.trim(), color: $("f_tag_color").value.trim() };
+  if (!body.name) { toast("请输入标签名称", false); return; }
+  const r = await api(id ? "/api/tags/update" : "/api/tags/create", body);
+  toast(r.msg, r.ok); if (r.ok) { closeModal(); loadTagsPage(); }
+}
+async function delTag(id) {
+  if (!confirm("确定删除该标签？相关文章的标签关联将解除。")) return;
+  const r = await api("/api/tags/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadTagsPage();
+}
+
+/* ---------- 分栏管理 ---------- */
+async function loadColumnsPage() {
+  const r = await api("/api/columns");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("columns");
+  const rows = r.data.map(c => `
+    <tr><td>${esc(c.name)}</td><td>${c.sort}</td><td>${c.cnt}</td>
+      <td>${canEdit ? `<button class="btn btn-sm" onclick="editColumn(${c.id})">编辑</button>
+        <button class="btn btn-sm btn-red" onclick="delColumn(${c.id})">删除</button>` : ""}</td></tr>`).join("");
+  $("content").innerHTML = `
+    <div class="toolbar"><span class="muted">共 ${r.data.length} 个分栏</span><span class="spacer"></span>
+      ${canEdit ? `<button class="btn btn-blue" onclick="editColumn(0)">＋ 新增分栏</button>` : ""}</div>
+    <div class="panel"><div class="p-body"><table>
+      <thead><tr><th>分栏名称</th><th>排序</th><th>文章数</th><th>操作</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="4"><div class="empty">暂无分栏</div></td></tr>`}</tbody></table></div></div>`;
+}
+function editColumn(id) {
+  let name = "", sort = 0;
+  if (id) {
+    api("/api/columns").then(r => {
+      const c = (r.data || []).find(x => x.id === id);
+      if (c) { name = c.name; sort = c.sort; }
+      showColumnModal(id, name, sort);
+    });
+  } else showColumnModal(0, "", 0);
+}
+function showColumnModal(id, name, sort) {
+  openModal(`
+    <h3>${id ? "编辑分栏" : "新增分栏"}</h3>
+    <label>分栏名称</label><input id="f_col_name" value="${esc(name)}" maxlength="30">
+    <label>排序值（越小越靠前）</label><input id="f_col_sort" value="${sort}">
+    <div class="actions"><button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-green" onclick="saveColumn(${id})">保存</button></div>`);
+}
+async function saveColumn(id) {
+  const body = { id, name: $("f_col_name").value.trim(), sort: Number($("f_col_sort").value) || 0 };
+  if (!body.name) { toast("请输入分栏名称", false); return; }
+  const r = await api(id ? "/api/columns/update" : "/api/columns/create", body);
+  toast(r.msg, r.ok); if (r.ok) { closeModal(); loadColumnsPage(); }
+}
+async function delColumn(id) {
+  if (!confirm("确定删除该分栏？相关文章的关联将解除。")) return;
+  const r = await api("/api/columns/delete", { id });
+  toast(r.msg, r.ok); if (r.ok) loadColumnsPage();
+}
+
+/* ---------- 工具设置 ---------- */
+async function loadToolsPage() {
+  const r = await api("/api/settings/tools");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const tools = r.data || [];
+  const rows = tools.map((t, i) => `
+    <tr>
+      <td><b>${esc(t.name)}</b></td>
+      <td class="muted">/${esc(t.path)}</td>
+      <td class="muted">${esc(t.desc || "")}</td>
+      <td>${t.enabled ? '<span class="tag tag-green">展示中</span>' : '<span class="tag tag-red">已关闭</span>'}</td>
+      <td>
+        <label class="sw" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" data-k="${esc(t.key)}" ${t.enabled ? "checked" : ""} onchange="saveTools(${i})">
+        </label>
+      </td>
+    </tr>`).join("");
+  $("content").innerHTML = `
+    <div class="panel"><div class="p-head">工具展示开关
+      <span class="spacer"></span>
+      <span class="muted" style="font-weight:400">关闭后，前台导航与首页工具区将不再显示该工具</span>
+    </div>
+    <div class="p-body"><table>
+      <thead><tr><th>工具</th><th>路径</th><th>说明</th><th>状态</th><th>开关</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="5"><div class="empty">暂无工具配置</div></td></tr>`}</tbody></table></div></div>`;
+}
+async function saveTools(idx) {
+  const r = await api("/api/settings/tools");
+  if (!r.ok) return;
+  const tools = r.data || [];
+  const all = document.querySelectorAll('input[data-k]');
+  const state = {}; all.forEach(x => state[x.getAttribute("data-k")] = x.checked);
+  tools.forEach(t => { if (state[t.key] !== undefined) t.enabled = state[t.key]; });
+  const res = await api("/api/settings/tools", { tools });
+  toast(res.msg, res.ok);
+  if (!res.ok) loadToolsPage();
+}
+
+/* ---------- 关于我编辑 ---------- */
+async function loadAboutPage() {
+  const r = await api("/api/settings/about");
+  if (!r.ok) { $("content").innerHTML = `<div class="empty">${esc(r.msg)}</div>`; return; }
+  const canEdit = hasPerm("settings");
+  const latest = r.data[0] || { content: "", created_at: "" };
+  const history = (r.data || []).map(v => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="muted" style="font-size:12px;margin-bottom:6px">${esc(v.created_at)}</div>
+      <div style="max-height:60px;overflow:hidden;font-size:13px;color:var(--muted)">${esc(v.content.replace(/<[^>]+>/g, "").slice(0, 120))}</div>
+    </div>`).join("");
+  $("content").innerHTML = `
+    <div class="panel" style="max-width:860px;margin-bottom:18px">
+      <div class="p-head">关于我 · 图文编辑
+        <span class="spacer"></span>
+        <span class="muted" style="font-weight:400">支持标题、段落、图片、链接、列表等；保存时自动在顶部追加时间戳</span>
+      </div>
+      <div class="p-body" style="padding:18px">
+        <label style="display:block;color:var(--muted);margin:8px 0 6px">正文（HTML，可粘贴图片地址）</label>
+        <textarea id="about_content" style="width:100%;min-height:320px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px;font-family:inherit;font-size:13.5px;line-height:1.7">${esc(latest.content)}</textarea>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="aboutInsert('<h2></h2>')">标题</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<p></p>')">段落</button>
+          <button class="btn btn-sm" onclick="aboutMedia()">图片（本地上传）</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<a href=\\'\\'>链接</a>')">链接</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<ul>\\n<li></li>\\n</ul>')">列表</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<strong></strong>')">加粗</button>
+          <button class="btn btn-sm" onclick="aboutInsert('<blockquote></blockquote>')">引用</button>
+        </div>
+        <div style="margin-top:18px"><button class="btn btn-green" style="padding:9px 26px" onclick="saveAbout()">保存（自动追加时间戳）</button></div>
+      </div>
+    </div>
+    <div class="panel" style="max-width:860px">
+      <div class="p-head">编辑历史（最近 20 条）</div>
+      <div class="p-body" style="padding:0 18px">${history || `<div class="empty">暂无历史</div>`}</div>
+    </div>`;
+}
+function aboutInsert(tag) {
+  const ta = $("about_content");
+  const start = ta.selectionStart || ta.value.length;
+  ta.value = ta.value.slice(0, start) + tag + ta.value.slice(ta.selectionEnd || ta.value.length);
+  ta.focus();
+}
+function aboutMedia() {
+  let fi = $("about_media");
+  if (!fi) {
+    fi = document.createElement("input");
+    fi.type = "file"; fi.accept = "image/*"; fi.id = "about_media"; fi.style.display = "none";
+    document.body.appendChild(fi);
+  }
+  fi.value = "";
+  fi.onchange = () => {
+    const f = fi.files[0]; if (!f) return;
+    const fd = new FormData(); fd.append("file", f);
+    fetch("/api/upload", { method: "POST", headers: { "X-Token": TOKEN }, body: fd })
+      .then(r => r.json()).then(j => {
+        if (!j.ok) { toast("上传失败: " + j.msg, false); return; }
+        aboutInsert(`<img src="${j.data.url}" alt="" style="max-width:100%">`);
+        toast("已插入图片");
+      }).catch(() => toast("上传失败，请确认后台服务已启动", false));
+  };
+  fi.click();
+}
+async function saveAbout() {
+  const content = $("about_content").value;
+  if (!content.trim()) { toast("内容不能为空", false); return; }
+  const r = await api("/api/settings/about", { content });
+  toast(r.msg, r.ok); if (r.ok) loadAboutPage();
+}
+
+/* ---------- 个人设置 ---------- */
+function loadLayoutPage() {
+  $("content").innerHTML = `
+    <div class="panel">
+      <div class="p-head">页面装修（可视化布局编辑器）</div>
+      <div class="p-body" style="padding:26px;text-align:center;line-height:2.2;color:var(--muted)">
+        <div style="font-size:44px;margin-bottom:12px">🧱</div>
+        <div>在装修编辑器中可对首页进行自定义组件装修：</div>
+        <div style="font-size:13px">新增组件、拖拽移动、缩放调整、删除组件、内容排版优化</div>
+        <div style="font-size:13px">支持 PC 桌面与移动 H5 双端独立布局，保存后前台网页同步生效</div>
+        <div style="margin-top:22px">
+          <button class="btn btn-green" style="padding:12px 38px;font-size:15px" onclick="window.open('/admin/web/editor.html','_blank')">打开装修编辑器</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function loadSettings() {
+  $("content").innerHTML = `
+    <div class="panel" style="max-width:560px">
+      <div class="p-head">个人资料</div>
+      <div class="p-body" style="padding:18px">
+        <label style="display:block;color:var(--muted);margin:8px 0 6px">用户名（不可修改）</label>
+        <input disabled value="${esc(ME.username)}" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <label style="display:block;color:var(--muted);margin:14px 0 6px">昵称</label>
+        <input id="s_nick" value="${esc(ME.nickname)}" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <label style="display:block;color:var(--muted);margin:14px 0 6px">邮箱</label>
+        <input id="s_email" value="${esc(ME.email)}" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <div style="height:1px;background:var(--border);margin:22px 0"></div>
+        <div class="muted" style="margin-bottom:10px">修改密码（留空则不修改）</div>
+        <label style="display:block;color:var(--muted);margin:10px 0 6px">原密码</label>
+        <input id="s_old" type="password" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <label style="display:block;color:var(--muted);margin:14px 0 6px">新密码</label>
+        <input id="s_new" type="password" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        <div style="margin-top:20px"><button class="btn btn-green" style="padding:9px 26px" onclick="saveSettings()">保存修改</button></div>
+      </div>
+    </div>`;
+}
+async function saveSettings() {
+  const r = await api("/api/settings", {
+    nickname: $("s_nick").value.trim(), email: $("s_email").value.trim(),
+    old_password: $("s_old").value, new_password: $("s_new").value,
+  });
+  toast(r.msg, r.ok);
+  if (r.ok) { boot(); }
+}
+
+boot();
+</script>
+</body>
+</html>

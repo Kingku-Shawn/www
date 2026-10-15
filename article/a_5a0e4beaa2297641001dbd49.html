@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>用Prismjs给自己的博客文章增加代码高亮功能</title><meta name="keywords" content="prismjs,Ueditor代码高亮,博客代码高亮,prismjs highlight,SyntaxHighlighter,prismjs代码高亮"><meta name="description" content="我博客的文章管理页面中文本编辑器是用的百度的Ueditor。百度的Ueditor本身也是支持代码高亮的。但是代码高亮的效果我不是特别满意。我先来一个示例，展示一下Ueditor自带的代码高亮的效果。找了一段expressjs示例js代码：var&nbsp;express&nbsp;=&nbsp;re">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">用Prismjs给自己的博客文章增加代码高亮功能</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/article/pics/5efba93d3f48033c28ef61cb416818e9_7953.png" title="用Prismjs给自己的博客文章增加代码高亮功能" alt="用Prismjs给自己的博客文章增加代码高亮功能"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2017-11-17 12:42:00">2017-11-17 12:42:00</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>我博客的文章管理页面中文本编辑器是用的百度的Ueditor。</p>
+<p>百度的Ueditor本身也是支持代码高亮的。但是代码高亮的效果我不是特别满意。  </p>
+<p>我先来一个示例，展示一下Ueditor自带的代码高亮的效果。</p>
+<p>找了一段expressjs示例js代码：</p>
+<pre><code class="language-js">var express = require(&#39;express&#39;);
+var app = express();
+app.get(&#39;/&#39;, function (req, res) {
+    res.send(&#39;Hello World!&#39;);
+});
+var server = app.listen(3000, function () {
+    var host = server.address().address;
+    var port = server.address().port;
+    console.log(&#39;Example app listening at http://%s:%s&#39;, host, port);
+});
+</code></pre>
+<h3>之前使用Ueditor自带的SyntaxHighlighter插件</h3>
+<p>Ueditor下载的代码包中自带了一个SyntaxHighlighter的第三方文件夹，用的是shCore.js</p>
+<p><img src="../o/uploads/dft_2017/ad91c8a51b0d013820688e16daced0da_21668.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /></p>
+<p>使用的时候，引入一个shCoreDefault.css的文件和一个shCore.js的文件。然后执行SyntaxHighlighter.all();便可实现代码高亮。</p>
+<p><img src="../o/uploads/dft_2017/6875c276c04581f30cb9f8f7b485c307_5995.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /><img src="../o/uploads/dft_2017/318665faf5bb0cbe9bd735027a300ed2_9964.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /></p>
+<p>用Ueditor自带的效果是这样：</p>
+<p><img src="../uploads/dft_2017/0cc2252a18e66f80ad2916a583697b31_26782.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /></p>
+<h3>下面使用Prismjs</h3>
+<p>百度搜索Prismjs之后，找到了它的官网 <a href="../link@next=http%253A%252F%252Fprismjs.com%252F.html" target="_blank">http://prismjs.com/</a> </p>
+<p>这是一个既小又强大的语法高亮插件。</p>
+<p>点击首页右上角的醒目的DOWNLOAD之后进入下载页面。</p>
+<p>你会发现它是可以自定义下载的，可以选择开发版或者压缩版，同时提供了7种主题。我预览了之后选择了Okaidia。</p>
+<p><img src="../o/uploads/dft_2017/9ad90d013158333f736b8274d17a3213_15759.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /></p>
+<p>编程语言支持是相当的多。我想了一下，我选择了markup,css,c-like,javascript,go,java,less,markdown,sass,php,python,react jsx。html对应里边的markup,没找到vue相关的vux。</p>
+<p>还有可选的许多的插件，</p>
+<p><img src="../o/uploads/dft_2017/a197ab8e62ab9ef419875c1d0c3023a0_66786.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /></p>
+<p>我选择了一个Line Numbers的插件。</p>
+<p>这些插件很细心，比如那个Previewer:Color插件：</p>
+<p><img src="../o/uploads/dft_2017/17c6617374781654b32997ea69b71ed6_31866.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /></p>
+<p>当你的鼠标放置在代码的颜色文本上，就会有一个气泡出来，让你预览这个颜色。</p>
+<p>选好之后，分别点击DOWNLOAD JS，DOWNLOAD CSS，下载两个文件。我把它放在项目中</p>
+<p><img src="../o/uploads/dft_2017/00baeee646536ad424f9200aa258e73f_16233.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /></p>
+<p>在页面中分别引用</p>
+<p>&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;@{static}/ueditor/third-party/prismjs/prism.css&quot;&gt;</p>
+<p>&lt;script type=&quot;text/javascript&quot; src=&quot;@{static}/ueditor/third-party/prismjs/prism.js&quot;&gt;&lt;/script&gt;</p>
+<p>然后编写代码把Ueditor的pre格式转成Prismjs兼容的格式。我这里的具体做法是，找到页面中所有带有class属性的pre标签，用正则表达式提取出接在brush:后面的语言字符。然后把代码放置在一个code元素里边，给code元素添加一个language-xxx的class，用code元素作为参数调用Prism.highlightElement。代码如下：</p>
+<pre><code class="language-html">&lt;script&gt;
+    var $codepre = $(&quot;pre[class]&quot;);
+        if($codepre.length&gt;0){
+            for(var i = 0;i&lt;$codepre.length;i++){
+                var item = $codepre.eq(i);
+                var language = &quot;&quot;;
+                item.attr(&quot;class&quot;).replace(/brush:([^;]+)/,function(a,b){
+                language = b;
+            });
+            if(language){
+                var codehtml = item.html();
+                var code = $(&quot;&lt;code&gt;&quot;);
+                code.attr(&quot;class&quot;,&quot;language-&quot;+language);
+                code.html(codehtml);
+                item.html(code);
+                Prism.highlightElement(code[0]);
+            }
+        }
+    }
+&lt;/script&gt;
+</code></pre>
+<p>大功告成！</p>
+<p>献上效果图：</p>
+<p><img src="../o/uploads/dft_2017/23fbb71f5a9ddeb56cb210afac8c5545_36899.png" alt="用Prismjs给自己的博客文章增加代码高亮功能" title="用Prismjs给自己的博客文章增加代码高亮功能" /></p>
+<p>效果还不错。我后面再关注它有没有BUG方面的问题。</p>
+<p>测试完之后就把这个功能上线到我的这个博客。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0e4beaa2297641001dbd49","article":{"id":"5a0e4beaa2297641001dbd49","title":"用Prismjs给自己的博客文章增加代码高亮功能","snippet":"我博客的文章管理页面中文本编辑器是用的百度的Ueditor。百度的Ueditor本身也是支持代码高亮的。但是代码高亮的效果我不是特别满意。我先来一个示例，展示一下Ueditor自带的代码高亮的效果。找了一段expressjs示例js代码：var&nbsp;express&nbsp;=&nbsp;re","image":"../o/uploads/article/pics/5efba93d3f48033c28ef61cb416818e9_7953.png","tags":[],"category":["编程"],"keywords":["prismjs","Ueditor代码高亮","博客代码高亮","prismjs highlight","SyntaxHighlighter","prismjs代码高亮"],"content":"<p>我博客的文章管理页面中文本编辑器是用的百度的Ueditor。</p>\n<p>百度的Ueditor本身也是支持代码高亮的。但是代码高亮的效果我不是特别满意。  </p>\n<p>我先来一个示例，展示一下Ueditor自带的代码高亮的效果。</p>\n<p>找了一段expressjs示例js代码：</p>\n<pre><code class=\"language-js\">var express = require(&#39;express&#39;);\nvar app = express();\napp.get(&#39;/&#39;, function (req, res) {\n    res.send(&#39;Hello World!&#39;);\n});\nvar server = app.listen(3000, function () {\n    var host = server.address().address;\n    var port = server.address().port;\n    console.log(&#39;Example app listening at http://%s:%s&#39;, host, port);\n});\n</code></pre>\n<h3>之前使用Ueditor自带的SyntaxHighlighter插件</h3>\n<p>Ueditor下载的代码包中自带了一个SyntaxHighlighter的第三方文件夹，用的是shCore.js</p>\n<p><img src=\"../o/uploads/dft_2017/ad91c8a51b0d013820688e16daced0da_21668.png\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /></p>\n<p>使用的时候，引入一个shCoreDefault.css的文件和一个shCore.js的文件。然后执行SyntaxHighlighter.all();便可实现代码高亮。</p>\n<p><img src=\"../o/uploads/dft_2017/6875c276c04581f30cb9f8f7b485c307_5995.png\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /><img src=\"../o/uploads/dft_2017/318665faf5bb0cbe9bd735027a300ed2_9964.png\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /></p>\n<p>用Ueditor自带的效果是这样：</p>\n<p><img src=\\&quot;../../uploads/dft_2017/0cc2252a18e66f80ad2916a583697b31_26782.png\\&quot;\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /></p>\n<h3>下面使用Prismjs</h3>\n<p>百度搜索Prismjs之后，找到了它的官网 <a href=\\&quot;http://prismjs.com/\\&quot;\">http://prismjs.com/</a> </p>\n<p>这是一个既小又强大的语法高亮插件。</p>\n<p>点击首页右上角的醒目的DOWNLOAD之后进入下载页面。</p>\n<p>你会发现它是可以自定义下载的，可以选择开发版或者压缩版，同时提供了7种主题。我预览了之后选择了Okaidia。</p>\n<p><img src=\"../o/uploads/dft_2017/9ad90d013158333f736b8274d17a3213_15759.png\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /></p>\n<p>编程语言支持是相当的多。我想了一下，我选择了markup,css,c-like,javascript,go,java,less,markdown,sass,php,python,react jsx。html对应里边的markup,没找到vue相关的vux。</p>\n<p>还有可选的许多的插件，</p>\n<p><img src=\"../o/uploads/dft_2017/a197ab8e62ab9ef419875c1d0c3023a0_66786.png\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /></p>\n<p>我选择了一个Line Numbers的插件。</p>\n<p>这些插件很细心，比如那个Previewer:Color插件：</p>\n<p><img src=\"../o/uploads/dft_2017/17c6617374781654b32997ea69b71ed6_31866.png\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /></p>\n<p>当你的鼠标放置在代码的颜色文本上，就会有一个气泡出来，让你预览这个颜色。</p>\n<p>选好之后，分别点击DOWNLOAD JS，DOWNLOAD CSS，下载两个文件。我把它放在项目中</p>\n<p><img src=\"../o/uploads/dft_2017/00baeee646536ad424f9200aa258e73f_16233.png\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /></p>\n<p>在页面中分别引用</p>\n<p>&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;@{static}/ueditor/third-party/prismjs/prism.css&quot;&gt;</p>\n<p>&lt;script type=&quot;text/javascript&quot; src=&quot;@{static}/ueditor/third-party/prismjs/prism.js&quot;&gt;&lt;/script&gt;</p>\n<p>然后编写代码把Ueditor的pre格式转成Prismjs兼容的格式。我这里的具体做法是，找到页面中所有带有class属性的pre标签，用正则表达式提取出接在brush:后面的语言字符。然后把代码放置在一个code元素里边，给code元素添加一个language-xxx的class，用code元素作为参数调用Prism.highlightElement。代码如下：</p>\n<pre><code class=\"language-html\">&lt;script&gt;\n    var $codepre = $(&quot;pre[class]&quot;);\n        if($codepre.length&gt;0){\n            for(var i = 0;i&lt;$codepre.length;i++){\n                var item = $codepre.eq(i);\n                var language = &quot;&quot;;\n                item.attr(&quot;class&quot;).replace(/brush:([^;]+)/,function(a,b){\n                language = b;\n            });\n            if(language){\n                var codehtml = item.html();\n                var code = $(&quot;&lt;code&gt;&quot;);\n                code.attr(&quot;class&quot;,&quot;language-&quot;+language);\n                code.html(codehtml);\n                item.html(code);\n                Prism.highlightElement(code[0]);\n            }\n        }\n    }\n&lt;/script&gt;\n</code></pre>\n<p>大功告成！</p>\n<p>献上效果图：</p>\n<p><img src=\"../o/uploads/dft_2017/23fbb71f5a9ddeb56cb210afac8c5545_36899.png\" alt=\"用Prismjs给自己的博客文章增加代码高亮功能\" title=\"用Prismjs给自己的博客文章增加代码高亮功能\" /></p>\n<p>效果还不错。我后面再关注它有没有BUG方面的问题。</p>\n<p>测试完之后就把这个功能上线到我的这个博客。</p>\n","createTime":1510893720000,"updatedTime":1785052453196},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

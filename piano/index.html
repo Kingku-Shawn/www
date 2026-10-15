@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>在线钢琴模拟器 - 全键盘模拟钢琴 - 网页上弹钢琴 - 钢琴在线玩</title><meta name="keywords" content="钢琴网页版,简单钢琴,茜文的钢琴屋,在线玩钢琴,钢琴模拟,全键盘模拟钢琴,手机弹钢琴,钢琴游戏,在线弹钢琴,网页玩钢琴,键盘钢琴,电脑钢琴,模拟钢琴软件"><meta name="description" content="88键全键盘网页版H5钢琴在线弹奏,这是一个全键盘模拟钢琴,电脑版钢琴软件,让你可以在线弹钢琴,打开网页就能玩的钢琴,钢琴网页版。">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/-page-legacy-DKxGJ_O4.js"> <link rel="preload" href="../o/cdn-2607/a/0/keyboard-DgR4Xy_p.png" as="image" type="image/png"> <link rel="preload" href="../o/cdn-2607/a/0/pianobg-i9BKY3W0.jpg" as="image" type="image/jpeg"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/-page-BAa1gKry.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/-page-Dry0vGMr.css?v=2"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-button-group-legacy-CvJxB61r.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-button-group-CO7A0uJ4.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-button-group-BFkO2t3R.css?v=2"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css?v=2">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css?v=2">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px;background:#f5f7fb;}
+@media (max-width:768px){
+  body{overflow-x:auto}
+  .piano,[class*='keyboard'],[class*='piano'],[class*='keys']{max-width:100%!important;overflow-x:auto}
+  .controls,.control-bar,.func-bar{flex-wrap:wrap;gap:6px}
+}
+</style>
+  <style id="piano-custom">
+/* 清逸的博客 · 在线钢琴定制（纯 CSS，不动布局核心） */
+footer.xw-footer, footer{display:none!important}
+.slide-menu{justify-content:center!important;text-align:center!important}
+.slide-menu > a{justify-content:center!important}
+.st-cont{max-width:720px!important;margin:0 auto!important;padding:16px 20px 32px!important}
+.st-cont > div{background:#fff;border:1px solid #e4e9f0;border-radius:14px;padding:16px 20px;margin:0 0 14px!important;box-shadow:0 6px 20px rgba(15,23,42,.05)}
+@media (max-width:768px){
+  .st-cont{padding:12px 12px 24px!important}
+  .st-cont > div{padding:12px 14px}
+}
+</style>
+  </head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="piano" style="top:50px;"><div class="setting-panel" style="height:1000px;"><div class="rit-btn"></div><menu class="slide-menu"><a class="active"><i class="iconfont icon-shezhi"></i><span>感谢访问</span></a><a class=""><i class="iconfont icon-shezhi"></i><span>设置</span></a><a class=""><i class="iconfont icon-jianpan"></i><span>电脑键盘映射</span></a><a class=""><span class="midi-title">MIDI播放</span><span class="btn" title="播放"><i class="iconfont icon-play"></i></span><span class="btn" title="暂停"><i class="iconfont icon-pause"></i></span><span class="btn" title="停止"><i class="iconfont icon-stop"></i></span></a><a class=""><i class="iconfont icon-record"></i><span>录制功能</span></a><a class=""><i class="iconfont icon-pinglun"></i><span>吐槽专区</span></a></menu><section class="st-cont"><div class="visit-ct"><div class="logo-ct"><div class="pn-logo"><img src="../o/cdn-2607/a/0/keyboard-DgR4Xy_p.png" alt="钢琴键盘"></div><div class="pn-info"><h1>shawn.com - 在线钢琴模拟器</h1><p>/piano</p></div></div><div class="tips-wrapper"><div>默认的PC电脑键盘映射方案为<b>黑键</b>方案，想要纯白键方案的请到<b>电脑键盘映射</b>面板进行<b>设置</b></div></div><div class="doc-div"></div></div><!----><!----><div class="panel-midifile" style="display:none;"><div class="player-wp"><div class="file-upload"><div class="tips-text"><div>点击选择 MIDI(.mid) 文件，或拖动文件到此处。</div><div class="tips"> 提示：也可拖入旧版录制功能产生的 .xmid 文件 </div></div></div><div class="player-control"><div class="xw-button-group play-btns"><!--[--><button type="button" class="xw-button"><i class="icon-play iconfont"></i><!--[--> 播放 <!--]--></button><button type="button" class="xw-button"><i class="icon-pause iconfont"></i><!--[--> 暂停 <!--]--></button><button type="button" class="xw-button"><i class="iconfont icon-stop"></i><!--]--></button><!--]--></div><div class="play-info"><span class="time"><!----> 0 / 0</span></div><div class="meta-info"><!--[--><!--]--></div></div></div></div>
+<div class="record" style="display:none;"><!----><div class="record-card"><div class="bottons"><button type="button" class="xw-button primary" style=""><i class="icon-record iconfont"></i><!--[--> 开始录制 <!--]--></button></div><div class="record-tips" style=""> 点击按钮开始录制 </div><div class="record-list"><!----><!--[--><!--]--></div></div></div><!----></section></div><div class="note-bar" style="height:0px;"><canvas></canvas></div><div class="keyboard-c"><div style="transform:scale(1) translateX(-0px);" class="hidenum keyboard"><div class="black"></div><div class="white"></div><div class="center-c" style=""></div></div></div><!----><!----></div><footer class="xw-footer" data-v-157384db><div class="container text-center" data-v-157384db><p data-v-157384db><span data-v-157384db>© WWW.SHAWN.COM</span><span data-v-157384db><span data-v-157384db>粤ICP备</span><a href="https://beian.miit.gov.cn/" target="_blank" data-v-157384db>16015361</a><span data-v-157384db>号-1</span></span></p></div></footer></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"isunsupported":false,"mainDoc":"","hideNavBar":false,"showOldEntry":true,"noCacheConf":{"holdPitchBar":false,"scale":1,"barScale":1,"left":0.5},"cacheConf":{"showKbdNum":false,"showCenterCText":true,"showPitchName":true,"autoSustainTime":500,"shiftSharp":true,"tabSustain":true,"pckey2key":{"37":44,"38":42,"39":47,"40":45,"48":55,"50":41,"51":43,"53":46,"54":48,"55":50,"57":53,"66":35,"67":32,"68":31,"69":44,"71":34,"72":36,"73":52,"74":38,"76":41,"77":39,"78":37,"79":54,"80":56,"81":40,"82":45,"83":29,"84":47,"85":51,"86":33,"87":42,"88":30,"89":49,"90":28,"96":49,"97":52,"98":54,"99":56,"100":57,"101":59,"102":61,"103":63,"104":64,"105":66,"106":71,"107":68,"109":73,"110":51,"111":69,"186":43,"187":58,"188":40,"190":42,"191":44,"219":57,"221":59}}};
+        window._SSR_PAGE_="/piano/"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 在线钢琴定制脚本 */
+/* 1. 隐藏「吐槽专区」菜单项（等 Vue 稳定后执行） */
+(function () {
+  function killTucao() {
+    document.querySelectorAll('.slide-menu a').forEach(function (a) {
+      if ((a.textContent || '').indexOf('吐槽专区') >= 0) a.style.display = 'none';
+    });
+  }
+  setTimeout(killTucao, 1200);
+  setTimeout(killTucao, 3000);
+})();
+/* 2. 删除旧的评论区组件（xw-pinlun2 / inline-panel 挂载点），由新评论区组件替代 */
+(function () {
+  function killOldComments() {
+    document.querySelectorAll('.xw-pinlun2, .article-pinlun, [class*="pl2-inline"]').forEach(function (el) { el.remove(); });
+  }
+  setTimeout(killOldComments, 1500);
+  setTimeout(killOldComments, 3500);
+})();
+</script>
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+</script>
+<script src="../js/header-fix.js"></script>
+</body>
+</html>

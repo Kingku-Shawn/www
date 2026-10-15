@@ -1,0 +1,530 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整</title><meta name="keywords" content="微信跳一跳小游戏,游戏开发,微信小游戏开发,three.js游戏开发"><meta name="description" content="准备工作做之后，这一步先进行简单的场景创建，创建完简单的场景之后，调整相机位置以及灯光。从之前的generateObject函数中拷贝一部分代码下来进行修改，然后写了一个创建立方体的函数如下：var&nbsp;bottle,cubes&nbsp;=&nbsp;[];\nfunction&nbsp;cr">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/dft_2018/996e13ab845145743f04130542c15a83_9476.png" title="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" alt="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2018-1-8 10:33:00">2018-1-8 10:33:00</time></div><div class="tags"><!--[--><span> # 编程</span><span> # 微信跳一跳小游戏</span><!--]--></div></div></section><div class="detail-content"><p>准备工作做之后，这一步先进行简单的场景创建，创建完简单的场景之后，调整相机位置以及灯光。</p>
+<p>从之前的generateObject函数中拷贝一部分代码下来进行修改，然后写了一个创建立方体的函数如下：</p>
+<pre><code class="language-js">var bottle,cubes = [];
+function createCube(x,z){
+    var wx = 5,
+    wy = 2,
+    wz = 5;
+    var cube = new THREE.Mesh(new THREE.BoxGeometry(wx, wy, wz, 1, 1, 1), createObjectMaterial());
+    var cube_shape = new Ammo.btBoxShape(new Ammo.btVector3(wx * 0.5, wy * 0.5, wz * 0.5));
+    cube_shape.setMargin(1);
+    //设置物体的坐标
+    cube.position.set(x, wy/2, z);
+    //质量
+    var mass = 1;
+    var localInertia = new Ammo.btVector3(0, 0, 0);     //惯性
+    cube_shape.calculateLocalInertia(mass, localInertia);
+    var transform = new Ammo.btTransform();
+    transform.setIdentity();
+    var pos = cube.position;
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    var motionState = new Ammo.btDefaultMotionState(transform);
+    var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, cube_shape, localInertia);
+    var body = new Ammo.btRigidBody(rbInfo);
+    cube.userData.physicsBody = body;    //把ammo创建的刚体放在three.js3D对象的userData里边
+    cube.receiveShadow = true;
+    cube.castShadow = true;
+    scene.add(cube);             //
+    cubes.push(cube);   //放入数组中
+    physicsWorld.addRigidBody(body);    //将物体加入物理世界中进行模拟
+    return cube;
+}
+</code></pre>
+<p>然后刷新网页之后看到：  </p>
+<p><img src="../o/uploads/dft_2018/9714e3a57fa22b0c9be63ae86f822a14_4438.png" alt="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" title="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" />  </p>
+<p>颜色太深阴影太重，相机位置也需要进行调整</p>
+<p>于是把径向光的透明度调低，然后增加了一个环境光</p>
+<p>camera的位置也设置成从一个角往中心点看</p>
+<p>调整后如下：</p>
+<p><img src="../o/uploads/dft_2018/c26a40edcd6651273d1fc0b0c8c8c0f9_13196.png" alt="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" title="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" /></p>
+<p>地面的颜色太重了</p>
+<p>原来的代码中是这样设置的：</p>
+<p>var groundMaterial = new THREE.MeshPhongMaterial({ color: 0xC7C7C7 });</p>
+<p>我把后面的0xc7c7c7代码改成了0xffffff，效果如下：</p>
+<p><img src="../o/uploads/dft_2018/996e13ab845145743f04130542c15a83_9476.png" alt="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" title="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" /></p>
+<p>灯光啥的差不多就先这样。</p>
+<p>然后准备一个圆柱体来模拟瓶子。放在方块上面。然后测试测试在不同边缘位置的物理效果。</p>
+<p>模型的颜色是随机生成的，所以每次刷新都会有不同的颜色。放上圆柱体效果如下。</p>
+<p><img src="../o/uploads/dft_2018/7cfde79ddb987a7867ac8712b100712a_8910.png" alt="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" title="微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整" /></p>
+<p>经过多次测试，给圆柱体一个向上和向前的速度时，经常会有立不稳的情况。于是看了一下微信的原版跳一跳，发现它的下落时是垂直的。由此我认为整个跳起的过程不需要物理引擎来参与，当圆柱体快落地的时候再让物理引擎介入。</p>
+<p>先把当前版本的代码贴出来，然后再进行下一步开发。</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;    
+&lt;html lang=&quot;zh-cn&quot;&gt;    
+&lt;head&gt;    
+&lt;meta charset=&quot;utf-8&quot; /&gt;    
+&lt;meta name=&quot;renderer&quot; content=&quot;webkit&quot;&gt;    
+&lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;    
+&lt;title&gt;微信跳一跳小游戏-Demo&lt;/title&gt;    
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0&quot;&gt;    
+&lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;    
+&lt;meta name=&quot;keywords&quot; content=&quot;微信跳一跳小游戏&quot; /&gt;    
+&lt;meta name=&quot;author&quot; content=&quot;shawn&quot; /&gt;    
+&lt;meta name=&quot;copyright&quot; content=&quot;shawn.com&quot; /&gt;    
+&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/lib/font-awesome/font-awesome.min.css&quot;&gt;    
+&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/layout.css&quot; /&gt;    
+&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/demo/tiao_yi_tiao.css&quot; /&gt;     
+&lt;/head&gt;    
+&lt;body&gt;    
+&lt;div id=&quot;js-main&quot; class=&quot;game-main&quot;&gt;    
+&lt;div id=&quot;js-game&quot;&gt;&lt;/div&gt;    
+&lt;/div&gt;    
+&lt;script src=&quot;/js/lib/threejs/three.min.js&quot;&gt;&lt;/script&gt;    
+&lt;script src=&quot;/js/lib/threejs/ammo.js&quot;&gt;&lt;/script&gt;    
+&lt;script src=&quot;/js/lib/threejs/OrbitControls.js&quot;&gt;&lt;/script&gt;    
+&lt;script src=&quot;/js/lib/threejs/Detector.js&quot;&gt;&lt;/script&gt;    
+&lt;script src=&quot;/js/lib/threejs/stats.min.js&quot;&gt;&lt;/script&gt;    
+&lt;script&gt;    
+var game_div = document.getElementById(&#39;js-game&#39;);    
+// Detects webgl    
+// 检测浏览器是否支持webgl    
+if (!Detector.webgl) {    
+Detector.addGetWebGLMessage({    
+parent: game_div    
+});    
+}    
+// Heightfield parameters    
+// 这里terrain开头的是表示那个波浪形的地形的配置参数    
+var terrainWidthExtents = 100;  //宽    
+var terrainDepthExtents = 100;  //深    
+var terrainWidth = 128;     //对宽的网格进行细分    
+var terrainDepth = 128;     //网格细分等级    
+var terrainHalfWidth = terrainWidth / 2;    
+var terrainHalfDepth = terrainDepth / 2;    
+var terrainMaxHeight = 8;   //这里是调节地形波浪的峰值    
+var terrainMinHeight = 0;  //这里是地形波浪的谷值    
+// Graphics variables    
+// three.js中的变量    
+var container, stats;    
+var camera, controls, scene, renderer;    
+var terrainMesh, texture;    
+var clock = new THREE.Clock();    
+// Physics variables    
+// 物理引擎的变量    
+var collisionConfiguration; // new ammo.btDefaultCollisionConfiguration()    
+var dispatcher; //new Ammo.btCollisionDispatcher(collisionConfiguration);    
+var broadphase; //暂时不知道啥作用    
+var solver;     //负责解算    
+// 最后上面这四个对象创建一个 Ammojs的物理世界    
+var physicsWorld;   //new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);    
+var terrainBody;    
+var dynamicObjects = [];    //把three.js创建的3D对象放在这个数组里边，每次render之前，把Object3D对象的位置和朝向信息从物理刚体对象里边拷贝过来。    
+var transformAux1 = new Ammo.btTransform();    
+var heightData = null;    
+var ammoHeightData = null;    
+var time = 0;    
+var objectTimePeriod = 3;   //3秒的间隔    
+var timeNextSpawn = time + objectTimePeriod;    //物品生成的时间间隔    
+var maxNumObjects = 30;     //这里是设置最大的物品生成数量    
+function init() {    
+// 用于生成波浪形的高程数据    
+heightData = generateHeight(terrainWidth, terrainDepth, terrainMinHeight, terrainMaxHeight);    
+initGraphics();    
+initPhysics();    
+}    
+// 这个函数里边主要是对three.js的变量进行初始化    
+// 场景创建，渲染器，摄像头，地面模型等    
+// 这里我轻车熟路所以打少一点注释    
+function initGraphics() {    
+container = game_div;    
+renderer = new THREE.WebGLRenderer();    
+renderer.setPixelRatio(window.devicePixelRatio);    
+renderer.setSize(window.innerWidth, window.innerHeight);    
+renderer.shadowMap.enabled = true;    
+container.innerHTML = &quot;&quot;;    
+container.appendChild(renderer.domElement);    
+stats = new Stats();    //这里是网页左上角显示帧率系统状态等的插件    
+stats.domElement.style.position = &#39;absolute&#39;;    
+stats.domElement.style.top = &#39;0px&#39;;    
+container.appendChild(stats.domElement);    
+// THREEJS有几种的相机  PerspectiveCamera这个是透视摄像机    
+// 跳一跳里边很明显是用的 OrthographicCamera(正交相机)    
+camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.2, 2000);    
+//camera = new THREE.OrthographicCamera(60, window.innerWidth / window.innerHeight, 0.2, 2000);    
+scene = new THREE.Scene();    
+scene.background = new THREE.Color(0xbfd1e5);    
+//camera.position.y = terrainDepthExtents;    
+//camera.position.z = terrainDepthExtents;    
+camera.position.set(100,100,100);    
+camera.lookAt(new THREE.Vector3(0, 0, 0));    
+controls = new THREE.OrbitControls(camera); //相机控制器    
+//创建一个平面的模型    
+var geometry = new THREE.PlaneBufferGeometry(terrainWidthExtents, terrainDepthExtents, terrainWidth - 1, terrainDepth - 1);    
+geometry.rotateX(-Math.PI / 2);    
+//然后对这个平面模型的点的高度进行调节    假如这里高度不调节，那么将会显示成一个平面    
+var vertices = geometry.attributes.position.array;    
+for (var i = 0, j = 0, l = vertices.length; i &lt; l; i++ , j += 3) {    
+// j + 1 because it is the y component that we modify    
+vertices[j + 1] = heightData[i];    
+}    
+//调节完这个平面的点的高度之后，对这个BufferGeometry的顶点法线重新计算一下    
+geometry.computeVertexNormals();    
+var groundMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });    
+terrainMesh = new THREE.Mesh(geometry, groundMaterial);    
+terrainMesh.receiveShadow = true;    
+terrainMesh.castShadow = true;    
+scene.add(terrainMesh);    
+// var textureLoader = new THREE.TextureLoader();    
+// textureLoader.load(&quot;textures/grid.png&quot;, function (texture) {    
+//     texture.wrapS = THREE.RepeatWrapping;    
+//     texture.wrapT = THREE.RepeatWrapping;    
+//     texture.repeat.set(terrainWidth - 1, terrainDepth - 1);    
+//     groundMaterial.map = texture;    
+//     groundMaterial.needsUpdate = true;    
+// });    
+var amblight = new THREE.AmbientLight(0xffffff, 0.5); // soft white light    
+scene.add( amblight );    
+// 径向光    
+var light = new THREE.DirectionalLight(0xffffff, 0.5);    
+light.position.set(100, 150, -50);    
+light.castShadow = true;    //产生阴影    
+var dLight = 200;    
+var sLight = dLight * 0.25;    
+light.shadow.camera.left = -sLight;    
+light.shadow.camera.right = sLight;    
+light.shadow.camera.top = sLight;    
+light.shadow.camera.bottom = -sLight;    
+light.shadow.camera.near = dLight / 30;    
+light.shadow.camera.far = dLight;    
+light.shadow.mapSize.x = 1024 * 2;    
+light.shadow.mapSize.y = 1024 * 2;    
+scene.add(light);    
+window.addEventListener(&#39;resize&#39;, onWindowResize, false);    
+}    
+function onWindowResize() {    
+camera.aspect = window.innerWidth / window.innerHeight;    
+camera.updateProjectionMatrix();    
+renderer.setSize(window.innerWidth, window.innerHeight);    
+}    
+function initPhysics() {    
+// Physics configuration    
+// 创建和配置物理世界    
+collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();    
+dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);    
+broadphase = new Ammo.btDbvtBroadphase();    
+solver = new Ammo.btSequentialImpulseConstraintSolver();    
+physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);    
+physicsWorld.setGravity(new Ammo.btVector3(0, -6, 0));  //设置重力系数    
+// Create the terrain body    
+// 创建    
+var groundShape = this.createTerrainShape(heightData);    
+var groundTransform = new Ammo.btTransform();    
+groundTransform.setIdentity();    
+// Shifts the terrain, since bullet re-centers it on its bounding box.    
+groundTransform.setOrigin(new Ammo.btVector3(0, (terrainMaxHeight + terrainMinHeight) / 2, 0));    
+var groundMass = 0;     //质量  质量设置成0就可以不会掉落了    
+var groundLocalInertia = new Ammo.btVector3(0, 0, 0);   //惯性    
+var groundMotionState = new Ammo.btDefaultMotionState(groundTransform);     //运动状态 大概是动量    
+var groundBody = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(groundMass, groundMotionState, groundShape, groundLocalInertia));    
+physicsWorld.addRigidBody(groundBody);    
+}    
+//用户产生波浪形的高程数据    
+function generateHeight(width, depth, minHeight, maxHeight) {    
+// Generates the height data (a sinus wave)    
+var size = width * depth;    
+var data = new Float32Array(size);    
+var hRange = maxHeight - minHeight;    
+var w2 = width / 2;    
+var d2 = depth / 2;    
+var phaseMult = 12;    
+var p = 0;    
+for (var j = 0; j &lt; depth; j++) {    
+for (var i = 0; i &lt; width; i++) {    
+var radius = Math.sqrt(    
+Math.pow((i - w2) / w2, 2.0) +    
+Math.pow((j - d2) / d2, 2.0));    
+var height = 0; // (Math.sin(radius * phaseMult) + 1) * 0.5 * hRange + minHeight;    
+data[p] = height;    
+p++;    
+}    
+}    
+return data;    
+}    
+function createTerrainShape() {    
+// This parameter is not really used, since we are using PHY_FLOAT height data type and hence it is ignored    
+var heightScale = 1;    
+// Up axis = 0 for X, 1 for Y, 2 for Z. Normally 1 = Y is used.    
+var upAxis = 1;    
+// hdt, height data type. &quot;PHY_FLOAT&quot; is used. Possible values are &quot;PHY_FLOAT&quot;, &quot;PHY_UCHAR&quot;, &quot;PHY_SHORT&quot;    
+var hdt = &quot;PHY_FLOAT&quot;;    
+// Set this to your needs (inverts the triangles)    
+var flipQuadEdges = false;    
+// Creates height data buffer in Ammo heap    
+ammoHeightData = Ammo._malloc(4 * terrainWidth * terrainDepth);    
+// Copy the javascript height data array to the Ammo one.    
+var p = 0;    
+var p2 = 0;    
+for (var j = 0; j &lt; terrainDepth; j++) {    
+for (var i = 0; i &lt; terrainWidth; i++) {    
+// write 32-bit float data to memory    
+Ammo.HEAPF32[ammoHeightData + p2 &gt;&gt; 2] = heightData[p];    
+p++;    
+// 4 bytes/float    
+p2 += 4;    
+}    
+}    
+// Creates the heightfield physics shape    
+var heightFieldShape = new Ammo.btHeightfieldTerrainShape(    
+terrainWidth,    
+terrainDepth,    
+ammoHeightData,    
+heightScale,    
+terrainMinHeight,    
+terrainMaxHeight,    
+upAxis,    
+hdt,    
+flipQuadEdges    
+);    
+// Set horizontal scale    
+var scaleX = terrainWidthExtents / (terrainWidth - 1);    
+var scaleZ = terrainDepthExtents / (terrainDepth - 1);    
+heightFieldShape.setLocalScaling(new Ammo.btVector3(scaleX, 1, scaleZ));    
+heightFieldShape.setMargin(0.05);    
+return heightFieldShape;    
+}    
+// 随机生成一个物品从场景的高处掉落    
+function generateObject() {    
+var numTypes = 4;    
+var objectType = Math.ceil(Math.random() * numTypes);    
+var threeObject = null;    
+var shape = null;    
+var objectSize = 3;    
+var margin = 0.05;    
+switch (objectType) {    
+case 1:    
+// Sphere    
+var radius = 1 + Math.random() * objectSize;    
+threeObject = new THREE.Mesh(new THREE.SphereGeometry(radius, 20, 20), createObjectMaterial());    
+shape = new Ammo.btSphereShape(radius);    
+shape.setMargin(margin);    
+break;    
+case 2:    
+// Box    
+var sx = 1 + Math.random() * objectSize;    
+var sy = 1 + Math.random() * objectSize;    
+var sz = 1 + Math.random() * objectSize;    
+threeObject = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz, 1, 1, 1), createObjectMaterial());    
+shape = new Ammo.btBoxShape(new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5));    
+shape.setMargin(margin);    
+break;    
+case 3:    
+// Cylinder    
+var radius = 1 + Math.random() * objectSize;    
+var height = 1 + Math.random() * objectSize;    
+threeObject = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, 20, 1), createObjectMaterial());    
+shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height * 0.5, radius));    
+shape.setMargin(margin);    
+break;    
+default:    
+// Cone    
+var radius = 1 + Math.random() * objectSize;    
+var height = 2 + Math.random() * objectSize;    
+threeObject = new THREE.Mesh(new THREE.CylinderGeometry(0, radius, height, 20, 2), createObjectMaterial());    
+shape = new Ammo.btConeShape(radius, height);    
+break;    
+}    
+//设置物体的坐标    
+threeObject.position.set((Math.random() - 0.5) * terrainWidth * 0.6, terrainMaxHeight + objectSize + 2, (Math.random() - 0.5) * terrainDepth * 0.6);    
+//质量    
+var mass = objectSize * 5;    
+var localInertia = new Ammo.btVector3(0, 0, 0);     //惯性    
+shape.calculateLocalInertia(mass, localInertia);    //应该是把shape对象里边的一些参数计算一下，比方说计算一下质量的倒数，惯性的倒数   在需要的时候不用每一次的计算了    
+var transform = new Ammo.btTransform();    
+transform.setIdentity();    
+var pos = threeObject.position;    
+transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));    
+var motionState = new Ammo.btDefaultMotionState(transform);    
+var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);    
+var body = new Ammo.btRigidBody(rbInfo);    
+threeObject.userData.physicsBody = body;    //把ammo创建的刚体放在three.js3D对象的userData里边    
+threeObject.receiveShadow = true;    
+threeObject.castShadow = true;    
+scene.add(threeObject);             //    
+dynamicObjects.push(threeObject);   //放入数组中    
+physicsWorld.addRigidBody(body);    //将物体加入物理世界中进行模拟    
+}    
+function createObjectMaterial() {    
+var c = Math.floor(Math.random() * (1 &lt;&lt; 24));    
+return new THREE.MeshPhongMaterial({ color: c });    
+}    
+function animate() {    
+requestAnimationFrame(animate);    
+render();    
+stats.update(); //这个是更新网页左上角那个显示帧率等信息的stats对象    
+}    
+function render() {    
+var deltaTime = clock.getDelta();    
+// deltaTime 大概是16-17毫秒  但是是以秒为单位的    
+// 注释掉  不让其产生新的对象    
+// if (dynamicObjects.length &lt; maxNumObjects &amp;&amp; time &gt; timeNextSpawn) {    //当数量没超过最大设置数量 同时 时间间隔大于3秒    
+//     generateObject();   //创建一个对象    
+//     timeNextSpawn = time + objectTimePeriod;    //设置下一次的添加时间    
+// }    
+updatePhysics(deltaTime);   //进行物理场景模拟 同时把模拟数据同步到three.js的场景中    
+renderer.render(scene, camera);     //渲染器把场景渲染到画布上    
+time += deltaTime;    
+}    
+function updatePhysics(deltaTime) {    
+//进行仿真模拟    
+// 参数10应该是运算时插入的中间帧    
+physicsWorld.stepSimulation(deltaTime, 10);    
+// // Update objects    
+// for (var i = 0, il = dynamicObjects.length; i &lt; il; i++) {    
+//     var objThree = dynamicObjects[i];    
+//     var objPhys = objThree.userData.physicsBody;    
+//     var ms = objPhys.getMotionState();    
+//     if (ms) {    
+//         ms.getWorldTransform(transformAux1);    
+//         var p = transformAux1.getOrigin();  //物体的原点    
+//         var q = transformAux1.getRotation();    //物体的朝向    
+//         objThree.position.set(p.x(), p.y(), p.z()); //更新物体的位置    
+//         objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());    //四元数组可以设置物体的朝向    
+//     }    
+// }    
+for (var i = 0, il = cubes.length; i &lt; il; i++) {    
+var objThree = cubes[i];    
+var objPhys = objThree.userData.physicsBody;    
+var ms = objPhys.getMotionState();    
+if (ms) {    
+ms.getWorldTransform(transformAux1);    
+var p = transformAux1.getOrigin();  //物体的原点    
+var q = transformAux1.getRotation();    //物体的朝向    
+objThree.position.set(p.x(), p.y(), p.z()); //更新物体的位置    
+objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());    //四元数组可以设置物体的朝向    
+}    
+}    
+}    
+var bottle,cubes = [];    
+function createCube(x,z){    
+var wx = 5,    
+wy = 2,    
+wz = 5;    
+var cube = new THREE.Mesh(new THREE.BoxGeometry(wx, wy, wz, 1, 1, 1), createObjectMaterial());    
+var cube_shape = new Ammo.btBoxShape(new Ammo.btVector3(wx * 0.5, wy * 0.5, wz * 0.5));    
+cube_shape.setMargin(0.05);    
+//设置物体的坐标    
+cube.position.set(x, wy/2, z);    
+//质量    
+var mass = 0;    
+var localInertia = new Ammo.btVector3(0, 0, 0);     //惯性    
+cube_shape.calculateLocalInertia(mass, localInertia);    //应该是把shape对象里边的一些参数计算一下，比方说计算一下质量的倒数，惯性的倒数   在需要的时候不用每一次的计算了    
+var transform = new Ammo.btTransform();    
+transform.setIdentity();    
+var pos = cube.position;    
+transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));    
+var motionState = new Ammo.btDefaultMotionState(transform);    
+var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, cube_shape, localInertia);    
+var body = new Ammo.btRigidBody(rbInfo);    
+cube.userData.physicsBody = body;    //把ammo创建的刚体放在three.js3D对象的userData里边    
+cube.receiveShadow = true;    
+cube.castShadow = true;    
+scene.add(cube);             //    
+cubes.push(cube);   //放入数组中    
+physicsWorld.addRigidBody(body);    //将物体加入物理世界中进行模拟    
+return cube;    
+}    
+function createBottle(x,z){    
+var radius = 0.5,    
+height = 2;    
+var bottle = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, 20, 1), createObjectMaterial());    
+var bottle_shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height * 0.5, radius));    
+bottle_shape.setMargin(0.05);    
+//设置物体的坐标    
+bottle.position.set(x, 4, z);    
+//质量    
+var mass = 1;    
+var localInertia = new Ammo.btVector3(0, 0, 0);     //惯性    
+bottle_shape.calculateLocalInertia(mass, localInertia);    //应该是把shape对象里边的一些参数计算一下，比方说计算一下质量的倒数，惯性的倒数   在需要的时候不用每一次的计算了    
+var transform = new Ammo.btTransform();    
+transform.setIdentity();    
+var pos = bottle.position;    
+transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));    
+var motionState = new Ammo.btDefaultMotionState(transform);    
+var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, bottle_shape, localInertia);    
+var body = new Ammo.btRigidBody(rbInfo);    
+bottle.userData.physicsBody = body;    //把ammo创建的刚体放在three.js3D对象的userData里边    
+bottle.receiveShadow = true;    
+bottle.castShadow = true;    
+scene.add(bottle);             //    
+cubes.push(bottle);   //放入数组中    
+physicsWorld.addRigidBody(body);    //将物体加入物理世界中进行模拟    
+return bottle;    
+}    
+function initGameScene(){    
+createCube(0,0);    
+createCube(0,-10);    
+//创建瓶子    
+bottle = createBottle(0,0);    
+window.bottleP = bottle.userData.physicsBody;    
+bottleP.setActivationState( 4 );    
+//bottleP.setLinearVelocity(new Ammo.btVector3(0,3,3))    
+//bottleP.setAngularVelocity(new Ammo.btVector3(8,0,10))    
+camera.position.set(20,20,15);    
+}    
+// - Main code -    
+init();    
+initGameScene();    
+animate();    
+&lt;/script&gt;    
+&lt;/body&gt;    
+&lt;/html&gt;
+</code></pre>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a52d892a2f3b36a76128034","article":{"id":"5a52d892a2f3b36a76128034","title":"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整","snippet":"准备工作做之后，这一步先进行简单的场景创建，创建完简单的场景之后，调整相机位置以及灯光。从之前的generateObject函数中拷贝一部分代码下来进行修改，然后写了一个创建立方体的函数如下：var&nbsp;bottle,cubes&nbsp;=&nbsp;[];\nfunction&nbsp;cr","image":"../o/uploads/dft_2018/996e13ab845145743f04130542c15a83_9476.png","tags":["跳一跳小游戏"],"category":["编程","微信跳一跳小游戏"],"keywords":["微信跳一跳小游戏","游戏开发","微信小游戏开发","three.js游戏开发"],"content":"<p>准备工作做之后，这一步先进行简单的场景创建，创建完简单的场景之后，调整相机位置以及灯光。</p>\n<p>从之前的generateObject函数中拷贝一部分代码下来进行修改，然后写了一个创建立方体的函数如下：</p>\n<pre><code class=\"language-js\">var bottle,cubes = [];\nfunction createCube(x,z){\n    var wx = 5,\n    wy = 2,\n    wz = 5;\n    var cube = new THREE.Mesh(new THREE.BoxGeometry(wx, wy, wz, 1, 1, 1), createObjectMaterial());\n    var cube_shape = new Ammo.btBoxShape(new Ammo.btVector3(wx * 0.5, wy * 0.5, wz * 0.5));\n    cube_shape.setMargin(1);\n    //设置物体的坐标\n    cube.position.set(x, wy/2, z);\n    //质量\n    var mass = 1;\n    var localInertia = new Ammo.btVector3(0, 0, 0);     //惯性\n    cube_shape.calculateLocalInertia(mass, localInertia);\n    var transform = new Ammo.btTransform();\n    transform.setIdentity();\n    var pos = cube.position;\n    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));\n    var motionState = new Ammo.btDefaultMotionState(transform);\n    var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, cube_shape, localInertia);\n    var body = new Ammo.btRigidBody(rbInfo);\n    cube.userData.physicsBody = body;    //把ammo创建的刚体放在three.js3D对象的userData里边\n    cube.receiveShadow = true;\n    cube.castShadow = true;\n    scene.add(cube);             //\n    cubes.push(cube);   //放入数组中\n    physicsWorld.addRigidBody(body);    //将物体加入物理世界中进行模拟\n    return cube;\n}\n</code></pre>\n<p>然后刷新网页之后看到：  </p>\n<p><img src=\"../o/uploads/dft_2018/9714e3a57fa22b0c9be63ae86f822a14_4438.png\" alt=\"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整\" title=\"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整\" />  </p>\n<p>颜色太深阴影太重，相机位置也需要进行调整</p>\n<p>于是把径向光的透明度调低，然后增加了一个环境光</p>\n<p>camera的位置也设置成从一个角往中心点看</p>\n<p>调整后如下：</p>\n<p><img src=\"../o/uploads/dft_2018/c26a40edcd6651273d1fc0b0c8c8c0f9_13196.png\" alt=\"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整\" title=\"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整\" /></p>\n<p>地面的颜色太重了</p>\n<p>原来的代码中是这样设置的：</p>\n<p>var groundMaterial = new THREE.MeshPhongMaterial({ color: 0xC7C7C7 });</p>\n<p>我把后面的0xc7c7c7代码改成了0xffffff，效果如下：</p>\n<p><img src=\"../o/uploads/dft_2018/996e13ab845145743f04130542c15a83_9476.png\" alt=\"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整\" title=\"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整\" /></p>\n<p>灯光啥的差不多就先这样。</p>\n<p>然后准备一个圆柱体来模拟瓶子。放在方块上面。然后测试测试在不同边缘位置的物理效果。</p>\n<p>模型的颜色是随机生成的，所以每次刷新都会有不同的颜色。放上圆柱体效果如下。</p>\n<p><img src=\"../o/uploads/dft_2018/7cfde79ddb987a7867ac8712b100712a_8910.png\" alt=\"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整\" title=\"微信跳一跳小游戏实战开发(三) - 场景创建，相机和灯光调整\" /></p>\n<p>经过多次测试，给圆柱体一个向上和向前的速度时，经常会有立不稳的情况。于是看了一下微信的原版跳一跳，发现它的下落时是垂直的。由此我认为整个跳起的过程不需要物理引擎来参与，当圆柱体快落地的时候再让物理引擎介入。</p>\n<p>先把当前版本的代码贴出来，然后再进行下一步开发。</p>\n<pre><code class=\"language-html\">&lt;!DOCTYPE html&gt;    \n&lt;html lang=&quot;zh-cn&quot;&gt;    \n&lt;head&gt;    \n&lt;meta charset=&quot;utf-8&quot; /&gt;    \n&lt;meta name=&quot;renderer&quot; content=&quot;webkit&quot;&gt;    \n&lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;    \n&lt;title&gt;微信跳一跳小游戏-Demo&lt;/title&gt;    \n&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0&quot;&gt;    \n&lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;    \n&lt;meta name=&quot;keywords&quot; content=&quot;微信跳一跳小游戏&quot; /&gt;    \n&lt;meta name=&quot;author&quot; content=&quot;shawn&quot; /&gt;    \n&lt;meta name=&quot;copyright&quot; content=&quot;shawn.com&quot; /&gt;    \n&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/lib/font-awesome/font-awesome.min.css&quot;&gt;    \n&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/layout.css&quot; /&gt;    \n&lt;link rel=&quot;stylesheet&quot; href=&quot;/css/demo/tiao_yi_tiao.css&quot; /&gt;     \n&lt;/head&gt;    \n&lt;body&gt;    \n&lt;div id=&quot;js-main&quot; class=&quot;game-main&quot;&gt;    \n&lt;div id=&quot;js-game&quot;&gt;&lt;/div&gt;    \n&lt;/div&gt;    \n&lt;script src=&quot;/js/lib/threejs/three.min.js&quot;&gt;&lt;/script&gt;    \n&lt;script src=&quot;/js/lib/threejs/ammo.js&quot;&gt;&lt;/script&gt;    \n&lt;script src=&quot;/js/lib/threejs/OrbitControls.js&quot;&gt;&lt;/script&gt;    \n&lt;script src=&quot;/js/lib/threejs/Detector.js&quot;&gt;&lt;/script&gt;    \n&lt;script src=&quot;/js/lib/threejs/stats.min.js&quot;&gt;&lt;/script&gt;    \n&lt;script&gt;    \nvar game_div = document.getElementById(&#39;js-game&#39;);    \n// Detects webgl    \n// 检测浏览器是否支持webgl    \nif (!Detector.webgl) {    \nDetector.addGetWebGLMessage({    \nparent: game_div    \n});    \n}    \n// Heightfield parameters    \n// 这里terrain开头的是表示那个波浪形的地形的配置参数    \nvar terrainWidthExtents = 100;  //宽    \nvar terrainDepthExtents = 100;  //深    \nvar terrainWidth = 128;     //对宽的网格进行细分    \nvar terrainDepth = 128;     //网格细分等级    \nvar terrainHalfWidth = terrainWidth / 2;    \nvar terrainHalfDepth = terrainDepth / 2;    \nvar terrainMaxHeight = 8;   //这里是调节地形波浪的峰值    \nvar terrainMinHeight = 0;  //这里是地形波浪的谷值    \n// Graphics variables    \n// three.js中的变量    \nvar container, stats;    \nvar camera, controls, scene, renderer;    \nvar terrainMesh, texture;    \nvar clock = new THREE.Clock();    \n// Physics variables    \n// 物理引擎的变量    \nvar collisionConfiguration; // new ammo.btDefaultCollisionConfiguration()    \nvar dispatcher; //new Ammo.btCollisionDispatcher(collisionConfiguration);    \nvar broadphase; //暂时不知道啥作用    \nvar solver;     //负责解算    \n// 最后上面这四个对象创建一个 Ammojs的物理世界    \nvar physicsWorld;   //new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);    \nvar terrainBody;    \nvar dynamicObjects = [];    //把three.js创建的3D对象放在这个数组里边，每次render之前，把Object3D对象的位置和朝向信息从物理刚体对象里边拷贝过来。    \nvar transformAux1 = new Ammo.btTransform();    \nvar heightData = null;    \nvar ammoHeightData = null;    \nvar time = 0;    \nvar objectTimePeriod = 3;   //3秒的间隔    \nvar timeNextSpawn = time + objectTimePeriod;    //物品生成的时间间隔    \nvar maxNumObjects = 30;     //这里是设置最大的物品生成数量    \nfunction init() {    \n// 用于生成波浪形的高程数据    \nheightData = generateHeight(terrainWidth, terrainDepth, terrainMinHeight, terrainMaxHeight);    \ninitGraphics();    \ninitPhysics();    \n}    \n// 这个函数里边主要是对three.js的变量进行初始化    \n// 场景创建，渲染器，摄像头，地面模型等    \n// 这里我轻车熟路所以打少一点注释    \nfunction initGraphics() {    \ncontainer = game_div;    \nrenderer = new THREE.WebGLRenderer();    \nrenderer.setPixelRatio(window.devicePixelRatio);    \nrenderer.setSize(window.innerWidth, window.innerHeight);    \nrenderer.shadowMap.enabled = true;    \ncontainer.innerHTML = &quot;&quot;;    \ncontainer.appendChild(renderer.domElement);    \nstats = new Stats();    //这里是网页左上角显示帧率系统状态等的插件    \nstats.domElement.style.position = &#39;absolute&#39;;    \nstats.domElement.style.top = &#39;0px&#39;;    \ncontainer.appendChild(stats.domElement);    \n// THREEJS有几种的相机  PerspectiveCamera这个是透视摄像机    \n// 跳一跳里边很明显是用的 OrthographicCamera(正交相机)    \ncamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.2, 2000);    \n//camera = new THREE.OrthographicCamera(60, window.innerWidth / window.innerHeight, 0.2, 2000);    \nscene = new THREE.Scene();    \nscene.background = new THREE.Color(0xbfd1e5);    \n//camera.position.y = terrainDepthExtents;    \n//camera.position.z = terrainDepthExtents;    \ncamera.position.set(100,100,100);    \ncamera.lookAt(new THREE.Vector3(0, 0, 0));    \ncontrols = new THREE.OrbitControls(camera); //相机控制器    \n//创建一个平面的模型    \nvar geometry = new THREE.PlaneBufferGeometry(terrainWidthExtents, terrainDepthExtents, terrainWidth - 1, terrainDepth - 1);    \ngeometry.rotateX(-Math.PI / 2);    \n//然后对这个平面模型的点的高度进行调节    假如这里高度不调节，那么将会显示成一个平面    \nvar vertices = geometry.attributes.position.array;    \nfor (var i = 0, j = 0, l = vertices.length; i &lt; l; i++ , j += 3) {    \n// j + 1 because it is the y component that we modify    \nvertices[j + 1] = heightData[i];    \n}    \n//调节完这个平面的点的高度之后，对这个BufferGeometry的顶点法线重新计算一下    \ngeometry.computeVertexNormals();    \nvar groundMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });    \nterrainMesh = new THREE.Mesh(geometry, groundMaterial);    \nterrainMesh.receiveShadow = true;    \nterrainMesh.castShadow = true;    \nscene.add(terrainMesh);    \n// var textureLoader = new THREE.TextureLoader();    \n// textureLoader.load(&quot;textures/grid.png&quot;, function (texture) {    \n//     texture.wrapS = THREE.RepeatWrapping;    \n//     texture.wrapT = THREE.RepeatWrapping;    \n//     texture.repeat.set(terrainWidth - 1, terrainDepth - 1);    \n//     groundMaterial.map = texture;    \n//     groundMaterial.needsUpdate = true;    \n// });    \nvar amblight = new THREE.AmbientLight(0xffffff, 0.5); // soft white light    \nscene.add( amblight );    \n// 径向光    \nvar light = new THREE.DirectionalLight(0xffffff, 0.5);    \nlight.position.set(100, 150, -50);    \nlight.castShadow = true;    //产生阴影    \nvar dLight = 200;    \nvar sLight = dLight * 0.25;    \nlight.shadow.camera.left = -sLight;    \nlight.shadow.camera.right = sLight;    \nlight.shadow.camera.top = sLight;    \nlight.shadow.camera.bottom = -sLight;    \nlight.shadow.camera.near = dLight / 30;    \nlight.shadow.camera.far = dLight;    \nlight.shadow.mapSize.x = 1024 * 2;    \nlight.shadow.mapSize.y = 1024 * 2;    \nscene.add(light);    \nwindow.addEventListener(&#39;resize&#39;, onWindowResize, false);    \n}    \nfunction onWindowResize() {    \ncamera.aspect = window.innerWidth / window.innerHeight;    \ncamera.updateProjectionMatrix();    \nrenderer.setSize(window.innerWidth, window.innerHeight);    \n}    \nfunction initPhysics() {    \n// Physics configuration    \n// 创建和配置物理世界    \ncollisionConfiguration = new Ammo.btDefaultCollisionConfiguration();    \ndispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);    \nbroadphase = new Ammo.btDbvtBroadphase();    \nsolver = new Ammo.btSequentialImpulseConstraintSolver();    \nphysicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);    \nphysicsWorld.setGravity(new Ammo.btVector3(0, -6, 0));  //设置重力系数    \n// Create the terrain body    \n// 创建    \nvar groundShape = this.createTerrainShape(heightData);    \nvar groundTransform = new Ammo.btTransform();    \ngroundTransform.setIdentity();    \n// Shifts the terrain, since bullet re-centers it on its bounding box.    \ngroundTransform.setOrigin(new Ammo.btVector3(0, (terrainMaxHeight + terrainMinHeight) / 2, 0));    \nvar groundMass = 0;     //质量  质量设置成0就可以不会掉落了    \nvar groundLocalInertia = new Ammo.btVector3(0, 0, 0);   //惯性    \nvar groundMotionState = new Ammo.btDefaultMotionState(groundTransform);     //运动状态 大概是动量    \nvar groundBody = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(groundMass, groundMotionState, groundShape, groundLocalInertia));    \nphysicsWorld.addRigidBody(groundBody);    \n}    \n//用户产生波浪形的高程数据    \nfunction generateHeight(width, depth, minHeight, maxHeight) {    \n// Generates the height data (a sinus wave)    \nvar size = width * depth;    \nvar data = new Float32Array(size);    \nvar hRange = maxHeight - minHeight;    \nvar w2 = width / 2;    \nvar d2 = depth / 2;    \nvar phaseMult = 12;    \nvar p = 0;    \nfor (var j = 0; j &lt; depth; j++) {    \nfor (var i = 0; i &lt; width; i++) {    \nvar radius = Math.sqrt(    \nMath.pow((i - w2) / w2, 2.0) +    \nMath.pow((j - d2) / d2, 2.0));    \nvar height = 0; // (Math.sin(radius * phaseMult) + 1) * 0.5 * hRange + minHeight;    \ndata[p] = height;    \np++;    \n}    \n}    \nreturn data;    \n}    \nfunction createTerrainShape() {    \n// This parameter is not really used, since we are using PHY_FLOAT height data type and hence it is ignored    \nvar heightScale = 1;    \n// Up axis = 0 for X, 1 for Y, 2 for Z. Normally 1 = Y is used.    \nvar upAxis = 1;    \n// hdt, height data type. &quot;PHY_FLOAT&quot; is used. Possible values are &quot;PHY_FLOAT&quot;, &quot;PHY_UCHAR&quot;, &quot;PHY_SHORT&quot;    \nvar hdt = &quot;PHY_FLOAT&quot;;    \n// Set this to your needs (inverts the triangles)    \nvar flipQuadEdges = false;    \n// Creates height data buffer in Ammo heap    \nammoHeightData = Ammo._malloc(4 * terrainWidth * terrainDepth);    \n// Copy the javascript height data array to the Ammo one.    \nvar p = 0;    \nvar p2 = 0;    \nfor (var j = 0; j &lt; terrainDepth; j++) {    \nfor (var i = 0; i &lt; terrainWidth; i++) {    \n// write 32-bit float data to memory    \nAmmo.HEAPF32[ammoHeightData + p2 &gt;&gt; 2] = heightData[p];    \np++;    \n// 4 bytes/float    \np2 += 4;    \n}    \n}    \n// Creates the heightfield physics shape    \nvar heightFieldShape = new Ammo.btHeightfieldTerrainShape(    \nterrainWidth,    \nterrainDepth,    \nammoHeightData,    \nheightScale,    \nterrainMinHeight,    \nterrainMaxHeight,    \nupAxis,    \nhdt,    \nflipQuadEdges    \n);    \n// Set horizontal scale    \nvar scaleX = terrainWidthExtents / (terrainWidth - 1);    \nvar scaleZ = terrainDepthExtents / (terrainDepth - 1);    \nheightFieldShape.setLocalScaling(new Ammo.btVector3(scaleX, 1, scaleZ));    \nheightFieldShape.setMargin(0.05);    \nreturn heightFieldShape;    \n}    \n// 随机生成一个物品从场景的高处掉落    \nfunction generateObject() {    \nvar numTypes = 4;    \nvar objectType = Math.ceil(Math.random() * numTypes);    \nvar threeObject = null;    \nvar shape = null;    \nvar objectSize = 3;    \nvar margin = 0.05;    \nswitch (objectType) {    \ncase 1:    \n// Sphere    \nvar radius = 1 + Math.random() * objectSize;    \nthreeObject = new THREE.Mesh(new THREE.SphereGeometry(radius, 20, 20), createObjectMaterial());    \nshape = new Ammo.btSphereShape(radius);    \nshape.setMargin(margin);    \nbreak;    \ncase 2:    \n// Box    \nvar sx = 1 + Math.random() * objectSize;    \nvar sy = 1 + Math.random() * objectSize;    \nvar sz = 1 + Math.random() * objectSize;    \nthreeObject = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz, 1, 1, 1), createObjectMaterial());    \nshape = new Ammo.btBoxShape(new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5));    \nshape.setMargin(margin);    \nbreak;    \ncase 3:    \n// Cylinder    \nvar radius = 1 + Math.random() * objectSize;    \nvar height = 1 + Math.random() * objectSize;    \nthreeObject = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, 20, 1), createObjectMaterial());    \nshape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height * 0.5, radius));    \nshape.setMargin(margin);    \nbreak;    \ndefault:    \n// Cone    \nvar radius = 1 + Math.random() * objectSize;    \nvar height = 2 + Math.random() * objectSize;    \nthreeObject = new THREE.Mesh(new THREE.CylinderGeometry(0, radius, height, 20, 2), createObjectMaterial());    \nshape = new Ammo.btConeShape(radius, height);    \nbreak;    \n}    \n//设置物体的坐标    \nthreeObject.position.set((Math.random() - 0.5) * terrainWidth * 0.6, terrainMaxHeight + objectSize + 2, (Math.random() - 0.5) * terrainDepth * 0.6);    \n//质量    \nvar mass = objectSize * 5;    \nvar localInertia = new Ammo.btVector3(0, 0, 0);     //惯性    \nshape.calculateLocalInertia(mass, localInertia);    //应该是把shape对象里边的一些参数计算一下，比方说计算一下质量的倒数，惯性的倒数   在需要的时候不用每一次的计算了    \nvar transform = new Ammo.btTransform();    \ntransform.setIdentity();    \nvar pos = threeObject.position;    \ntransform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));    \nvar motionState = new Ammo.btDefaultMotionState(transform);    \nvar rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);    \nvar body = new Ammo.btRigidBody(rbInfo);    \nthreeObject.userData.physicsBody = body;    //把ammo创建的刚体放在three.js3D对象的userData里边    \nthreeObject.receiveShadow = true;    \nthreeObject.castShadow = true;    \nscene.add(threeObject);             //    \ndynamicObjects.push(threeObject);   //放入数组中    \nphysicsWorld.addRigidBody(body);    //将物体加入物理世界中进行模拟    \n}    \nfunction createObjectMaterial() {    \nvar c = Math.floor(Math.random() * (1 &lt;&lt; 24));    \nreturn new THREE.MeshPhongMaterial({ color: c });    \n}    \nfunction animate() {    \nrequestAnimationFrame(animate);    \nrender();    \nstats.update(); //这个是更新网页左上角那个显示帧率等信息的stats对象    \n}    \nfunction render() {    \nvar deltaTime = clock.getDelta();    \n// deltaTime 大概是16-17毫秒  但是是以秒为单位的    \n// 注释掉  不让其产生新的对象    \n// if (dynamicObjects.length &lt; maxNumObjects &amp;&amp; time &gt; timeNextSpawn) {    //当数量没超过最大设置数量 同时 时间间隔大于3秒    \n//     generateObject();   //创建一个对象    \n//     timeNextSpawn = time + objectTimePeriod;    //设置下一次的添加时间    \n// }    \nupdatePhysics(deltaTime);   //进行物理场景模拟 同时把模拟数据同步到three.js的场景中    \nrenderer.render(scene, camera);     //渲染器把场景渲染到画布上    \ntime += deltaTime;    \n}    \nfunction updatePhysics(deltaTime) {    \n//进行仿真模拟    \n// 参数10应该是运算时插入的中间帧    \nphysicsWorld.stepSimulation(deltaTime, 10);    \n// // Update objects    \n// for (var i = 0, il = dynamicObjects.length; i &lt; il; i++) {    \n//     var objThree = dynamicObjects[i];    \n//     var objPhys = objThree.userData.physicsBody;    \n//     var ms = objPhys.getMotionState();    \n//     if (ms) {    \n//         ms.getWorldTransform(transformAux1);    \n//         var p = transformAux1.getOrigin();  //物体的原点    \n//         var q = transformAux1.getRotation();    //物体的朝向    \n//         objThree.position.set(p.x(), p.y(), p.z()); //更新物体的位置    \n//         objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());    //四元数组可以设置物体的朝向    \n//     }    \n// }    \nfor (var i = 0, il = cubes.length; i &lt; il; i++) {    \nvar objThree = cubes[i];    \nvar objPhys = objThree.userData.physicsBody;    \nvar ms = objPhys.getMotionState();    \nif (ms) {    \nms.getWorldTransform(transformAux1);    \nvar p = transformAux1.getOrigin();  //物体的原点    \nvar q = transformAux1.getRotation();    //物体的朝向    \nobjThree.position.set(p.x(), p.y(), p.z()); //更新物体的位置    \nobjThree.quaternion.set(q.x(), q.y(), q.z(), q.w());    //四元数组可以设置物体的朝向    \n}    \n}    \n}    \nvar bottle,cubes = [];    \nfunction createCube(x,z){    \nvar wx = 5,    \nwy = 2,    \nwz = 5;    \nvar cube = new THREE.Mesh(new THREE.BoxGeometry(wx, wy, wz, 1, 1, 1), createObjectMaterial());    \nvar cube_shape = new Ammo.btBoxShape(new Ammo.btVector3(wx * 0.5, wy * 0.5, wz * 0.5));    \ncube_shape.setMargin(0.05);    \n//设置物体的坐标    \ncube.position.set(x, wy/2, z);    \n//质量    \nvar mass = 0;    \nvar localInertia = new Ammo.btVector3(0, 0, 0);     //惯性    \ncube_shape.calculateLocalInertia(mass, localInertia);    //应该是把shape对象里边的一些参数计算一下，比方说计算一下质量的倒数，惯性的倒数   在需要的时候不用每一次的计算了    \nvar transform = new Ammo.btTransform();    \ntransform.setIdentity();    \nvar pos = cube.position;    \ntransform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));    \nvar motionState = new Ammo.btDefaultMotionState(transform);    \nvar rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, cube_shape, localInertia);    \nvar body = new Ammo.btRigidBody(rbInfo);    \ncube.userData.physicsBody = body;    //把ammo创建的刚体放在three.js3D对象的userData里边    \ncube.receiveShadow = true;    \ncube.castShadow = true;    \nscene.add(cube);             //    \ncubes.push(cube);   //放入数组中    \nphysicsWorld.addRigidBody(body);    //将物体加入物理世界中进行模拟    \nreturn cube;    \n}    \nfunction createBottle(x,z){    \nvar radius = 0.5,    \nheight = 2;    \nvar bottle = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, 20, 1), createObjectMaterial());    \nvar bottle_shape = new Ammo.btCylinderShape(new Ammo.btVector3(radius, height * 0.5, radius));    \nbottle_shape.setMargin(0.05);    \n//设置物体的坐标    \nbottle.position.set(x, 4, z);    \n//质量    \nvar mass = 1;    \nvar localInertia = new Ammo.btVector3(0, 0, 0);     //惯性    \nbottle_shape.calculateLocalInertia(mass, localInertia);    //应该是把shape对象里边的一些参数计算一下，比方说计算一下质量的倒数，惯性的倒数   在需要的时候不用每一次的计算了    \nvar transform = new Ammo.btTransform();    \ntransform.setIdentity();    \nvar pos = bottle.position;    \ntransform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));    \nvar motionState = new Ammo.btDefaultMotionState(transform);    \nvar rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, bottle_shape, localInertia);    \nvar body = new Ammo.btRigidBody(rbInfo);    \nbottle.userData.physicsBody = body;    //把ammo创建的刚体放在three.js3D对象的userData里边    \nbottle.receiveShadow = true;    \nbottle.castShadow = true;    \nscene.add(bottle);             //    \ncubes.push(bottle);   //放入数组中    \nphysicsWorld.addRigidBody(body);    //将物体加入物理世界中进行模拟    \nreturn bottle;    \n}    \nfunction initGameScene(){    \ncreateCube(0,0);    \ncreateCube(0,-10);    \n//创建瓶子    \nbottle = createBottle(0,0);    \nwindow.bottleP = bottle.userData.physicsBody;    \nbottleP.setActivationState( 4 );    \n//bottleP.setLinearVelocity(new Ammo.btVector3(0,3,3))    \n//bottleP.setAngularVelocity(new Ammo.btVector3(8,0,10))    \ncamera.position.set(20,20,15);    \n}    \n// - Main code -    \ninit();    \ninitGameScene();    \nanimate();    \n&lt;/script&gt;    \n&lt;/body&gt;    \n&lt;/html&gt;\n</code></pre>\n","createTime":1515378780000,"updatedTime":1785052448970},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

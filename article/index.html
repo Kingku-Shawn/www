@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 页面自带深浅两套配色（FR-X12），声明后浏览器不再强制反转颜色（Chrome Auto Dark） -->
+<meta name="color-scheme" content="light dark">
+<meta name="author" content="qingyi">
+<meta name="copyright" content="shawn.com">
+<title>文章列表 - 清逸的博客</title>
+<!-- 《追加补充.md》FR-X2/FR-X3/FR-X4：列表页 SEO 元信息 + 订阅源发现 -->
+<meta name="description" content="清逸的博客全部文章：前端、音频合成、机器学习、硬件折腾等技术笔记，支持按专栏与标签筛选。">
+<link rel="canonical" href="https://blog.qingyi.dpdns.org/article/index.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="清逸的博客">
+<meta property="og:title" content="文章列表 - 清逸的博客">
+<meta property="og:description" content="清逸的博客全部文章，支持按专栏与标签筛选。">
+<meta property="og:url" content="https://blog.qingyi.dpdns.org/article/index.html">
+<meta name="twitter:card" content="summary">
+<link rel="alternate" type="application/rss+xml" title="清逸的博客 RSS" href="/rss.xml">
+<link rel="alternate" type="application/atom+xml" title="清逸的博客 Atom" href="/atom.xml">
+<link rel="alternate" type="application/feed+json" title="清逸的博客 JSON Feed" href="/feed.json">
+<style>
+:root{
+  --primary:#2563eb; --accent:#0ea5e9; --ink:#0f172a; --ink2:#64748b; --ink3:#94a3b8;
+  --bg:#f5f7fb; --card:#ffffff; --line:rgba(15,23,42,.07);
+  --grad:linear-gradient(135deg,#2563eb,#0ea5e9);
+  --chip-bg:#f1f5f9;
+}
+/* FR-X12 深色模式：跟随系统 + 手动覆盖（html[data-theme]） */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e2e8f0; --ink2:#94a3b8; --ink3:#64748b;
+    --bg:#0b1220; --card:#111a2c; --line:rgba(148,163,184,.14);
+    --chip-bg:#1e293b;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e2e8f0; --ink2:#94a3b8; --ink3:#64748b;
+  --bg:#0b1220; --card:#111a2c; --line:rgba(148,163,184,.14);
+  --chip-bg:#1e293b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh}
+a{text-decoration:none;color:inherit}
+.ambient{position:fixed;top:-180px;left:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle at center,rgba(37,99,235,.16),transparent 65%);z-index:0;pointer-events:none}
+.ambient.r{top:auto;bottom:-200px;right:-140px;left:auto;width:560px;height:560px;background:radial-gradient(circle at center,rgba(14,165,233,.14),transparent 65%)}
+
+.nav{position:fixed;top:0;left:0;right:0;height:68px;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;gap:28px;padding:0 24px}
+.logo{font-size:20px;font-weight:800;letter-spacing:.5px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+.nav-links a{display:block;padding:8px 14px;border-radius:999px;font-size:14px;color:var(--ink2);transition:.2s}
+.nav-links a:hover{color:var(--primary);background:rgba(37,99,235,.08)}
+.nav-links a.on{color:#fff;background:var(--grad);font-weight:600}
+.nav-user{font-size:14px;color:var(--ink2);white-space:nowrap}
+.nav-user a{color:var(--primary);font-weight:600}
+.nav-user .btn-exit{color:var(--ink3);margin-left:10px;cursor:pointer;border:0;background:none;font-size:13px}
+@media(max-width:900px){.nav-links{display:none}}
+
+.page-head{max-width:1200px;margin:96px auto 0;padding:0 24px;position:relative;z-index:1}
+.page-head h1{font-size:32px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.page-head p{color:var(--ink2);margin-top:6px;font-size:15px}
+
+.layout{max-width:1200px;margin:24px auto 0;padding:0 24px;display:grid;grid-template-columns:300px 1fr;gap:26px;position:relative;z-index:1}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+.card h3{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card h3::before{content:"";width:4px;height:16px;border-radius:2px;background:var(--grad)}
+.side{display:flex;flex-direction:column;gap:22px}
+.side .sticky{position:sticky;top:92px;display:flex;flex-direction:column;gap:22px}
+
+
+.col-list{display:flex;flex-direction:column;gap:4px}
+.col-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:12px;font-size:14px;color:var(--ink2);cursor:pointer;transition:.15s}
+.col-item:hover{background:var(--chip-bg);color:var(--primary)}
+.col-item.on{background:rgba(37,99,235,.08);color:var(--primary);font-weight:600}
+.col-item .cnt{font-size:12px;color:var(--ink3)}
+
+.content{min-width:0}
+.search-bar{display:flex;gap:10px;margin-bottom:18px}
+.search-bar input{flex:1;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 18px;font-size:14px;outline:none;transition:.18s}
+.search-bar input:focus{border-color:rgba(37,99,235,.5);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.search-bar button{border:0;background:var(--grad);color:#fff;border-radius:14px;padding:0 24px;font-size:14px;cursor:pointer;font-weight:600}
+.sort-tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:9px 20px;border-radius:999px;font-size:14px;color:var(--ink2);cursor:pointer;transition:.18s;background:var(--card);border:1px solid var(--line)}
+.tab:hover{color:var(--primary)}
+.tab.on{color:#fff;background:var(--grad);border-color:transparent}
+.post-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin-bottom:16px;transition:.2s;cursor:pointer;display:block;position:relative}
+.post-card:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(15,23,42,.09);border-color:rgba(37,99,235,.25)}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pc-cat{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);font-weight:600}
+.pc-dot{width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none}
+.pc-date{font-size:12px;color:var(--ink3)}
+.post-card h2{font-size:18px;font-weight:700;line-height:1.5;color:var(--primary)}
+.post-card:hover h2{text-decoration:underline;text-underline-offset:3px}
+.post-card p{color:var(--ink2);font-size:13.5px;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pc-meta{display:flex;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap}
+.pc-meta-item{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink3)}
+.pc-meta-item svg{opacity:.75}
+.pc-tags{display:inline-flex;gap:6px;flex-wrap:wrap}
+.pc-tags .chip{background:var(--chip-bg);padding:2px 9px;border-radius:999px;color:var(--ink2);font-size:11.5px}
+.empty{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:56px 24px;text-align:center;color:var(--ink3)}
+.empty b{display:block;font-size:16px;color:var(--ink2);margin-bottom:6px}
+.pager{display:flex;justify-content:center;gap:10px;margin-top:24px}
+.pager button{border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:12px;padding:8px 16px;font-size:14px;cursor:pointer;transition:.15s}
+.pager button:hover{color:var(--primary);border-color:rgba(37,99,235,.4)}
+.pager button:disabled{opacity:.4;cursor:not-allowed}
+.pager .pg-cur{background:var(--grad);color:#fff;border-color:transparent}
+
+footer{margin-top:56px;padding:28px 24px;text-align:center;color:var(--ink3);font-size:13px;border-top:1px solid var(--line)}
+.loading{display:flex;justify-content:center;padding:48px 0;color:var(--ink3)}
+.spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(37,99,235,.15);border-top-color:var(--primary);animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* 移动端适配：汉堡侧边菜单 */
+  .mobile-hamburger, .mobile-drawer, .mobile-drawer-mask { display: none; }
+
+@media (max-width: 900px) {
+  .mobile-hamburger {
+    position: fixed; top: 15px; right: 14px; z-index: 1500;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border: none; background: #f3f7fc;
+    border-radius: 12px; cursor: pointer; padding: 0;
+    box-shadow: 0 4px 14px rgba(15,23,42,.08);
+  }
+  .mobile-hamburger span { display: block; width: 18px; height: 2px; background: #0f172a; border-radius: 2px; position: relative; }
+  .mobile-hamburger span::before, .mobile-hamburger span::after {
+    content: ""; position: absolute; left: 0; width: 18px; height: 2px;
+    background: #0f172a; border-radius: 2px;
+  }
+  .mobile-hamburger span::before { top: -5px; }
+  .mobile-hamburger span::after { top: 5px; }
+  .mobile-hamburger.active span { background: transparent; }
+  .mobile-hamburger.active span::before { top: 0; transform: rotate(45deg); }
+  .mobile-hamburger.active span::after { top: 0; transform: rotate(-45deg); }
+  .mobile-drawer {
+    display: block; position: fixed; top: 0; right: 0; height: 100%;
+    width: 264px; max-width: 82vw; background: #fff; z-index: 2100;
+    transform: translateX(100%); transition: transform .26s ease;
+    box-shadow: -10px 0 34px rgba(15,23,42,.14); padding: 22px 16px;
+    overflow-y: auto; box-sizing: border-box;
+  }
+  .mobile-drawer.open { transform: translateX(0); }
+  .mobile-drawer .drawer-logo { font-size: 18px; font-weight: 800; color: #2563eb; padding: 0 8px 14px; border-bottom: 1px solid #e6edf5; margin-bottom: 12px; }
+  .mobile-drawer .drawer-nav { list-style: none; margin: 0; padding: 0; }
+  .mobile-drawer .drawer-nav li { margin: 0 0 2px; }
+  .mobile-drawer .drawer-nav a { display: block; padding: 11px 14px; border-radius: 12px; color: #0f172a; font-size: 15px; font-weight: 600; text-decoration: none; }
+  .mobile-drawer .drawer-nav a:hover { background: #f3f7fc; color: #2563eb; }
+  .mobile-drawer-mask {
+    display: block; position: fixed; inset: 0; background: rgba(15,23,42,.42);
+    z-index: 2000; opacity: 0; visibility: hidden; transition: opacity .25s ease;
+  }
+  .mobile-drawer-mask.show { opacity: 1; visibility: visible; }
+}
+
+  /* 统一顶栏：与全站 soulsoft 白玻璃顶栏一致 */
+  header.nav, header.site-header {
+    background: rgba(255,255,255,.82) !important;
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border-bottom: 1px solid #e4e9f0 !important;
+    box-shadow: 0 8px 28px rgba(15,23,42,.05) !important;
+    height: 58px !important;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+  .nav-in, .site-header .inner {
+    max-width: 1200px !important;
+    gap: 26px !important;
+  }
+  .nav .logo, .site-header .logo {
+    color: #2563eb !important;
+    font-size: 19px !important;
+    font-weight: 800 !important;
+    letter-spacing: .5px;
+    text-decoration: none !important;
+    white-space: nowrap;
+  }
+  .nav-links a, .site-nav a {
+    color: #5a6a7a !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 7px 12px !important;
+    border-radius: 999px !important;
+    text-decoration: none !important;
+    transition: all .15s ease;
+    white-space: nowrap;
+  }
+  .nav-links a:hover, .nav-links a.on,
+  .site-nav a:hover, .site-nav a.on {
+    color: #2563eb !important;
+    background: rgba(37,99,235,.08) !important;
+  }
+  .nav-user a, .header-user a {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    color: #2563eb !important;
+    background: #f4f8ff !important;
+    border: 1px solid #e4e9f0 !important;
+    padding: 7px 16px !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    box-shadow: 0 6px 16px rgba(15,23,42,.05);
+    transition: all .15s ease;
+  }
+  .nav-user a:hover, .header-user a:hover {
+    background: #e9f2ff !important;
+    transform: translateY(-1px);
+  }
+</style>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style id="nav-pad">body{padding-top:58px}</style></head>
+<body>
+<div class="ambient"></div><div class="ambient r"></div>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="index.html" class="on">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+      <a href="../search/index.html" data-search="1">搜索</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+<script>
+(function(){
+  try{
+    var b=document.getElementById("navUser"); if(!b) return;
+    var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+    var u=localStorage.getItem("xw_username");
+    if(u){
+      b.setAttribute("data-nav-user","ready");
+      b.innerHTML='<div class="nav-user-menu" style="position:relative;display:inline-block"><button type="button" class="nav-uname" style="border:1px solid rgba(148,163,184,.45);background:rgba(148,163,184,.12);color:#475569;cursor:pointer;font-size:13px;font-weight:600;padding:5px 14px;border-radius:999px;line-height:1.4">'+esc(u)+'</button><div class="nav-user-dropdown" style="position:absolute;top:calc(100% + 6px);right:0;min-width:140px;background:#fff;border:1px solid #e6edf5;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.12);padding:6px;z-index:100;display:none"><a href="/user/profile.html" style="display:block;padding:9px 14px;border-radius:8px;color:#0f172a;text-decoration:none;font-size:13.5px">👤 个人中心</a><a href="#" id="navLogoutBtn" style="display:block;padding:9px 14px;border-radius:8px;color:#dc2626;text-decoration:none;font-size:13.5px">退出</a></div></div>';
+      var un=b.querySelector(".nav-uname"), m=b.querySelector(".nav-user-dropdown");
+      if(un&&m){un.onclick=function(ev){ev.stopPropagation();m.style.display=m.style.display==="none"?"block":"none";};document.addEventListener("click",function(ev){if(!b.contains(ev.target))m.style.display="none";});}
+      var lo=b.querySelector("#navLogoutBtn"); if(lo)lo.onclick=function(ev){ev.preventDefault();try{["xw_token","xw_username","shawn_site_token","shawn_site_user","shawn_admin_token","shawn_admin_role"].forEach(function(k){localStorage.removeItem(k);});}catch(e){}try{fetch("/api/user/logout",{method:"POST",credentials:"include"});}catch(e){}location.reload();};
+    }else{b.innerHTML='<a href="/user/login.html">登录</a><a href="/user/login.html#register" style="color:#2563eb;font-weight:600;margin-left:12px">注册</a>';}
+  }catch(e){}
+})();
+</script>
+  </div>
+</header>
+
+<div class="page-head">
+  <h1>文章列表</h1>
+  <p>按标签、分栏或关键词筛选，找到你想读的那一篇。</p>
+</div>
+
+<main class="layout">
+  <aside class="side">
+    <div class="sticky">
+      <div class="card">
+        <h3>分栏</h3>
+        <div class="col-list" id="colList"><span class="col-item on" data-col="">全部<span class="cnt" id="colAllCnt"></span></span></div>
+      </div>
+      <div class="card">
+        <h3>标签</h3>
+        <div class="tag-cloud" id="tagCloud"><span class="loading">加载中</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="content">
+    <div class="search-bar">
+      <input id="searchInput" type="text" placeholder="搜索文章标题或摘要…" maxlength="60">
+      <button id="searchBtn">搜索</button>
+    </div>
+    <div class="sort-tabs">
+      <span class="tab on" data-sort="latest">最新文章</span>
+      <span class="tab" data-sort="hot">热门文章</span>
+    </div>
+    <div id="postList"></div>
+    <div class="pager" id="pager"></div>
+  </section>
+</main>
+
+
+
+<script>
+var API_BASE = "/api";
+var state = {tag:"", col:"", search:"", page:1, size:10, sort:"latest", total:0};
+/* 读取 URL 筛选参数（文章详情页"本文标签"跳转携带 ?col= 分栏 或 ?tag= 标签） */
+(function(){
+  var m=location.search.match(/[?&]col=([^&]+)/);
+  if(m){try{state.col=decodeURIComponent(m[1].replace(/\+/g," "));}catch(e){state.col=m[1];}}
+})();
+
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function fmtDate(s){if(!s)return "";return String(s).slice(0,10);}
+function loadToolsNav(){
+  fetch(API_BASE+"/tools.json").then(function(r){return r.json();}).then(function(j){
+    if(!j.ok)return;
+    var on={};j.data.forEach(function(t){on[t.key]=1;});
+    document.querySelectorAll("#navLinks a[data-tool]").forEach(function(a){
+      if(!on[a.getAttribute("data-tool")])a.style.display="none";
+    });
+  }).catch(function(){});
+}
+function loadColumns(){
+  fetch(API_BASE+"/public/columns.json").then(function(r){return r.json();}).then(function(j){
+    if(!j.ok)return;
+    var html='<span class="col-item on" data-col="">全部<span class="cnt">'+j.data.reduce(function(a,c){return a+c.cnt;},0)+'</span></span>';
+    j.data.forEach(function(c){
+      html+='<span class="col-item" data-col="'+esc(c.name)+'">'+esc(c.name)+'<span class="cnt">'+c.cnt+'</span></span>';
+    });
+    var box=document.getElementById("colList");
+    box.innerHTML=html;
+    /* URL 带入的分栏选中态同步 */
+    box.querySelectorAll(".col-item").forEach(function(i){i.classList.toggle("on",i.getAttribute("data-col")===state.col);});
+    box.querySelectorAll(".col-item").forEach(function(x){x.onclick=function(){pickCol(x);};});
+  }).catch(function(){});
+}
+function loadTags(){
+  fetch(API_BASE+"/public/tags.json").then(function(r){return r.json();}).then(function(j){
+    if(!j.ok)return;
+    if(!j.data.length){document.getElementById("tagCloud").innerHTML='<span class="tag">暂无标签</span>';return;}
+    var html="";
+    j.data.forEach(function(t){
+      html+='<span class="tag" data-tag="'+esc(t.name)+'"><span class="dot" style="background:'+esc(t.color)+'"></span>'+esc(t.name)+'</span>';
+    });
+    var box=document.getElementById("tagCloud");
+    box.innerHTML=html;
+    /* URL 带入的标签选中态同步 */
+    box.querySelectorAll(".tag").forEach(function(i){i.classList.toggle("on",i.getAttribute("data-tag")===state.tag);});
+    box.querySelectorAll(".tag").forEach(function(x){x.onclick=function(){pickTag(x);};});
+  }).catch(function(){});
+}
+function pickCol(x){
+  state.col=x.getAttribute("data-col");state.tag="";state.page=1;
+  document.querySelectorAll("#colList .col-item").forEach(function(i){i.classList.toggle("on",i===x);});
+  document.querySelectorAll("#tagCloud .tag").forEach(function(t){t.classList.remove("on");});
+  loadPosts();
+}
+function pickTag(x){
+  var t=x.getAttribute("data-tag");
+  if(state.tag===t){state.tag="";x.classList.remove("on");}
+  else{state.tag=t;x.classList.add("on");document.querySelectorAll("#colList .col-item").forEach(function(i){i.classList.remove("on");});}
+  state.page=1;loadPosts();
+}
+document.querySelectorAll(".tab[data-sort]").forEach(function(t){
+  t.onclick=function(){state.sort=t.getAttribute("data-sort");state.page=1;
+    document.querySelectorAll(".tab[data-sort]").forEach(function(x){x.classList.toggle("on",x===t);});
+    loadPosts();};
+});
+document.getElementById("searchBtn").onclick=function(){
+  state.search=document.getElementById("searchInput").value.trim().slice(0,60);
+  state.page=1;loadPosts();
+};
+document.getElementById("searchInput").addEventListener("keydown",function(e){
+  if(e.key==="Enter")document.getElementById("searchBtn").click();
+});
+function loadPosts(){
+  var box=document.getElementById("postList");
+  box.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  var q=API_BASE+"/public/posts.json";
+  fetch(q).then(function(r){return r.json();}).then(function(j){
+    if(!j.ok){box.innerHTML='<div class="empty"><b>加载失败</b>接口暂不可用，请稍后再试</div>';return;}
+    var all=j.data.list.slice();
+    /* 关键词搜索：全量列表在前端过滤（Worker 的 posts.json 不支持 search 参数） */
+    if(state.search){
+      var kw=state.search.toLowerCase();
+      all=all.filter(function(p){
+        var hay=((p.title||"")+" "+(p.summary||"")+" "+((p.tags||[]).join(" "))).toLowerCase();
+        return hay.indexOf(kw)>=0;
+      });
+    }
+    if(state.tag)all=all.filter(function(p){return (p.tags||[]).indexOf(state.tag)>=0;});
+    if(state.col)all=all.filter(function(p){return (p.columns||[]).indexOf(state.col)>=0;});
+    if(state.sort==="hot")all.sort(function(a,b){return b.views-a.views;});
+    state.total=all.length;
+    var list=all.slice((state.page-1)*state.size, state.page*state.size);
+    if(!list.length){box.innerHTML='<div class="empty"><b>没有匹配的文章</b>换个标签、分栏或关键词试试</div>';}
+    else{
+      var html="";
+      list.forEach(function(p){
+        var col1=(p.columns&&p.columns[0])||"";
+        var tags=(p.tags||[]).map(function(t){return '<span class="chip">#'+esc(t)+'</span>';}).join("");
+        var href=(p.source_file&&p.source_file.indexOf("a_")===0)?p.source_file+(state.col?"?col="+encodeURIComponent(state.col):(state.tag?"?tag="+encodeURIComponent(state.tag):"")):"#";
+        var dateOnly=fmtDate(p.created_at);
+        html+='<a class="post-card" href="'+href+'">'+
+          '<div class="pc-top">'+
+            '<span class="pc-cat">'+(col1?'<span class="pc-dot"></span>'+esc(col1):'&nbsp;')+'</span>'+
+            '<span class="pc-date">'+dateOnly+'</span>'+
+          '</div>'+
+          '<h2>'+esc(p.title)+'</h2>'+
+          '<p>'+esc(p.summary||"")+'</p>'+
+          '<div class="pc-meta">'+
+            '<span class="pc-meta-item"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'+ (p.views||0) +'</span>'+
+            '<span class="pc-meta-item"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 3C6.5 3 2 6.9 2 11.7c0 3 1.7 5.7 4.4 7.2-.1 1-.5 2.4-1.5 3.6-.2.2 0 .6.3.5 2.5-.3 4.4-1.1 5.7-2 .3 0 .7.1 1.1.1 5.5 0 10-3.9 10-8.7S17.5 3 12 3z"/></svg>评论</span>'+
+            (tags?'<span class="pc-tags">'+tags+'</span>':'')+
+          '</div>'+
+        '</a>';
+      });
+      box.innerHTML=html;
+    }
+    renderPager();
+  }).catch(function(){box.innerHTML='<div class="empty"><b>加载失败</b>请确认离线服务已启动</div>';});
+}
+function renderPager(){
+  var totalPages=Math.max(1,Math.ceil(state.total/state.size));
+  var p=document.getElementById("pager");
+  if(totalPages<=1){p.innerHTML="";return;}
+  p.innerHTML='<button data-p="prev" '+(state.page<=1?"disabled":"")+'>上一页</button>'+
+    '<button class="pg-cur">'+state.page+' / '+totalPages+'</button>'+
+    '<button data-p="next" '+(state.page>=totalPages?"disabled":"")+'>下一页</button>';
+  p.querySelectorAll("button[data-p]").forEach(function(b){
+    b.onclick=function(){
+      if(b.disabled)return;
+      state.page+=b.getAttribute("data-p")==="next"?1:-1;
+      loadPosts();window.scrollTo({top:0,behavior:"smooth"});
+    };
+  });
+}
+loadToolsNav();loadColumns();loadTags();loadPosts();
+</script>
+<script>
+/* 清逸的博客 · 页面移动端汉堡 */
+(function () {
+  function build() {
+    var header = document.querySelector('header.nav');
+    if (!header) return false;
+    if (document.querySelector('.mobile-hamburger')) return true;
+    var btn = document.createElement('button');
+    btn.className = 'mobile-hamburger';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', '菜单');
+    var bar = document.createElement('span');
+    btn.appendChild(bar);
+    var mask = document.createElement('div');
+    mask.className = 'mobile-drawer-mask';
+    var drawer = document.createElement('div');
+    drawer.className = 'mobile-drawer';
+    var logo = document.createElement('div');
+    logo.className = 'drawer-logo';
+    logo.textContent = '清逸的博客';
+    var nav = document.createElement('ul');
+    nav.className = 'drawer-nav';
+    var srcNav = header.querySelector('.nav-links');
+    if (srcNav) {
+      srcNav.querySelectorAll('a').forEach(function (a) {
+        var li = document.createElement('li');
+        var na = document.createElement('a');
+        na.href = a.getAttribute('href') || '#';
+        na.textContent = a.textContent.trim();
+        li.appendChild(na);
+        nav.appendChild(li);
+      });
+    }
+    drawer.appendChild(logo);
+    drawer.appendChild(nav);
+    document.body.appendChild(btn);
+    document.body.appendChild(mask);
+    document.body.appendChild(drawer);
+    function toggle(open) {
+      var willOpen = (open === undefined) ? !drawer.classList.contains('open') : open;
+      drawer.classList.toggle('open', willOpen);
+      mask.classList.toggle('show', willOpen);
+      btn.classList.toggle('active', willOpen);
+      document.body.style.overflow = willOpen ? 'hidden' : '';
+    }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+    mask.addEventListener('click', function () { toggle(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
+    return true;
+  }
+  function start() {
+    if (build()) return;
+    var t = setInterval(function () { if (build()) clearInterval(t); }, 500);
+    setTimeout(function () { clearInterval(t); }, 15000);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else { start(); }
+})();
+</script>
+<!-- 装修渲染引擎（共享，articles 页） -->
+<script src="../js/layout-engine.js"></script>
+<script>initLayoutEngine('articles');</script>
+<script src="../js/header-fix.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>netplan设置连接隐藏的wifi热点</title><meta name="keywords" content="netplan设置,netplan连接隐藏wifi"><meta name="description" content="netplan当前是不支持连接隐藏的热点国外一位小哥使用hack的方式进行了设置netplan底层是用wpa_supplicant处理wifi连接的， wpa_supplicant的配置中有 scan_ssid=1 的参数来控制连接隐藏热点先说一下我的路由器配置，为了我能够正常无卡顿打王者上分，为了">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">netplan设置连接隐藏的wifi热点</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/dft_2020/8b24313bc151d51f46fb58750bca4e25_12196.png" title="netplan设置连接隐藏的wifi热点" alt="netplan设置连接隐藏的wifi热点"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2020-5-4 11:45:00">2020-5-4 11:45:00</time></div><div class="tags"><!--[--><span> # 树莓派</span><span> # ubuntu</span><span> # netplan</span><!--]--></div></div></section><div class="detail-content"><p>netplan当前是不支持连接隐藏的热点</p>
+<p>国外一位小哥使用hack的方式进行了设置</p>
+<p>netplan底层是用wpa_supplicant处理wifi连接的， wpa_supplicant的配置中有 scan_ssid=1 的参数来控制连接隐藏热点</p>
+<p>先说一下我的路由器配置，为了我能够正常无卡顿打王者上分，<img src="../o/uploads/dft_2020/8b24313bc151d51f46fb58750bca4e25_12196.png" alt="netplan设置连接隐藏的wifi热点" title="netplan设置连接隐藏的wifi热点" />为了避免邻居的小哥使用工具爆破我的热点，所以我关掉了我的ssid广播，也就是隐藏了我的wifi广播，但是不影响手机正常连接。</p>
+<p>我的树莓派4安装了一个ubuntu server，但是自带的netplan工具不能连接隐藏的wifi热点。</p>
+<p>将 netplan 的配置文件 50-cloud-init.yaml 进行如下配置</p>
+<pre><code class="language-plain">network:
+  wifis:
+    wlan0:
+      access-points:
+          &quot;mangguo\&quot;\n        scan_ssid=1\n#      \&quot;hack!\&quot;&quot;:
+            password: &quot;我的wifi密码&quot;
+      dhcp4: true
+      optional: true
+  ethernets:
+    eth0:
+      dhcp4: true
+      optional: true
+  version: 2
+</code></pre>
+<p>改完之后，我用 sudo netplan generate 语法检查通过</p>
+<p>然后用sudo netplan apply   老是报错</p>
+<p>reboot之后自动连上了</p>
+<p>这个bug已经提了bug单，相信不久的将来肯定会有新的参数来控制连接隐藏的wifi热点</p>
+<p>原链接地址</p>
+<p><a href="../link@next=https%253A%252F%252Faskubuntu.com%252Fquestions%252F1111494%252Fnetplan-not-connecting-to-hidden-ssid-server-18-04-1-lts.html" target="_blank">https://askubuntu.com/questions/1111494/netplan-not-connecting-to-hidden-ssid-server-18-04-1-lts</a></p>
+<p>原图地址</p>
+<p><img src="../o/uploads/dft_2020/a0206e57f487ee9b332a77289994b010_46418.png" alt="netplan设置连接隐藏的wifi热点" title="netplan设置连接隐藏的wifi热点" /></p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5eaf8fd68f8e701f90094732","article":{"id":"5eaf8fd68f8e701f90094732","title":"netplan设置连接隐藏的wifi热点","snippet":"netplan当前是不支持连接隐藏的热点国外一位小哥使用hack的方式进行了设置netplan底层是用wpa_supplicant处理wifi连接的， wpa_supplicant的配置中有 scan_ssid=1 的参数来控制连接隐藏热点先说一下我的路由器配置，为了我能够正常无卡顿打王者上分，为了","image":"../o/uploads/dft_2020/8b24313bc151d51f46fb58750bca4e25_12196.png","tags":[],"category":["树莓派","ubuntu","netplan"],"keywords":["netplan设置","netplan连接隐藏wifi"],"content":"<p>netplan当前是不支持连接隐藏的热点</p>\n<p>国外一位小哥使用hack的方式进行了设置</p>\n<p>netplan底层是用wpa_supplicant处理wifi连接的， wpa_supplicant的配置中有 scan_ssid=1 的参数来控制连接隐藏热点</p>\n<p>先说一下我的路由器配置，为了我能够正常无卡顿打王者上分，<img src=\"../o/uploads/dft_2020/8b24313bc151d51f46fb58750bca4e25_12196.png\" alt=\"netplan设置连接隐藏的wifi热点\" title=\"netplan设置连接隐藏的wifi热点\" />为了避免邻居的小哥使用工具爆破我的热点，所以我关掉了我的ssid广播，也就是隐藏了我的wifi广播，但是不影响手机正常连接。</p>\n<p>我的树莓派4安装了一个ubuntu server，但是自带的netplan工具不能连接隐藏的wifi热点。</p>\n<p>将 netplan 的配置文件 50-cloud-init.yaml 进行如下配置</p>\n<pre><code class=\"language-plain\">network:\n  wifis:\n    wlan0:\n      access-points:\n          &quot;mangguo\\&quot;\\n        scan_ssid=1\\n#      \\&quot;hack!\\&quot;&quot;:\n            password: &quot;我的wifi密码&quot;\n      dhcp4: true\n      optional: true\n  ethernets:\n    eth0:\n      dhcp4: true\n      optional: true\n  version: 2\n</code></pre>\n<p>改完之后，我用 sudo netplan generate 语法检查通过</p>\n<p>然后用sudo netplan apply   老是报错</p>\n<p>reboot之后自动连上了</p>\n<p>这个bug已经提了bug单，相信不久的将来肯定会有新的参数来控制连接隐藏的wifi热点</p>\n<p>原链接地址</p>\n<p><a href=\\&quot;https://askubuntu.com/questions/1111494/netplan-not-connecting-to-hidden-ssid-server-18-04-1-lts\\&quot;\">https://askubuntu.com/questions/1111494/netplan-not-connecting-to-hidden-ssid-server-18-04-1-lts</a></p>\n<p>原图地址</p>\n<p><img src=\"../o/uploads/dft_2020/a0206e57f487ee9b332a77289994b010_46418.png\" alt=\"netplan设置连接隐藏的wifi热点\" title=\"netplan设置连接隐藏的wifi热点\" /></p>\n","createTime":1588563900000,"updatedTime":1785053129389},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>一个使用HTML5 WebDatabases的简单例子</title><meta name="keywords" content="HTML5 WebDatabases,webdatabases例子,webdatabases怎么用,webdatabases的使用方式"><meta name="description" content="2010年11月18日,W3C宣布Web SQL数据库是一个过时的规范。这是web开发人员建议不再使用的技术作为有效的规范将收到任何新的更新和浏览器厂商并不鼓励支持这种技术。许多主流浏览器包括Chrome、Safari、Opera和几乎所有基于Webkit的移动设备支持WebSQL并且在未来的一定时">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">一个使用HTML5 WebDatabases的简单例子</h1></header><section class="detail-section"><!----><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-2-16 08:06:00">2016-2-16 08:06:00</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>2010年11月18日,W3C宣布Web SQL数据库是一个过时的规范。这是web开发人员建议不再使用的技术作为有效的规范将收到任何新的更新和浏览器厂商并不鼓励支持这种技术。许多主流浏览器包括Chrome、Safari、Opera和几乎所有基于Webkit的移动设备支持WebSQL并且在未来的一定时间内继续保持对这个的支持。</p>
+<h2>简介</h2>
+<p><a href="../link@next=http%253A%252F%252Fdev.w3.org%252Fhtml5%252Fwebdatabase.html" target="_blank"></a>在HTML5 Web数据库是新的。Web数据库托管并保存在用户的浏览器上。通过允许开发人员创建应用程序与丰富的查询能力。也许,新一代的web应用程序会出现在线和离线工作的能力。</p>
+<p>本教程使用“IndexedDB”,不过你也可以用 localstorage离线存储技术代替它。</p>
+<p>本文中的示例代码演示了如何创建一个非常简单的todo列表管理器。这是一个非常高水平的HTML5的一些特性。</p>
+<h2>准备</h2>
+<p>定义变量</p>
+<pre><code class="language-js">var webdb = {};
+</code></pre>
+<h2>异步 和 事务处理</h2>
+<p>在大多数情况下你在使用Web数据库时都支持您将使用异步API。异步API是一个非阻塞的系统，因此通过返回值不会得到数据,而是将数据交付给一个定义的回调函数。</p>
+<p>通过HTML Web数据库支持是事务性的。外面是不可能执行的SQL语句的事务。有两种类型的交易:读/写事务(事务())和只读事务(readTransaction())。请注意,读或者写操作将会锁住整个数据库。</p>
+<h2>Step 1. 打开数据库</h2>
+<p>数据库需要打开才可以访问。您需要定义名称,版本,描述和数据库的大小。</p>
+<pre><code class="language-js">webdb.db = null;
+webdb.open = function () {
+    var dbSize = 5 * 1024 * 1024; // 5MB
+    webdb.db = openDatabase(&quot;Todo&quot;, &quot;1&quot;, &quot;Todo manager&quot;, dbSize);
+}
+webdb.onError = function (tx, e) {
+    alert(&quot;There has been an error: &quot; + e.message);
+}
+webdb.onSuccess = function (tx, r) {
+    // re-render the data.
+    // loadTodoItems is defined in Step 4a
+    webdb.getAllTodoItems(loadTodoItems);
+}
+</code></pre>
+<h2>Step 2. 创建一个table</h2>
+<p>你只能通过执行 CREATE TABLE SQL 语句在一个事务中创建一个表。</p>
+<p>我们定义了一个函数,在body的onload事件中将创建一个表。如果表不存在,将创建一个表。表名称为todo并且有3列。</p>
+<ul>
+<li><p>ID - 一个递增顺序ID列</p>
+</li>
+<li><p>todo - 一个文本列项目的主体</p>
+</li>
+<li><p>added_on - todo项创建的时间</p>
+</li>
+</ul>
+<pre><code class="language-js">webdb.createTable = function () {
+    var db = webdb.db;
+    db.transaction(function (tx) {
+        tx.executeSql(&quot;CREATE TABLE IF NOT EXISTS &quot; +
+                      &quot;todo(ID INTEGER PRIMARY KEY ASC, todo TEXT, added_on DATETIME)&quot;, []);
+    });
+}
+</code></pre>
+<h2>Step 3. 给table添加数据</h2>
+<p>我们正在建设一个todo列表管理器是非常重要的,我们能够将todo项添加到数据库中。</p>
+<p>创建一个事务,在事务执行插入到待办事项表。</p>
+<p>executeSql需要几个参数,执行SQL查询和绑定的参数值。</p>
+<pre><code class="language-js">webdb.addTodo = function (todoText) {
+    var db = webdb.db;
+    db.transaction(function (tx) {
+        var addedOn = new Date();
+        tx.executeSql(&quot;INSERT INTO todo(todo, added_on) VALUES (?,?)&quot;,
+            [todoText, addedOn],
+            webdb.onSuccess,
+            webdb.onError);
+    });
+}
+</code></pre>
+<h2>Step 4. 从table中查询数据</h2>
+<p>现在，数据库中已经有了数据,您需要一个函数来获取数据。在Chrome,Webdatabase使用标准SQLite SELECT查询。</p>
+<pre><code class="language-js">webdb.getAllTodoItems = function (renderFunc) {
+    var db = webdb.db;
+    db.transaction(function (tx) {
+        tx.executeSql(&quot;SELECT * FROM todo&quot;, [], renderFunc,
+            webdb.onError);
+    });
+}
+</code></pre>
+<p>要注意的是所有的这些命令中使用这个示例是异步的,因此返回的数据不是事务或executeSql的会话。结果是通过回调函数返回的。</p>
+<h2>Step 4a. 渲染数据</h2>
+<p>一旦数据已经从表中获取,loadTodoItems方法将被调用。</p>
+<p>onSuccess回调函数接受两个参数。第一个是事务的查询，第二个是结果集。下面是整个数据的一个简单的迭代:</p>
+<pre><code class="language-js">function loadTodoItems(tx, rs) {
+    var rowOutput = &quot;&quot;;
+    var todoItems = document.getElementById(&quot;todoItems&quot;);
+    for (var i = 0; i &lt; rs.rows.length; i++) {
+        rowOutput += renderTodo(rs.rows.item(i));
+    }
+
+    todoItems.innerHTML = rowOutput;
+} function renderTodo(row) {
+    return &quot;&lt;li&gt;&quot; + row.todo +
+           &quot; [&lt;a href=&#39;javascript:void(0);&#39; onclick=\&#39;webdb.deleteTodo(&quot; +
+           row.ID + &quot;);\&#39;&gt;Delete&lt;/a&gt;]&lt;/li&gt;&quot;;
+}
+</code></pre>
+<p>这个方法调用的效果是todo列表的数据呈现为DOM元素,称为“todoItems”。</p>
+<h2>Step 5. 从table中删除数据</h2>
+<pre><code class="language-js">webdb.deleteTodo = function (id) {
+    var db = webdb.db;
+    db.transaction(function (tx) {
+        tx.executeSql(&quot;DELETE FROM todo WHERE ID=?&quot;, [id],
+            webdb.onSuccess,
+            webdb.onError);
+    });
+}
+</code></pre>
+<h2>Step 6. 整合上面的函数</h2>
+<p>当页面加载时,打开数据库并且如果需要将会创建表和呈现已经在数据库中的任何todo数据项。</p>
+<pre><code class="language-html">....function init() {
+    webdb.open();
+    webdb.createTable();
+    webdb.getAllTodoItems(loadTodoItems);
+}
+&lt;/script&gt;&lt;body onload=&quot;init();&quot;&gt;
+</code></pre>
+<p>下面的这个函数,能从dom中获取数据,并调用webdb.addTodo方法</p>
+<pre><code class="language-js">function addTodo() {
+    var todo = document.getElementById(&quot;todo&quot;);
+    webdb.addTodo(todo.value);
+    todo.value = &quot;&quot;;
+}
+</code></pre>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d72","article":{"id":"5a0bf49035583c99c0b28d72","title":"一个使用HTML5 WebDatabases的简单例子","snippet":"2010年11月18日,W3C宣布Web SQL数据库是一个过时的规范。这是web开发人员建议不再使用的技术作为有效的规范将收到任何新的更新和浏览器厂商并不鼓励支持这种技术。许多主流浏览器包括Chrome、Safari、Opera和几乎所有基于Webkit的移动设备支持WebSQL并且在未来的一定时","image":"","tags":["html","js"],"category":["编程"],"keywords":["HTML5 WebDatabases","webdatabases例子","webdatabases怎么用","webdatabases的使用方式"],"content":"<p>2010年11月18日,W3C宣布Web SQL数据库是一个过时的规范。这是web开发人员建议不再使用的技术作为有效的规范将收到任何新的更新和浏览器厂商并不鼓励支持这种技术。许多主流浏览器包括Chrome、Safari、Opera和几乎所有基于Webkit的移动设备支持WebSQL并且在未来的一定时间内继续保持对这个的支持。</p>\n<h2>简介</h2>\n<p><a href=\\&quot;http://dev.w3.org/html5/webdatabase\\&quot;\"></a>在HTML5 Web数据库是新的。Web数据库托管并保存在用户的浏览器上。通过允许开发人员创建应用程序与丰富的查询能力。也许,新一代的web应用程序会出现在线和离线工作的能力。</p>\n<p>本教程使用“IndexedDB”,不过你也可以用 localstorage离线存储技术代替它。</p>\n<p>本文中的示例代码演示了如何创建一个非常简单的todo列表管理器。这是一个非常高水平的HTML5的一些特性。</p>\n<h2>准备</h2>\n<p>定义变量</p>\n<pre><code class=\"language-js\">var webdb = {};\n</code></pre>\n<h2>异步 和 事务处理</h2>\n<p>在大多数情况下你在使用Web数据库时都支持您将使用异步API。异步API是一个非阻塞的系统，因此通过返回值不会得到数据,而是将数据交付给一个定义的回调函数。</p>\n<p>通过HTML Web数据库支持是事务性的。外面是不可能执行的SQL语句的事务。有两种类型的交易:读/写事务(事务())和只读事务(readTransaction())。请注意,读或者写操作将会锁住整个数据库。</p>\n<h2>Step 1. 打开数据库</h2>\n<p>数据库需要打开才可以访问。您需要定义名称,版本,描述和数据库的大小。</p>\n<pre><code class=\"language-js\">webdb.db = null;\nwebdb.open = function () {\n    var dbSize = 5 * 1024 * 1024; // 5MB\n    webdb.db = openDatabase(&quot;Todo&quot;, &quot;1&quot;, &quot;Todo manager&quot;, dbSize);\n}\nwebdb.onError = function (tx, e) {\n    alert(&quot;There has been an error: &quot; + e.message);\n}\nwebdb.onSuccess = function (tx, r) {\n    // re-render the data.\n    // loadTodoItems is defined in Step 4a\n    webdb.getAllTodoItems(loadTodoItems);\n}\n</code></pre>\n<h2>Step 2. 创建一个table</h2>\n<p>你只能通过执行 CREATE TABLE SQL 语句在一个事务中创建一个表。</p>\n<p>我们定义了一个函数,在body的onload事件中将创建一个表。如果表不存在,将创建一个表。表名称为todo并且有3列。</p>\n<ul>\n<li><p>ID - 一个递增顺序ID列</p>\n</li>\n<li><p>todo - 一个文本列项目的主体</p>\n</li>\n<li><p>added_on - todo项创建的时间</p>\n</li>\n</ul>\n<pre><code class=\"language-js\">webdb.createTable = function () {\n    var db = webdb.db;\n    db.transaction(function (tx) {\n        tx.executeSql(&quot;CREATE TABLE IF NOT EXISTS &quot; +\n                      &quot;todo(ID INTEGER PRIMARY KEY ASC, todo TEXT, added_on DATETIME)&quot;, []);\n    });\n}\n</code></pre>\n<h2>Step 3. 给table添加数据</h2>\n<p>我们正在建设一个todo列表管理器是非常重要的,我们能够将todo项添加到数据库中。</p>\n<p>创建一个事务,在事务执行插入到待办事项表。</p>\n<p>executeSql需要几个参数,执行SQL查询和绑定的参数值。</p>\n<pre><code class=\"language-js\">webdb.addTodo = function (todoText) {\n    var db = webdb.db;\n    db.transaction(function (tx) {\n        var addedOn = new Date();\n        tx.executeSql(&quot;INSERT INTO todo(todo, added_on) VALUES (?,?)&quot;,\n            [todoText, addedOn],\n            webdb.onSuccess,\n            webdb.onError);\n    });\n}\n</code></pre>\n<h2>Step 4. 从table中查询数据</h2>\n<p>现在，数据库中已经有了数据,您需要一个函数来获取数据。在Chrome,Webdatabase使用标准SQLite SELECT查询。</p>\n<pre><code class=\"language-js\">webdb.getAllTodoItems = function (renderFunc) {\n    var db = webdb.db;\n    db.transaction(function (tx) {\n        tx.executeSql(&quot;SELECT * FROM todo&quot;, [], renderFunc,\n            webdb.onError);\n    });\n}\n</code></pre>\n<p>要注意的是所有的这些命令中使用这个示例是异步的,因此返回的数据不是事务或executeSql的会话。结果是通过回调函数返回的。</p>\n<h2>Step 4a. 渲染数据</h2>\n<p>一旦数据已经从表中获取,loadTodoItems方法将被调用。</p>\n<p>onSuccess回调函数接受两个参数。第一个是事务的查询，第二个是结果集。下面是整个数据的一个简单的迭代:</p>\n<pre><code class=\"language-js\">function loadTodoItems(tx, rs) {\n    var rowOutput = &quot;&quot;;\n    var todoItems = document.getElementById(&quot;todoItems&quot;);\n    for (var i = 0; i &lt; rs.rows.length; i++) {\n        rowOutput += renderTodo(rs.rows.item(i));\n    }\n\n    todoItems.innerHTML = rowOutput;\n} function renderTodo(row) {\n    return &quot;&lt;li&gt;&quot; + row.todo +\n           &quot; [&lt;a href=&#39;javascript:void(0);&#39; onclick=\\&#39;webdb.deleteTodo(&quot; +\n           row.ID + &quot;);\\&#39;&gt;Delete&lt;/a&gt;]&lt;/li&gt;&quot;;\n}\n</code></pre>\n<p>这个方法调用的效果是todo列表的数据呈现为DOM元素,称为“todoItems”。</p>\n<h2>Step 5. 从table中删除数据</h2>\n<pre><code class=\"language-js\">webdb.deleteTodo = function (id) {\n    var db = webdb.db;\n    db.transaction(function (tx) {\n        tx.executeSql(&quot;DELETE FROM todo WHERE ID=?&quot;, [id],\n            webdb.onSuccess,\n            webdb.onError);\n    });\n}\n</code></pre>\n<h2>Step 6. 整合上面的函数</h2>\n<p>当页面加载时,打开数据库并且如果需要将会创建表和呈现已经在数据库中的任何todo数据项。</p>\n<pre><code class=\"language-html\">....function init() {\n    webdb.open();\n    webdb.createTable();\n    webdb.getAllTodoItems(loadTodoItems);\n}\n&lt;/script&gt;&lt;body onload=&quot;init();&quot;&gt;\n</code></pre>\n<p>下面的这个函数,能从dom中获取数据,并调用webdb.addTodo方法</p>\n<pre><code class=\"language-js\">function addTodo() {\n    var todo = document.getElementById(&quot;todo&quot;);\n    webdb.addTodo(todo.value);\n    todo.value = &quot;&quot;;\n}\n</code></pre>\n","createTime":1455581160000,"updatedTime":1785052474757},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

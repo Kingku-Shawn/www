@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>nodejs模板引擎的效率对比</title><meta name="keywords" content="nodejs模板引擎,nodejs template engine,swig,jade,模板引擎性能"><meta name="description" content="关于nodejs的模板引擎，我们该如何选择？我们来看一下其中的效率对比数据github地址为https://github.com/baryshev/template-benchmark模板引擎CoffeeKup&nbsp;v0.3.1doT&nbsp;v1.0.1&nbsp;Dust&nbsp;v1">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">nodejs模板引擎的效率对比</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/image/articleimg/7aa5e9e277f0af6cf7195cc3e5a68f24_104088.png" title="nodejs模板引擎的效率对比" alt="nodejs模板引擎的效率对比"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-6-29 05:55:28">2016-6-29 05:55:28</time></div><div class="tags"><!--[--><span> # nodejs</span><!--]--></div></div></section><div class="detail-content"><p>关于nodejs的模板引擎，我们该如何选择？</p>
+<p>我们来看一下其中的效率对比数据</p>
+<p>github地址为<a href="../link@next=https%253A%252F%252Fgithub.com%252Fbaryshev%252Ftemplate-benchmark.html" target="_blank">https://github.com/baryshev/template-benchmark</a></p>
+<h2>模板引擎</h2>
+<ul>
+<li><p>CoffeeKup v0.3.1</p>
+</li>
+<li><p>doT v1.0.1 </p>
+</li>
+<li><p>Dust v1.2.1</p>
+</li>
+<li><p>Eco v1.1.0-rc-3</p>
+</li>
+<li><p>ECT v0.4.8</p>
+</li>
+<li><p>EJS v0.8.3</p>
+</li>
+<li><p>Fest v0.5.4</p>
+</li>
+<li><p>Gaikan v1.3.4</p>
+</li>
+<li><p>Handlebars.js v1.0.9</p>
+</li>
+<li><p>Hogan.js v2.0.0</p>
+</li>
+<li><p>Jade v0.28.1</p>
+</li>
+<li><p>Swig v0.13.5</p>
+</li>
+<li><p>Underscore v1.4.4</p>
+</li>
+</ul>
+<h2>测试环境：</h2>
+<ul>
+<li><p>CPU: Intel Core i5 450M 2.4Ghz</p>
+</li>
+<li><p>OS: Ubuntu Server 12.04</p>
+</li>
+<li><p>Node.JS version: 0.8.21</p>
+</li>
+</ul>
+<h2>测试结果：</h2>
+<pre><code>Rendering 100000 templates (用模板引擎各自渲染100000次):
+
+ECT
+  Escaped   : 2180ms
+  Unescaped : 133ms
+  Total     : 2313ms
+
+Dust
+  Escaped   : 2547ms
+  Unescaped : 363ms
+  Total     : 2910ms
+
+Hogan.js
+  Escaped   : 3252ms
+  Unescaped : 758ms
+  Total     : 4010ms
+
+Gaikan
+  Escaped   : 4288ms
+  Unescaped : 85ms
+  Total     : 4373ms
+
+Fest
+  Escaped   : 4179ms
+  Unescaped : 265ms
+  Total     : 4444ms
+
+EJS without `with`
+  Escaped   : 4526ms
+  Unescaped : 485ms
+  Total     : 5011ms
+
+doT
+  Escaped   : 5329ms
+  Unescaped : 82ms
+  Total     : 5411ms
+
+Swig
+  Escaped   : 5020ms
+  Unescaped : 407ms
+  Total     : 5427ms
+
+Underscore
+  Escaped   : 5775ms
+  Unescaped : 2486ms
+  Total     : 8261ms
+
+Eco
+  Escaped   : 8512ms
+  Unescaped : 991ms
+  Total     : 9503ms
+
+EJS
+  Escaped   : 6316ms
+  Unescaped : 2734ms
+  Total     : 9050ms
+
+Handlebars.js
+  Escaped   : 7815ms
+  Unescaped : 2573ms
+  Total     : 10388ms
+
+Jade without `with`
+  Escaped   : 8566ms
+  Unescaped : 2982ms
+  Total     : 11548ms
+
+CoffeeKup
+  Escaped   : 4968ms
+  Unescaped : 9983ms
+  Total     : 14951ms
+
+Jade
+  Escaped   : 18330ms
+  Unescaped : 12095ms
+  Total     : 30425ms
+</code></pre>
+<p>这个列表反应了各个框架在渲染了10万次页面所花费的时间，jade垫底了，不过有人说jade的预编译版本很好。那可能这个测试中使用的jade不是预编译版本的吧。</p>
+<p>下面这张图反应了各个模板引擎中，各种功能的支持</p>
+<p><img src="../o/uploads/image/articleimg/7aa5e9e277f0af6cf7195cc3e5a68f24_104088.png" alt="nodejs模板引擎的效率对比" title="nodejs模板引擎的效率对比" /></p>
+<p>本人还是比较喜欢swig的，原因是这种通用风格的模板技术才是跨语言流行的模板技术吧。极大的降低了不同开发环境之间切换的学习成本。</p>
+<p>让你轻松过度到不同的后端开发语言中。</p>
+<p>就像Django template 和 jinja2 。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d82","article":{"id":"5a0bf49035583c99c0b28d82","title":"nodejs模板引擎的效率对比","snippet":"关于nodejs的模板引擎，我们该如何选择？我们来看一下其中的效率对比数据github地址为https://github.com/baryshev/template-benchmark模板引擎CoffeeKup&nbsp;v0.3.1doT&nbsp;v1.0.1&nbsp;Dust&nbsp;v1","image":"../o/uploads/image/articleimg/7aa5e9e277f0af6cf7195cc3e5a68f24_104088.png","tags":["nodejs"],"category":["nodejs"],"keywords":["nodejs模板引擎","nodejs template engine","swig","jade","模板引擎性能"],"content":"<p>关于nodejs的模板引擎，我们该如何选择？</p>\n<p>我们来看一下其中的效率对比数据</p>\n<p>github地址为<a href=\\&quot;https://github.com/baryshev/template-benchmark\\&quot;\">https://github.com/baryshev/template-benchmark</a></p>\n<h2>模板引擎</h2>\n<ul>\n<li><p>CoffeeKup v0.3.1</p>\n</li>\n<li><p>doT v1.0.1 </p>\n</li>\n<li><p>Dust v1.2.1</p>\n</li>\n<li><p>Eco v1.1.0-rc-3</p>\n</li>\n<li><p>ECT v0.4.8</p>\n</li>\n<li><p>EJS v0.8.3</p>\n</li>\n<li><p>Fest v0.5.4</p>\n</li>\n<li><p>Gaikan v1.3.4</p>\n</li>\n<li><p>Handlebars.js v1.0.9</p>\n</li>\n<li><p>Hogan.js v2.0.0</p>\n</li>\n<li><p>Jade v0.28.1</p>\n</li>\n<li><p>Swig v0.13.5</p>\n</li>\n<li><p>Underscore v1.4.4</p>\n</li>\n</ul>\n<h2>测试环境：</h2>\n<ul>\n<li><p>CPU: Intel Core i5 450M 2.4Ghz</p>\n</li>\n<li><p>OS: Ubuntu Server 12.04</p>\n</li>\n<li><p>Node.JS version: 0.8.21</p>\n</li>\n</ul>\n<h2>测试结果：</h2>\n<pre><code>Rendering 100000 templates (用模板引擎各自渲染100000次):\n\nECT\n  Escaped   : 2180ms\n  Unescaped : 133ms\n  Total     : 2313ms\n\nDust\n  Escaped   : 2547ms\n  Unescaped : 363ms\n  Total     : 2910ms\n\nHogan.js\n  Escaped   : 3252ms\n  Unescaped : 758ms\n  Total     : 4010ms\n\nGaikan\n  Escaped   : 4288ms\n  Unescaped : 85ms\n  Total     : 4373ms\n\nFest\n  Escaped   : 4179ms\n  Unescaped : 265ms\n  Total     : 4444ms\n\nEJS without `with`\n  Escaped   : 4526ms\n  Unescaped : 485ms\n  Total     : 5011ms\n\ndoT\n  Escaped   : 5329ms\n  Unescaped : 82ms\n  Total     : 5411ms\n\nSwig\n  Escaped   : 5020ms\n  Unescaped : 407ms\n  Total     : 5427ms\n\nUnderscore\n  Escaped   : 5775ms\n  Unescaped : 2486ms\n  Total     : 8261ms\n\nEco\n  Escaped   : 8512ms\n  Unescaped : 991ms\n  Total     : 9503ms\n\nEJS\n  Escaped   : 6316ms\n  Unescaped : 2734ms\n  Total     : 9050ms\n\nHandlebars.js\n  Escaped   : 7815ms\n  Unescaped : 2573ms\n  Total     : 10388ms\n\nJade without `with`\n  Escaped   : 8566ms\n  Unescaped : 2982ms\n  Total     : 11548ms\n\nCoffeeKup\n  Escaped   : 4968ms\n  Unescaped : 9983ms\n  Total     : 14951ms\n\nJade\n  Escaped   : 18330ms\n  Unescaped : 12095ms\n  Total     : 30425ms\n</code></pre>\n<p>这个列表反应了各个框架在渲染了10万次页面所花费的时间，jade垫底了，不过有人说jade的预编译版本很好。那可能这个测试中使用的jade不是预编译版本的吧。</p>\n<p>下面这张图反应了各个模板引擎中，各种功能的支持</p>\n<p><img src=\"../o/uploads/image/articleimg/7aa5e9e277f0af6cf7195cc3e5a68f24_104088.png\" alt=\"nodejs模板引擎的效率对比\" title=\"nodejs模板引擎的效率对比\" /></p>\n<p>本人还是比较喜欢swig的，原因是这种通用风格的模板技术才是跨语言流行的模板技术吧。极大的降低了不同开发环境之间切换的学习成本。</p>\n<p>让你轻松过度到不同的后端开发语言中。</p>\n<p>就像Django template 和 jinja2 。</p>\n","createTime":1467150928000,"updatedTime":1785052458877},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

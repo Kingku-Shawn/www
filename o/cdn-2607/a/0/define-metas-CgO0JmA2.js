@@ -1,0 +1,1 @@
+function n(e){let t="";return e.keywords&&(t+='<meta name="keywords" content='.concat(JSON.stringify(e.keywords),">")),e.description&&(t+='<meta name="description" content='.concat(JSON.stringify(e.description),">")),t}export{n as d};

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<title>个人中心 - 清逸的博客</title>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f5f8fc;color:#0f172a;font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;padding-top:58px}
+  .nav{position:fixed;top:0;left:0;right:0;height:58px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid #e6edf5;z-index:50}
+  .nav-in{max-width:1100px;height:100%;margin:0 auto;display:flex;align-items:center;gap:22px;padding:0 20px}
+  .nav .logo{font-size:19px;font-weight:800;background:linear-gradient(135deg,#2563eb,#0ea5e9);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+  .nav-links{display:flex;gap:16px;flex:1}
+  .nav-links a{color:#475569;text-decoration:none;font-size:14px}
+  .nav-user a{color:#2563eb;text-decoration:none;font-size:14px}
+
+  /* 侧边栏布局 */
+  .layout{max-width:1100px;margin:0 auto;padding:28px 20px 60px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;align-items:start}
+  .side{position:sticky;top:78px;background:#fff;border:1px solid #e6edf5;border-radius:16px;padding:14px 10px;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+  .side .item{display:block;width:100%;text-align:left;padding:11px 14px;border-radius:10px;color:#475569;font-size:14px;cursor:pointer;border:0;background:none;text-decoration:none;transition:.15s;margin-bottom:2px}
+  .side .item:hover{background:#f3f7fc;color:#2563eb}
+  .side .item.on{background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font-weight:600}
+  .side .divider{height:1px;background:#eef2f6;margin:8px 4px}
+  .panel{background:#fff;border:1px solid #e6edf5;border-radius:16px;padding:28px 30px;box-shadow:0 8px 24px rgba(15,23,42,.05);min-height:400px}
+  .panel h2{font-size:20px;margin:0 0 18px;color:#0f172a}
+  .row{display:flex;padding:11px 0;border-bottom:1px dashed #eef2f6;font-size:14px}
+  .row:last-child{border-bottom:0}
+  .row .k{width:110px;color:#94a3b8;flex:none}
+  .row .v{color:#1e293b;word-break:break-all}
+  .avatar{width:72px;height:72px;border-radius:50%;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;margin-bottom:16px}
+  label{display:block;font-size:13px;font-weight:600;color:#334155;margin:14px 0 6px}
+  input,textarea{width:100%;padding:10px 13px;border:1px solid #d0d7de;border-radius:9px;font-size:14px;outline:none;font-family:inherit;color:#1e293b}
+  input:focus,textarea:focus{border-color:#2563eb}
+  textarea{resize:vertical;min-height:80px}
+  .btn{display:inline-block;padding:10px 22px;border:0;border-radius:10px;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:18px}
+  .btn:hover{opacity:.92}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .msg{padding:11px 14px;border-radius:10px;font-size:13.5px;margin-top:14px;display:none}
+  .msg.ok{display:block;background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+  .msg.err{display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+  .empty{color:#94a3b8;text-align:center;padding:40px 0}
+  .list-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #eef2f6;border-radius:10px;margin-bottom:10px}
+  .list-item a{color:#2563eb;text-decoration:none;font-weight:600;flex:1}
+  .list-item .muted{color:#94a3b8;font-size:12.5px}
+
+  /* 深色 */
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]) body{background:#0b1220;color:#e2e8f0}
+    html:not([data-theme="light"]) .nav{background:rgba(17,26,44,.9);border-color:#1e293b}
+    html:not([data-theme="light"]) .nav-links a{color:#94a3b8}
+    html:not([data-theme="light"]) .side,html:not([data-theme="light"]) .panel{background:#111a2c;border-color:#1e293b}
+    html:not([data-theme="light"]) .side .item{color:#94a3b8}
+    html:not([data-theme="light"]) .side .item:hover{background:#1e293b;color:#60a5fa}
+    html:not([data-theme="light"]) .panel h2{color:#e2e8f0}
+    html:not([data-theme="light"]) .row .v{color:#cbd5e1}
+    html:not([data-theme="light"]) label{color:#94a3b8}
+    html:not([data-theme="light"]) input,html:not([data-theme="light"]) textarea{background:#0f172a;border-color:#1e293b;color:#e2e8f0}
+    html:not([data-theme="light"]) .list-item{border-color:#1e293b}
+  }
+  html[data-theme="dark"] body{background:#0b1220;color:#e2e8f0}
+  html[data-theme="dark"] .nav{background:rgba(17,26,44,.9);border-color:#1e293b}
+  html[data-theme="dark"] .nav-links a{color:#94a3b8}
+  html[data-theme="dark"] .side,html[data-theme="dark"] .panel{background:#111a2c;border-color:#1e293b}
+  html[data-theme="dark"] .side .item{color:#94a3b8}
+  html[data-theme="dark"] .side .item:hover{background:#1e293b;color:#60a5fa}
+  html[data-theme="dark"] .panel h2{color:#e2e8f0}
+  html[data-theme="dark"] .row .v{color:#cbd5e1}
+  html[data-theme="dark"] label{color:#94a3b8}
+  html[data-theme="dark"] input,html[data-theme="dark"] textarea{background:#0f172a;border-color:#1e293b;color:#e2e8f0}
+  html[data-theme="dark"] .list-item{border-color:#1e293b}
+
+  @media(max-width:860px){.layout{grid-template-columns:1fr}.side{position:static;display:flex;flex-wrap:wrap;gap:4px}.side .item{width:auto;flex:1;text-align:center}.side .divider{display:none}.nav-links{display:none}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in" id="navIn">
+    <a class="logo" href="/index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/index.html">首页</a>
+      <a href="/article/index.html">文章</a>
+      <a href="/aboutme/index.html">关于我</a>
+      <a href="/search/index.html" data-search="1">搜索</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="/user/login.html">登录</a></div>
+  </div>
+</header>
+
+<div class="layout" id="layout" style="display:none">
+  <aside class="side" id="side">
+    <button class="item on" data-tab="info">👤 我的信息</button>
+    <button class="item" data-tab="bookmarks">⭐ 我的收藏</button>
+    <button class="item" data-tab="comments">💬 我的评论</button>
+    <button class="item" data-tab="likes">👍 我的点赞</button>
+    <button class="item" data-tab="edit">✏️ 修改信息</button>
+    <button class="item" data-tab="password">🔒 修改密码</button>
+    <div class="divider" id="adminDivider" style="display:none"></div>
+    <a class="item" id="adminLink" href="/admin/index.html" style="display:none">🛠 后台入口</a>
+  </aside>
+  <section class="panel" id="panel"></section>
+</div>
+<div class="empty" id="guard" style="padding:80px 0">加载中…</div>
+
+<script>
+(function () {
+  var TOKEN = "";
+  var ME = null;
+  function token() { try { return localStorage.getItem("xw_token") || localStorage.getItem("shawn_admin_token") || ""; } catch (e) { return ""; } }
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function showMsg(el, text, ok){ el.className="msg "+(ok?"ok":"err"); el.textContent=text; el.style.display="block"; }
+  function api(path, body, method){
+    return fetch(path, { method: method||(body?"POST":"GET"), headers: { "Content-Type":"application/json", "X-Token": TOKEN }, body: body?JSON.stringify(body):undefined })
+      .then(function(r){return r.json();});
+  }
+
+  var guard = document.getElementById("guard");
+  var layout = document.getElementById("layout");
+  TOKEN = token();
+  if (!TOKEN) { guard.innerHTML = '请先 <a href="/user/login.html?next=/user/profile.html" style="color:#2563eb">登录</a> 后访问个人中心。'; return; }
+
+  // 拉取我的资料，判断管理员
+  api("/api/my/profile").then(function(j){
+    if (!j || !j.ok) { guard.innerHTML = (j && j.msg) || "加载失败"; return; }
+    ME = j.data || {};
+    guard.style.display = "none";
+    layout.style.display = "grid";
+    if (ME.role === "admin" || ME.role === "super_admin") {
+      document.getElementById("adminLink").style.display = "block";
+      document.getElementById("adminDivider").style.display = "block";
+    }
+    // 默认展示「我的信息」
+    renderInfo();
+    bindSide();
+  }).catch(function(){ guard.innerHTML = "网络异常，请稍后再试"; });
+
+  function bindSide(){
+    document.querySelectorAll("#side .item[data-tab]").forEach(function(btn){
+      btn.onclick = function(){
+        document.querySelectorAll("#side .item").forEach(function(x){x.classList.remove("on");});
+        btn.classList.add("on");
+        var t = btn.getAttribute("data-tab");
+        if(t==="info")renderInfo();
+        else if(t==="bookmarks")renderBookmarks();
+        else if(t==="comments")renderComments();
+        else if(t==="likes")renderLikes();
+        else if(t==="edit")renderEdit();
+        else if(t==="password")renderPassword();
+      };
+    });
+  }
+
+  function renderInfo(){
+    var d = ME || {};
+    var name = d.nickname || d.username || "用户";
+    var initial = (name||"?").charAt(0).toUpperCase();
+    function row(k,v){ if(v===undefined||v===null||v==="")return ""; return '<div class="row"><span class="k">'+k+'</span><span class="v">'+esc(v)+'</span></div>'; }
+    var html = '<h2>我的信息</h2>' +
+      (d.avatar ? '<img class="avatar" src="'+esc(d.avatar)+'" alt="">' : '<div class="avatar">'+initial+'</div>') +
+      row("用户名", d.username) +
+      row("昵称", d.nickname) +
+      row("邮箱", d.email) +
+      (d.email_verified ? row("邮箱状态","已验证") : row("邮箱状态","未验证")) +
+      row("简介", d.bio) +
+      row("网站", d.website) +
+      row("所在地", d.location);
+    document.getElementById("panel").innerHTML = html;
+  }
+
+  function renderBookmarks(){
+    var panel = document.getElementById("panel");
+    panel.innerHTML = '<h2>我的收藏</h2><div class="empty">加载中…</div>';
+    api("/api/my/bookmarks").then(function(j){
+      if (!j || !j.ok) { panel.innerHTML = '<h2>我的收藏</h2><div class="empty">' + esc((j&&j.msg)||"加载失败") + '</div>'; return; }
+      var list = (j.data && j.data.list) || [];
+      if (!list.length) { panel.innerHTML = '<h2>我的收藏</h2><div class="empty">还没有收藏任何文章</div>'; return; }
+      var html = '<h2>我的收藏</h2>' + list.map(function(it){
+        return '<div class="list-item"><a href="/article/' + esc(it.source_file) + '">' + esc(it.title) + '</a><span class="muted">' + esc(it.created_text || "") + '</span></div>';
+      }).join("");
+      panel.innerHTML = html;
+    }).catch(function(){ panel.innerHTML = '<h2>我的收藏</h2><div class="empty">网络异常</div>'; });
+  }
+  function renderComments(){
+    var panel = document.getElementById("panel");
+    panel.innerHTML = '<h2>我的评论</h2><div class="empty">加载中…</div>';
+    api("/api/my/comments").then(function(j){
+      if (!j || !j.ok) { panel.innerHTML = '<h2>我的评论</h2><div class="empty">' + esc((j&&j.msg)||"加载失败") + '</div>'; return; }
+      var list = (j.data && j.data.list) || [];
+      if (!list.length) { panel.innerHTML = '<h2>我的评论</h2><div class="empty">还没有发表过评论</div>'; return; }
+      var html = '<h2>我的评论</h2>' + list.map(function(it){
+        var href = it.page_id ? (it.page_id.indexOf("a_") === 0 ? "/article/" + esc(it.page_id) : esc(it.page_id)) : "#";
+        return '<div class="list-item"><div style="flex:1"><a href="' + href + '">' + esc(it.content) + '</a><div class="muted">' + esc(it.created_text || "") + ' · 赞 ' + (it.zan||0) + ' · 踩 ' + (it.cai||0) + '</div></div></div>';
+      }).join("");
+      panel.innerHTML = html;
+    }).catch(function(){ panel.innerHTML = '<h2>我的评论</h2><div class="empty">网络异常</div>'; });
+  }
+  function renderLikes(){
+    var panel = document.getElementById("panel");
+    panel.innerHTML = '<h2>我的点赞</h2><div class="empty">加载中…</div>';
+    api("/api/my/likes").then(function(j){
+      if (!j || !j.ok) { panel.innerHTML = '<h2>我的点赞</h2><div class="empty">' + esc((j&&j.msg)||"加载失败") + '</div>'; return; }
+      var list = (j.data && j.data.list) || [];
+      var note = (j.data && j.data.note) ? '<div class="msg err">' + esc(j.data.note) + '</div>' : '';
+      if (!list.length) { panel.innerHTML = '<h2>我的点赞</h2>' + note + '<div class="empty">还没有点赞任何文章（注：仅统计登录状态下点赞的文章）</div>'; return; }
+      var html = '<h2>我的点赞</h2>' + list.map(function(it){
+        return '<div class="list-item"><a href="/article/' + esc(it.source_file) + '">' + esc(it.title) + '</a><span class="muted">' + esc(it.created_text || "") + '</span></div>';
+      }).join("");
+      panel.innerHTML = html;
+    }).catch(function(){ panel.innerHTML = '<h2>我的点赞</h2><div class="empty">网络异常</div>'; });
+  }
+
+  function renderEdit(){
+    var d = ME || {};
+    document.getElementById("panel").innerHTML =
+      '<h2>修改信息</h2>' +
+      '<label>昵称</label><input id="e_nickname" maxlength="40" value="'+esc(d.nickname||"")+'">' +
+      '<label>邮箱</label><input id="e_email" maxlength="80" value="'+esc(d.email||"")+'">' +
+      '<label>简介</label><textarea id="e_bio" maxlength="300">'+esc(d.bio||"")+'</textarea>' +
+      '<label>网站（http(s):// 开头）</label><input id="e_website" maxlength="200" value="'+esc(d.website||"")+'">' +
+      '<label>所在地</label><input id="e_location" maxlength="60" value="'+esc(d.location||"")+'">' +
+      '<button class="btn" id="e_save">保存</button><div class="msg" id="e_msg"></div>';
+    document.getElementById("e_save").onclick = function(){
+      var body = {
+        nickname: document.getElementById("e_nickname").value.trim(),
+        email: document.getElementById("e_email").value.trim(),
+        bio: document.getElementById("e_bio").value.trim(),
+        website: document.getElementById("e_website").value.trim(),
+        location: document.getElementById("e_location").value.trim()
+      };
+      var b = document.getElementById("e_save"); b.disabled = true; b.textContent = "保存中…";
+      api("/api/my/profile", body, "POST").then(function(j){
+        b.disabled = false; b.textContent = "保存";
+        showMsg(document.getElementById("e_msg"), (j&&j.msg)||(j&&j.ok?"已保存":"保存失败"), !!(j&&j.ok));
+        if(j && j.ok){ ME = j.data || ME; }
+      }).catch(function(){ b.disabled=false; b.textContent="保存"; showMsg(document.getElementById("e_msg"),"网络异常",false); });
+    };
+  }
+
+  function renderPassword(){
+    document.getElementById("panel").innerHTML =
+      '<h2>修改密码</h2>' +
+      '<div class="msg" id="p_tip" style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;display:block">若已绑定 2FA，需输入动态验证码（TOTP）校验。</div>' +
+      '<label>当前密码</label><input id="p_old" type="password" autocomplete="current-password">' +
+      '<label>新密码（至少 6 位）</label><input id="p_new" type="password" autocomplete="new-password">' +
+      '<label>确认新密码</label><input id="p_new2" type="password" autocomplete="new-password">' +
+      '<label>动态验证码（2FA，未绑定可留空）</label><input id="p_totp" maxlength="6" inputmode="numeric" placeholder="6 位数字">' +
+      '<button class="btn" id="p_save">修改密码</button><div class="msg" id="p_msg"></div>';
+    document.getElementById("p_save").onclick = function(){
+      var oldP = document.getElementById("p_old").value;
+      var n1 = document.getElementById("p_new").value;
+      var n2 = document.getElementById("p_new2").value;
+      var totp = document.getElementById("p_totp").value.trim();
+      if(!oldP){ showMsg(document.getElementById("p_msg"),"请输入当前密码",false); return; }
+      if(n1.length < 6){ showMsg(document.getElementById("p_msg"),"新密码至少 6 位",false); return; }
+      if(n1 !== n2){ showMsg(document.getElementById("p_msg"),"两次输入的新密码不一致",false); return; }
+      var b = document.getElementById("p_save"); b.disabled = true; b.textContent = "修改中…";
+      api("/api/my/password", { old_password: oldP, new_password: n1, totp: totp }, "POST").then(function(j){
+        b.disabled = false; b.textContent = "修改密码";
+        showMsg(document.getElementById("p_msg"), (j&&j.msg)||(j&&j.ok?"密码已修改，请重新登录":"修改失败"), !!(j&&j.ok));
+      }).catch(function(){ b.disabled=false; b.textContent="修改密码"; showMsg(document.getElementById("p_msg"),"网络异常",false); });
+    };
+  }
+})();
+</script>
+<script src="/js/header-fix.js"></script>
+</body>
+</html>

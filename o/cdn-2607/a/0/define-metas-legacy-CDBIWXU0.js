@@ -1,0 +1,1 @@
+System.register([],function(e,t){"use strict";return{execute:function(){e("d",function(e){let t="";return e.keywords&&(t+=`<meta name="keywords" content=${JSON.stringify(e.keywords)}>`),e.description&&(t+=`<meta name="description" content=${JSON.stringify(e.description)}>`),t})}}});

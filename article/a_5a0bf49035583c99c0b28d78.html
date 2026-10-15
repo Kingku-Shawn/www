@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍</title><meta name="keywords" content="navigator.requestMIDIAccess,web midi接口"><meta name="description" content="开篇先说明哈，这篇文章所说的web midi可能不是你所想的那个midi音频，而是midi接口，在midi设备连接电脑时所用的。这个接口使得我们在浏览器中混音成为可能。对于那些自90年代就开始使用的，“Web MIDI”代表的可能就是那些低保真的音频。&nbsp;然而,未来,Web MIDI特别是W">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/image/articleimg/16cc8c3a9588571475efd59ff31d1283_32466.png" title="网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍" alt="网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-3-7 09:16:00">2016-3-7 09:16:00</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>开篇先说明哈，这篇文章所说的web midi可能不是你所想的那个midi音频，而是midi接口，在midi设备连接电脑时所用的。这个接口使得我们在浏览器中混音成为可能。</p>
+<p>对于那些自90年代就开始使用的，“Web MIDI”代表的可能就是那些低保真的音频。 然而,未来,Web MIDI特别是Web MIDI API可能会有更多的潜力。</p>
+<p><a href="../link@next=https%253A%252F%252Fen.wikipedia.org%252Fwiki%252FMIDI.html" target="_blank">MIDI</a>代表了一个乐器数字接口标准。这是一个协议,允许电子乐器、电脑和其他设备相互连接传输数据。它通过发送小消息从一个设备到另一个设备，就像说“注意代码12只是压”或“注意代码62不再被按下”,都在使用数字来标记。</p>
+<p>Web MIDI API使用了这个协议,允许你使用一个MIDI-enabled仪器如电子琴键盘或电钢琴等，连接到你的计算机比把信息从电子键盘发送到浏览器。</p>
+<p>目前，WEB MIDI接口暂时只被Chrome和Opera浏览器所支持，大家可以看下面这个图：</p>
+<p><img src="../o/uploads/image/articleimg/16cc8c3a9588571475efd59ff31d1283_32466.png" alt="网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍" title="网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍" /></p>
+<p>可以前往 <a href="../link@next=http%253A%252F%252Fcaniuse.com%252F%23search=web&#32;midi.html" target="_blank">这里</a> 去查看详细的设备支持,Firefox什么时候支持这个接口，你可以关注mozilla官网中 <a href="../link@next=https%253A%252F%252Fbugzilla.mozilla.org%252Fshow_bug.cgi%253Fid=836897.html" target="_blank">这里所提交的一个修复bug</a> . </p>
+<p>我们可以注意到，安卓设备中自5.0之后，安卓的原生浏览器就已经支持了这个接口，当然可以通过安装Chrome for Android这个应用来支持这个接口。这使得在以后，我们使用手机来混音或者进行midi录制成为一种可能。</p>
+<p>可是为什么我们要一个键盘连接到web浏览器呢?不是很多音乐家知道如何用QWERTY键盘制作一首音乐吗。但是，总的来说那些支持MIDI接口的音乐设备的数量是巨大的。通过连接支持MIDI接口的（MIDI-enabled）输入设备到我们的浏览器,然后使用网络音频API,我们能够打开网页就能够创建不同音色的乐器。</p>
+<p>想玩一架钢琴吗?连接你的键盘并且访问一个网页,使用这些技术来复制一架钢琴的声音。或者你想要一个不同的声音?这个简单，只要你访问不同的网站就可以了。</p>
+<p>说了这么多目的就是希望你可以看到这个API的好处,但它实际上是如何工作的呢?</p>
+<h2>访问一个MIDI设备</h2>
+<p>首先,我们要检查我们的浏览器是否支持Web的MIDI API。我们通过检测navigator.requestMIDIAccess这个方法是否存在. 这种方法只在支持的这个API的浏览器实现。</p>
+<pre><code class="language-js">if (navigator.requestMIDIAccess) {
+    console.log(&#39;Browser supports MIDI!&#39;);
+}
+</code></pre>
+<p>假设我们确定该方法存在,那么让我们通过浏览器的方式调用它来请求访问任何MIDI输入设备。</p>
+<pre><code class="language-js">if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess()
+        .then(success, failure);
+}
+</code></pre>
+<p>navigator.requestMIDIAccess() 将返回一个承诺,这意味着它将调用success函数或failure函数取决于它请求进行MIDI访问后的结果。这里我已经写好了这两个对应的函数。</p>
+<pre><code class="language-js">function success (midi) {
+    console.log(&#39;Got midi!&#39;, midi);
+}
+function failure () {
+    console.error(&#39;No access to your midi devices.&#39;)
+}
+</code></pre>
+<p>正如您可以看到的,我们的成功函数接受一个MIDI参数的形式MIDIAccess对象。MIDIAccess对象传递midi的关键数据。对象本身提供了一个接口,任何MIDI设备连接。输入代表任何MIDI设备连接到你的电脑。这里我有一个MIDI键盘插在电脑上,所以如果我现在console.log midi.inputs.size ,这里将会输出“1”。</p>
+<p>为了从我们的设备得到输入数据，我们首先得创建一个变量，并把midi.inputs.values()分配给它。</p>
+<pre><code class="language-js">var inputs = midi.inputs.values();
+</code></pre>
+<p>需要注意的一件重要的事情是,分配给inputs的值是一个迭代器。迭代器是一个对象,知道如何一次访问其属性,同时记录当前位置的迭代序列。它提供了一个next()方法允许您获得序列中的下一个项目。它也有一个done属性让我们知道是否我们已经迭代完对象的所有属性。这意味着我们可以写一个这样的for循环:</p>
+<pre><code class="language-js">for (var input = inputs.next();
+     input &amp;&amp; !input.done;
+     input = inputs.next()) {    // each time there is a midi message call the onMIDIMessage function
+    input.value.onmidimessage = onMIDIMessage;
+}
+</code></pre>
+<p>这个for循环所做的是什么:</p>
+<ol>
+<li><p>创建一个名为input的变量并分配下一个输入。因为我们没有任何输入迭代,这将返回第一个我们的输入。</p>
+</li>
+<li><p>如果我们有一个输入并且输入迭代器的done值不等于true,这里就会继续循环。</p>
+</li>
+<li><p>从一个input设置到另一个输入迭代器对象。</p>
+</li>
+</ol>
+<p>您还会注意到,在这个for循环中，我们指定了一个函数输入的onmidimessage侦听器。这个函数将在任何由输入设备接收的MIDI事件传过来的时候调用。现在让我们创建这个函数:</p>
+<pre><code class="language-js">function onMIDIMessage (message) {
+    console.log(message.data);
+}
+</code></pre>
+<h2>MIDI 数据解码</h2>
+<p>在MIDI消息中我们感兴趣的是它的数据,发送什么类型的MIDI事件?按键盘上的哪个键?</p>
+<p>如果你按照这个教程中的做,您将会看到,当你按下一个琴键键盘,浏览器将打印类似 [144, 61, 95] 到控制台。然后当你把手指从键上移开的时候，浏览器将再次打印略有不同的东西,就像[128, 61, 0]。</p>
+<p>这个数组可以分解。第一个元素表述的是MIDI事件的类型。MIDI消息可以包含一个相当小的数量的事件,每个事件都有一个相应的数字。在我们的例子中,144对应noteOn消息,表明键被按下,相应的128对应noteOff消息,告诉我们键已经不再被按下了。查看整个的MIDI事件类型的完整列表,查看消息列表的<a href="../link@next=http%253A%252F%252Fwww.midi.org%252Ftechspecs%252Fmidimessages.php.html" target="_blank">MIDI 规范</a> 。</p>
+<p>数组中的第二个值代表键盘上的哪个键被按下。每个音符在键盘上都有一个编号从0到127。在上面的例子中,我按下了61号按键,这通过使用<a href="../link@next=http%253A%252F%252Fwww.midimountain.com%252Fmidi%252Fmidi_note_numbers.html" target="_blank">这个查询表</a>我们可以看到是一个c#(升C)。</p>
+<p>数组中的第三个也是最后一个值代表的音量的大小,可以反应你按下这个键所用的速度。这可以用来在演奏钢琴键的时候达到控制音量强弱的效果。</p>
+<p>现在我们知道哪个号码是对应哪个键被按下或释放,让我们把它变成有用的东西。让我们连接Web MIDI API到Web Audio API。如果你不熟悉Web Audio API,网上搜索一下吧。</p>
+<h2>Creating a Web Instrument创建一个Web乐器</h2>
+<p>让我们把我们的浏览器变成一个迷你的合成器。我们要创建一个振荡器产生一个频率的来响应midi接口的note,所以我们需要把MIDI输入转换成频率相关的数量。幸运的是我们的好朋友维基百科给了我们算法来做到这一点。这就是它在JavaScript中形式:</p>
+<pre><code class="language-js">function midiNoteToFrequency (note) {
+    return Math.pow(2, ((note - 69) / 12)) * 440;
+}
+</code></pre>
+<p>给它一个MIDI的note数，返回对应的频率。写在我们的 onMIDIMessage 函数中.</p>
+<pre><code class="language-js">function onMIDIMessage (message) {
+    var frequency = midiNoteToFrequency(message.data[1]);
+}
+</code></pre>
+<p>接下来如果MIDI消息是noteOn 消息我们就播放这个频率。</p>
+<pre><code class="language-js">if (message.data[0] === 144 &amp;&amp; message.data[2] &gt; 0) {
+    playNote(frequency);
+}
+</code></pre>
+<p>你可能很容易的理解第一部分的这 if 语句。我们检查的消息类型是144 noteOn消息。</p>
+<p> 但是第二部分是什么呢?然而，MIDI设备有时候,发送noteOff 消息时,会发送一个noteOn同时velocity为零的消息,所以我们检查消息的速度是不是大于零。</p>
+<p>现在我们已经做好了noteOn ，我们将类似的给noteOff写一些东西。noteOff的消息值为128,所以我们不仅需要检查这个值而且还要检查是否它的速度是零为了保证我刚才提到的情况。</p>
+<pre><code class="language-js">if (message.data[0] === 128 || message.data[2] === 0) {
+    stopNote(frequency);
+}
+</code></pre>
+<p>现在我们要做的就是填写startNote 和stopNote 这两个函数。这是Web音频API的工作,因此遗憾的是超出了本教程的范围,但是如果你知道API那么下面完整的代码应该是可以理解的。</p>
+<p> 如果不了解的话,在可以在网上查看<a href="../link@next=http%253A%252F%252Fcode.tutsplus.com%252Fseries%252Fthe-web-audio-api--cms-817.html" target="_blank">这几个音频API的教程</a>这几个音频API的教程,其中包括如何构建一个合成器。教程的代码是类似于我在这里所做的,所以会是完美的应用你学过的东西。</p>
+<pre><code class="language-js">var context = new AudioContext(),
+    oscillators = {};
+if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess()
+        .then(success, failure);
+} function success(midi) {
+    var inputs = midi.inputs.values();    // inputs is an Iterator
+
+    for (var input = inputs.next() ; input &amp;&amp; !input.done; input = inputs.next()) {       
+     // each time there is a midi message call the onMIDIMessage function
+        input.value.onmidimessage = onMIDIMessage;
+    }
+} function failure() {
+    console.error(&#39;No access to your midi devices.&#39;)
+} function onMIDIMessage(message) {
+    var frequency = midiNoteToFrequency(message.data[1]);
+    if (message.data[0] === 144 &amp;&amp; message.data[2] &gt; 0) {
+        playNote(frequency);
+    } if (message.data[0] === 128 || message.data[2] === 0) {
+        stopNote(frequency);
+    }
+} function midiNoteToFrequency(note) {
+    return Math.pow(2, ((note - 69) / 12)) * 440;
+} function playNote(frequency) {
+    oscillators[frequency] = context.createOscillator();
+    oscillators[frequency].frequency.value = frequency;
+    oscillators[frequency].connect(context.destination);
+    oscillators[frequency].start(context.currentTime);
+} function stopNote(frequency) {
+    oscillators[frequency].stop(context.currentTime);
+    oscillators[frequency].disconnect();
+}
+</code></pre>
+<h2>下一步</h2>
+<p>记住,noteOn和noteOff 只是两个可用的消息类型,并且MIDI键盘只是这许多MIDI设备之一。你可能并不需要使用MIDI去创造音乐。你也可以用midi来玩一个html5的小游戏。MIDI设备的话千奇百变，可以是Yamaha EZ-TP MIDI Trumpet，MIDI小号来玩html5的游戏，不过这也确实是一种有意思的玩法。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d78","article":{"id":"5a0bf49035583c99c0b28d78","title":"网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍","snippet":"开篇先说明哈，这篇文章所说的web midi可能不是你所想的那个midi音频，而是midi接口，在midi设备连接电脑时所用的。这个接口使得我们在浏览器中混音成为可能。对于那些自90年代就开始使用的，“Web MIDI”代表的可能就是那些低保真的音频。&nbsp;然而,未来,Web MIDI特别是W","image":"../o/uploads/image/articleimg/16cc8c3a9588571475efd59ff31d1283_32466.png","tags":["html","webmidi"],"category":["编程"],"keywords":["navigator.requestMIDIAccess","web midi接口"],"content":"<p>开篇先说明哈，这篇文章所说的web midi可能不是你所想的那个midi音频，而是midi接口，在midi设备连接电脑时所用的。这个接口使得我们在浏览器中混音成为可能。</p>\n<p>对于那些自90年代就开始使用的，“Web MIDI”代表的可能就是那些低保真的音频。 然而,未来,Web MIDI特别是Web MIDI API可能会有更多的潜力。</p>\n<p><a href=\\&quot;https://en.wikipedia.org/wiki/MIDI\\&quot;\">MIDI</a>代表了一个乐器数字接口标准。这是一个协议,允许电子乐器、电脑和其他设备相互连接传输数据。它通过发送小消息从一个设备到另一个设备，就像说“注意代码12只是压”或“注意代码62不再被按下”,都在使用数字来标记。</p>\n<p>Web MIDI API使用了这个协议,允许你使用一个MIDI-enabled仪器如电子琴键盘或电钢琴等，连接到你的计算机比把信息从电子键盘发送到浏览器。</p>\n<p>目前，WEB MIDI接口暂时只被Chrome和Opera浏览器所支持，大家可以看下面这个图：</p>\n<p><img src=\"../o/uploads/image/articleimg/16cc8c3a9588571475efd59ff31d1283_32466.png\" alt=\"网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍\" title=\"网页访问电脑上的midi乐器-Web MIDI requestMIDIAccess的介绍\" /></p>\n<p>可以前往 <a href=%5C%22http://caniuse.com/#search=web%20midi\"\">这里</a> 去查看详细的设备支持,Firefox什么时候支持这个接口，你可以关注mozilla官网中 <a href=\\&quot;https://bugzilla.mozilla.org/show_bug.cgi?id=836897\\&quot;\">这里所提交的一个修复bug</a> . </p>\n<p>我们可以注意到，安卓设备中自5.0之后，安卓的原生浏览器就已经支持了这个接口，当然可以通过安装Chrome for Android这个应用来支持这个接口。这使得在以后，我们使用手机来混音或者进行midi录制成为一种可能。</p>\n<p>可是为什么我们要一个键盘连接到web浏览器呢?不是很多音乐家知道如何用QWERTY键盘制作一首音乐吗。但是，总的来说那些支持MIDI接口的音乐设备的数量是巨大的。通过连接支持MIDI接口的（MIDI-enabled）输入设备到我们的浏览器,然后使用网络音频API,我们能够打开网页就能够创建不同音色的乐器。</p>\n<p>想玩一架钢琴吗?连接你的键盘并且访问一个网页,使用这些技术来复制一架钢琴的声音。或者你想要一个不同的声音?这个简单，只要你访问不同的网站就可以了。</p>\n<p>说了这么多目的就是希望你可以看到这个API的好处,但它实际上是如何工作的呢?</p>\n<h2>访问一个MIDI设备</h2>\n<p>首先,我们要检查我们的浏览器是否支持Web的MIDI API。我们通过检测navigator.requestMIDIAccess这个方法是否存在. 这种方法只在支持的这个API的浏览器实现。</p>\n<pre><code class=\"language-js\">if (navigator.requestMIDIAccess) {\n    console.log(&#39;Browser supports MIDI!&#39;);\n}\n</code></pre>\n<p>假设我们确定该方法存在,那么让我们通过浏览器的方式调用它来请求访问任何MIDI输入设备。</p>\n<pre><code class=\"language-js\">if (navigator.requestMIDIAccess) {\n    navigator.requestMIDIAccess()\n        .then(success, failure);\n}\n</code></pre>\n<p>navigator.requestMIDIAccess() 将返回一个承诺,这意味着它将调用success函数或failure函数取决于它请求进行MIDI访问后的结果。这里我已经写好了这两个对应的函数。</p>\n<pre><code class=\"language-js\">function success (midi) {\n    console.log(&#39;Got midi!&#39;, midi);\n}\nfunction failure () {\n    console.error(&#39;No access to your midi devices.&#39;)\n}\n</code></pre>\n<p>正如您可以看到的,我们的成功函数接受一个MIDI参数的形式MIDIAccess对象。MIDIAccess对象传递midi的关键数据。对象本身提供了一个接口,任何MIDI设备连接。输入代表任何MIDI设备连接到你的电脑。这里我有一个MIDI键盘插在电脑上,所以如果我现在console.log midi.inputs.size ,这里将会输出“1”。</p>\n<p>为了从我们的设备得到输入数据，我们首先得创建一个变量，并把midi.inputs.values()分配给它。</p>\n<pre><code class=\"language-js\">var inputs = midi.inputs.values();\n</code></pre>\n<p>需要注意的一件重要的事情是,分配给inputs的值是一个迭代器。迭代器是一个对象,知道如何一次访问其属性,同时记录当前位置的迭代序列。它提供了一个next()方法允许您获得序列中的下一个项目。它也有一个done属性让我们知道是否我们已经迭代完对象的所有属性。这意味着我们可以写一个这样的for循环:</p>\n<pre><code class=\"language-js\">for (var input = inputs.next();\n     input &amp;&amp; !input.done;\n     input = inputs.next()) {    // each time there is a midi message call the onMIDIMessage function\n    input.value.onmidimessage = onMIDIMessage;\n}\n</code></pre>\n<p>这个for循环所做的是什么:</p>\n<ol>\n<li><p>创建一个名为input的变量并分配下一个输入。因为我们没有任何输入迭代,这将返回第一个我们的输入。</p>\n</li>\n<li><p>如果我们有一个输入并且输入迭代器的done值不等于true,这里就会继续循环。</p>\n</li>\n<li><p>从一个input设置到另一个输入迭代器对象。</p>\n</li>\n</ol>\n<p>您还会注意到,在这个for循环中，我们指定了一个函数输入的onmidimessage侦听器。这个函数将在任何由输入设备接收的MIDI事件传过来的时候调用。现在让我们创建这个函数:</p>\n<pre><code class=\"language-js\">function onMIDIMessage (message) {\n    console.log(message.data);\n}\n</code></pre>\n<h2>MIDI 数据解码</h2>\n<p>在MIDI消息中我们感兴趣的是它的数据,发送什么类型的MIDI事件?按键盘上的哪个键?</p>\n<p>如果你按照这个教程中的做,您将会看到,当你按下一个琴键键盘,浏览器将打印类似 [144, 61, 95] 到控制台。然后当你把手指从键上移开的时候，浏览器将再次打印略有不同的东西,就像[128, 61, 0]。</p>\n<p>这个数组可以分解。第一个元素表述的是MIDI事件的类型。MIDI消息可以包含一个相当小的数量的事件,每个事件都有一个相应的数字。在我们的例子中,144对应noteOn消息,表明键被按下,相应的128对应noteOff消息,告诉我们键已经不再被按下了。查看整个的MIDI事件类型的完整列表,查看消息列表的<a href=\\&quot;http://www.midi.org/techspecs/midimessages.php\\&quot;\">MIDI 规范</a> 。</p>\n<p>数组中的第二个值代表键盘上的哪个键被按下。每个音符在键盘上都有一个编号从0到127。在上面的例子中,我按下了61号按键,这通过使用<a href=\\&quot;http://www.midimountain.com/midi/midi_note_numbers.html\\&quot;\">这个查询表</a>我们可以看到是一个c#(升C)。</p>\n<p>数组中的第三个也是最后一个值代表的音量的大小,可以反应你按下这个键所用的速度。这可以用来在演奏钢琴键的时候达到控制音量强弱的效果。</p>\n<p>现在我们知道哪个号码是对应哪个键被按下或释放,让我们把它变成有用的东西。让我们连接Web MIDI API到Web Audio API。如果你不熟悉Web Audio API,网上搜索一下吧。</p>\n<h2>Creating a Web Instrument创建一个Web乐器</h2>\n<p>让我们把我们的浏览器变成一个迷你的合成器。我们要创建一个振荡器产生一个频率的来响应midi接口的note,所以我们需要把MIDI输入转换成频率相关的数量。幸运的是我们的好朋友维基百科给了我们算法来做到这一点。这就是它在JavaScript中形式:</p>\n<pre><code class=\"language-js\">function midiNoteToFrequency (note) {\n    return Math.pow(2, ((note - 69) / 12)) * 440;\n}\n</code></pre>\n<p>给它一个MIDI的note数，返回对应的频率。写在我们的 onMIDIMessage 函数中.</p>\n<pre><code class=\"language-js\">function onMIDIMessage (message) {\n    var frequency = midiNoteToFrequency(message.data[1]);\n}\n</code></pre>\n<p>接下来如果MIDI消息是noteOn 消息我们就播放这个频率。</p>\n<pre><code class=\"language-js\">if (message.data[0] === 144 &amp;&amp; message.data[2] &gt; 0) {\n    playNote(frequency);\n}\n</code></pre>\n<p>你可能很容易的理解第一部分的这 if 语句。我们检查的消息类型是144 noteOn消息。</p>\n<p> 但是第二部分是什么呢?然而，MIDI设备有时候,发送noteOff 消息时,会发送一个noteOn同时velocity为零的消息,所以我们检查消息的速度是不是大于零。</p>\n<p>现在我们已经做好了noteOn ，我们将类似的给noteOff写一些东西。noteOff的消息值为128,所以我们不仅需要检查这个值而且还要检查是否它的速度是零为了保证我刚才提到的情况。</p>\n<pre><code class=\"language-js\">if (message.data[0] === 128 || message.data[2] === 0) {\n    stopNote(frequency);\n}\n</code></pre>\n<p>现在我们要做的就是填写startNote 和stopNote 这两个函数。这是Web音频API的工作,因此遗憾的是超出了本教程的范围,但是如果你知道API那么下面完整的代码应该是可以理解的。</p>\n<p> 如果不了解的话,在可以在网上查看<a href=\\&quot;http://code.tutsplus.com/series/the-web-audio-api--cms-817\\&quot;\">这几个音频API的教程</a>这几个音频API的教程,其中包括如何构建一个合成器。教程的代码是类似于我在这里所做的,所以会是完美的应用你学过的东西。</p>\n<pre><code class=\"language-js\">var context = new AudioContext(),\n    oscillators = {};\nif (navigator.requestMIDIAccess) {\n    navigator.requestMIDIAccess()\n        .then(success, failure);\n} function success(midi) {\n    var inputs = midi.inputs.values();    // inputs is an Iterator\n\n    for (var input = inputs.next() ; input &amp;&amp; !input.done; input = inputs.next()) {       \n     // each time there is a midi message call the onMIDIMessage function\n        input.value.onmidimessage = onMIDIMessage;\n    }\n} function failure() {\n    console.error(&#39;No access to your midi devices.&#39;)\n} function onMIDIMessage(message) {\n    var frequency = midiNoteToFrequency(message.data[1]);\n    if (message.data[0] === 144 &amp;&amp; message.data[2] &gt; 0) {\n        playNote(frequency);\n    } if (message.data[0] === 128 || message.data[2] === 0) {\n        stopNote(frequency);\n    }\n} function midiNoteToFrequency(note) {\n    return Math.pow(2, ((note - 69) / 12)) * 440;\n} function playNote(frequency) {\n    oscillators[frequency] = context.createOscillator();\n    oscillators[frequency].frequency.value = frequency;\n    oscillators[frequency].connect(context.destination);\n    oscillators[frequency].start(context.currentTime);\n} function stopNote(frequency) {\n    oscillators[frequency].stop(context.currentTime);\n    oscillators[frequency].disconnect();\n}\n</code></pre>\n<h2>下一步</h2>\n<p>记住,noteOn和noteOff 只是两个可用的消息类型,并且MIDI键盘只是这许多MIDI设备之一。你可能并不需要使用MIDI去创造音乐。你也可以用midi来玩一个html5的小游戏。MIDI设备的话千奇百变，可以是Yamaha EZ-TP MIDI Trumpet，MIDI小号来玩html5的游戏，不过这也确实是一种有意思的玩法。</p>\n","createTime":1457313360000,"updatedTime":1785052466667},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

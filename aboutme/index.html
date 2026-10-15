@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<meta name="author" content="qingyi">
+<meta name="copyright" content="shawn.com">
+<title>关于我 - 清逸的博客</title>
+<style>
+:root{
+  --primary:#2563eb; --accent:#0ea5e9; --ink:#0f172a; --ink2:#64748b; --ink3:#94a3b8;
+  --bg:#f5f7fb; --card:#ffffff; --line:rgba(15,23,42,.07);
+  --grad:linear-gradient(135deg,#2563eb,#0ea5e9);
+  --chip-bg:#f1f5f9;
+}
+/* FR-X12 深色模式：跟随系统 + html[data-theme] 手动覆盖 */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e2e8f0; --ink2:#94a3b8; --ink3:#64748b;
+    --bg:#0b1220; --card:#111a2c; --line:rgba(148,163,184,.14);
+    --chip-bg:#1e293b;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e2e8f0; --ink2:#94a3b8; --ink3:#64748b;
+  --bg:#0b1220; --card:#111a2c; --line:rgba(148,163,184,.14);
+  --chip-bg:#1e293b;
+}
+:root[data-theme="dark"] .nav{background:var(--card)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .nav{background:var(--card)}
+}
+/* 深色下内容卡内的浅色硬编码 */
+:root[data-theme="dark"] .about-body blockquote{background:#12263a;color:#94a3b8}
+:root[data-theme="dark"] .about-body code{background:#1e293b;color:#93c5fd}
+:root[data-theme="dark"] .about-body th{background:#1e293b}
+:root[data-theme="dark"] .about-stamp{background:var(--chip-bg)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .about-body blockquote{background:#12263a;color:#94a3b8}
+  :root:not([data-theme="light"]) .about-body code{background:#1e293b;color:#93c5fd}
+  :root:not([data-theme="light"]) .about-body th{background:#1e293b}
+  :root:not([data-theme="light"]) .about-stamp{background:var(--chip-bg)}
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;min-height:100vh}
+a{text-decoration:none;color:inherit}
+.ambient{position:fixed;top:-180px;left:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle at center,rgba(37,99,235,.16),transparent 65%);z-index:0;pointer-events:none}
+.ambient.r{top:auto;bottom:-200px;right:-140px;left:auto;width:560px;height:560px;background:radial-gradient(circle at center,rgba(14,165,233,.14),transparent 65%)}
+
+.nav{position:fixed;top:0;left:0;right:0;height:68px;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;gap:28px;padding:0 24px}
+.logo{font-size:20px;font-weight:800;letter-spacing:.5px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+.nav-links a{display:block;padding:8px 14px;border-radius:999px;font-size:14px;color:var(--ink2);transition:.2s}
+.nav-links a:hover{color:var(--primary);background:rgba(37,99,235,.08)}
+.nav-links a.on{color:#fff;background:var(--grad);font-weight:600}
+.nav-user{font-size:14px;color:var(--ink2);white-space:nowrap}
+.nav-user a{color:var(--primary);font-weight:600}
+.nav-user .btn-exit{color:var(--ink3);margin-left:10px;cursor:pointer;border:0;background:none;font-size:13px}
+@media(max-width:900px){.nav-links{display:none}}
+
+.wrap{max-width:820px;margin:96px auto 0;padding:0 24px;position:relative;z-index:1}
+.page-title{font-size:32px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.page-sub{color:var(--ink2);margin-top:6px;font-size:15px;margin-bottom:26px}
+
+.about-card{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:40px 44px;box-shadow:0 14px 40px rgba(15,23,42,.06)}
+.about-stamp{display:inline-block;font-size:12.5px;color:var(--ink3);background:#f1f5f9;padding:4px 12px;border-radius:999px;margin-bottom:18px}
+.about-body h1,.about-body h2,.about-body h3,.about-body h4{line-height:1.5;margin:18px 0 10px;font-weight:700}
+.about-body h2{font-size:22px}
+.about-body p{margin:10px 0;color:var(--ink)}
+.about-body img{max-width:100%;border-radius:14px;margin:12px 0}
+.about-body a{color:var(--primary);font-weight:600;text-decoration:underline}
+.about-body ul,.about-body ol{margin:10px 0;padding-left:24px}
+.about-body blockquote{border-left:4px solid var(--accent);background:#f0f9ff;padding:12px 18px;border-radius:0 12px 12px 0;margin:12px 0;color:var(--ink2)}
+.about-body code{background:#f1f5f9;padding:2px 8px;border-radius:6px;font-size:13px}
+.about-body pre{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:18px;overflow-x:auto;margin:12px 0;font-size:13.5px}
+.about-body table{border-collapse:collapse;width:100%;margin:12px 0}
+.about-body th,.about-body td{border:1px solid var(--line);padding:8px 12px;font-size:14px}
+.about-body th{background:#f8fafc}
+.about-body hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+
+footer{margin-top:56px;padding:28px 24px;text-align:center;color:var(--ink3);font-size:13px;border-top:1px solid var(--line)}
+.loading{display:flex;justify-content:center;padding:60px 0}
+.spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(37,99,235,.15);border-top-color:var(--primary);animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* 移动端适配：汉堡侧边菜单 */
+  .mobile-hamburger, .mobile-drawer, .mobile-drawer-mask { display: none; }
+
+@media (max-width: 900px) {
+  .mobile-hamburger {
+    position: fixed; top: 15px; right: 14px; z-index: 1500;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border: none; background: #f3f7fc;
+    border-radius: 12px; cursor: pointer; padding: 0;
+    box-shadow: 0 4px 14px rgba(15,23,42,.08);
+  }
+  .mobile-hamburger span { display: block; width: 18px; height: 2px; background: #0f172a; border-radius: 2px; position: relative; }
+  .mobile-hamburger span::before, .mobile-hamburger span::after {
+    content: ""; position: absolute; left: 0; width: 18px; height: 2px;
+    background: #0f172a; border-radius: 2px;
+  }
+  .mobile-hamburger span::before { top: -5px; }
+  .mobile-hamburger span::after { top: 5px; }
+  .mobile-hamburger.active span { background: transparent; }
+  .mobile-hamburger.active span::before { top: 0; transform: rotate(45deg); }
+  .mobile-hamburger.active span::after { top: 0; transform: rotate(-45deg); }
+  .mobile-drawer {
+    display: block; position: fixed; top: 0; right: 0; height: 100%;
+    width: 264px; max-width: 82vw; background: #fff; z-index: 2100;
+    transform: translateX(100%); transition: transform .26s ease;
+    box-shadow: -10px 0 34px rgba(15,23,42,.14); padding: 22px 16px;
+    overflow-y: auto; box-sizing: border-box;
+  }
+  .mobile-drawer.open { transform: translateX(0); }
+  .mobile-drawer .drawer-logo { font-size: 18px; font-weight: 800; color: #2563eb; padding: 0 8px 14px; border-bottom: 1px solid #e6edf5; margin-bottom: 12px; }
+  .mobile-drawer .drawer-nav { list-style: none; margin: 0; padding: 0; }
+  .mobile-drawer .drawer-nav li { margin: 0 0 2px; }
+  .mobile-drawer .drawer-nav a { display: block; padding: 11px 14px; border-radius: 12px; color: #0f172a; font-size: 15px; font-weight: 600; text-decoration: none; }
+  .mobile-drawer .drawer-nav a:hover { background: #f3f7fc; color: #2563eb; }
+  .mobile-drawer-mask {
+    display: block; position: fixed; inset: 0; background: rgba(15,23,42,.42);
+    z-index: 2000; opacity: 0; visibility: hidden; transition: opacity .25s ease;
+  }
+  .mobile-drawer-mask.show { opacity: 1; visibility: visible; }
+}
+
+  /* 统一顶栏：与全站 soulsoft 白玻璃顶栏一致 */
+  header.nav, header.site-header {
+    background: rgba(255,255,255,.82) !important;
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border-bottom: 1px solid #e4e9f0 !important;
+    box-shadow: 0 8px 28px rgba(15,23,42,.05) !important;
+    height: 58px !important;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+  .nav-in, .site-header .inner {
+    max-width: 1200px !important;
+    gap: 26px !important;
+  }
+  .nav .logo, .site-header .logo {
+    color: #2563eb !important;
+    font-size: 19px !important;
+    font-weight: 800 !important;
+    letter-spacing: .5px;
+    text-decoration: none !important;
+    white-space: nowrap;
+  }
+  .nav-links a, .site-nav a {
+    color: #5a6a7a !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 7px 12px !important;
+    border-radius: 999px !important;
+    text-decoration: none !important;
+    transition: all .15s ease;
+    white-space: nowrap;
+  }
+  .nav-links a:hover, .nav-links a.on,
+  .site-nav a:hover, .site-nav a.on {
+    color: #2563eb !important;
+    background: rgba(37,99,235,.08) !important;
+  }
+  .nav-user a, .header-user a {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    color: #2563eb !important;
+    background: #f4f8ff !important;
+    border: 1px solid #e4e9f0 !important;
+    padding: 7px 16px !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    box-shadow: 0 6px 16px rgba(15,23,42,.05);
+    transition: all .15s ease;
+  }
+  .nav-user a:hover, .header-user a:hover {
+    background: #e9f2ff !important;
+    transform: translateY(-1px);
+  }
+</style>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style id="nav-pad">body{padding-top:58px}</style></head>
+<body>
+<div class="ambient"></div><div class="ambient r"></div>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../article/index.html">文章</a>
+      <a href="index.html" class="on">关于我</a>
+      <a href="../search/index.html" data-search="1">搜索</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+<script>
+(function(){
+  try{
+    var b=document.getElementById("navUser"); if(!b) return;
+    var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+    var u=localStorage.getItem("xw_username");
+    if(u){
+      b.setAttribute("data-nav-user","ready");
+      b.innerHTML='<div class="nav-user-menu" style="position:relative;display:inline-block"><button type="button" class="nav-uname" style="border:1px solid rgba(148,163,184,.45);background:rgba(148,163,184,.12);color:#475569;cursor:pointer;font-size:13px;font-weight:600;padding:5px 14px;border-radius:999px;line-height:1.4">'+esc(u)+'</button><div class="nav-user-dropdown" style="position:absolute;top:calc(100% + 6px);right:0;min-width:140px;background:#fff;border:1px solid #e6edf5;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.12);padding:6px;z-index:100;display:none"><a href="/user/profile.html" style="display:block;padding:9px 14px;border-radius:8px;color:#0f172a;text-decoration:none;font-size:13.5px">👤 个人中心</a><a href="#" id="navLogoutBtn" style="display:block;padding:9px 14px;border-radius:8px;color:#dc2626;text-decoration:none;font-size:13.5px">退出</a></div></div>';
+      var un=b.querySelector(".nav-uname"), m=b.querySelector(".nav-user-dropdown");
+      if(un&&m){un.onclick=function(ev){ev.stopPropagation();m.style.display=m.style.display==="none"?"block":"none";};document.addEventListener("click",function(ev){if(!b.contains(ev.target))m.style.display="none";});}
+      var lo=b.querySelector("#navLogoutBtn"); if(lo)lo.onclick=function(ev){ev.preventDefault();try{["xw_token","xw_username","shawn_site_token","shawn_site_user","shawn_admin_token","shawn_admin_role"].forEach(function(k){localStorage.removeItem(k);});}catch(e){}try{fetch("/api/user/logout",{method:"POST",credentials:"include"});}catch(e){}location.reload();};
+    }else{b.innerHTML='<a href="/user/login.html">登录</a><a href="/user/login.html#register" style="color:#2563eb;font-weight:600;margin-left:12px">注册</a>';}
+  }catch(e){}
+})();
+</script>
+  </div>
+</header>
+
+<div class="wrap">
+  <h1 class="page-title">关于我</h1>
+  <p class="page-sub">关于清逸与这个博客的故事。</p>
+  <div id="aboutBox"><div class="loading"><div class="spin"></div></div></div>
+</div>
+
+
+
+<script>
+var API_BASE = "/api";
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function loadToolsNav(){
+  fetch(API_BASE+"/tools.json").then(function(r){return r.json();}).then(function(j){
+    if(!j.ok)return;
+    var on={};j.data.forEach(function(t){on[t.key]=1;});
+    document.querySelectorAll("#navLinks a[data-tool]").forEach(function(a){
+      if(!on[a.getAttribute("data-tool")])a.style.display="none";
+    });
+  }).catch(function(){});
+}
+function loadAbout(){
+  var box=document.getElementById("aboutBox");
+  fetch(API_BASE+"/about.json").then(function(r){return r.json();}).then(function(j){
+    if(!j.ok){box.innerHTML='<div class="about-card">内容加载失败</div>';return;}
+    var d=j.data;
+    box.innerHTML='<div class="about-card"><span class="about-stamp">最后更新：'+esc(d.created_at||"")+'</span>'+
+      '<div class="about-body">'+(d.content||"")+'</div></div>';
+  }).catch(function(){box.innerHTML='<div class="about-card">内容加载失败，请确认离线服务已启动</div>';});
+}
+loadToolsNav();loadAbout();
+</script>
+<script>
+/* 清逸的博客 · 页面移动端汉堡 */
+(function () {
+  function build() {
+    var header = document.querySelector('header.nav');
+    if (!header) return false;
+    if (document.querySelector('.mobile-hamburger')) return true;
+    var btn = document.createElement('button');
+    btn.className = 'mobile-hamburger';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', '菜单');
+    var bar = document.createElement('span');
+    btn.appendChild(bar);
+    var mask = document.createElement('div');
+    mask.className = 'mobile-drawer-mask';
+    var drawer = document.createElement('div');
+    drawer.className = 'mobile-drawer';
+    var logo = document.createElement('div');
+    logo.className = 'drawer-logo';
+    logo.textContent = '清逸的博客';
+    var nav = document.createElement('ul');
+    nav.className = 'drawer-nav';
+    var srcNav = header.querySelector('.nav-links');
+    if (srcNav) {
+      srcNav.querySelectorAll('a').forEach(function (a) {
+        var li = document.createElement('li');
+        var na = document.createElement('a');
+        na.href = a.getAttribute('href') || '#';
+        na.textContent = a.textContent.trim();
+        li.appendChild(na);
+        nav.appendChild(li);
+      });
+    }
+    drawer.appendChild(logo);
+    drawer.appendChild(nav);
+    document.body.appendChild(btn);
+    document.body.appendChild(mask);
+    document.body.appendChild(drawer);
+    function toggle(open) {
+      var willOpen = (open === undefined) ? !drawer.classList.contains('open') : open;
+      drawer.classList.toggle('open', willOpen);
+      mask.classList.toggle('show', willOpen);
+      btn.classList.toggle('active', willOpen);
+      document.body.style.overflow = willOpen ? 'hidden' : '';
+    }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+    mask.addEventListener('click', function () { toggle(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
+    return true;
+  }
+  function start() {
+    if (build()) return;
+    var t = setInterval(function () { if (build()) clearInterval(t); }, 500);
+    setTimeout(function () { clearInterval(t); }, 15000);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else { start(); }
+})();
+</script>
+<!-- 装修渲染引擎（共享，about 页） -->
+<script src="../js/layout-engine.js"></script>
+<script>initLayoutEngine('about');</script>
+<script src="../js/header-fix.js"></script>
+</body>
+</html>

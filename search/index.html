@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<meta name="author" content="qingyi">
+<meta name="copyright" content="shawn.com">
+<title>搜索 - 清逸的博客</title>
+<style>
+:root{
+  --primary:#2563eb; --accent:#0ea5e9; --ink:#0f172a; --ink2:#64748b; --ink3:#94a3b8;
+  --bg:#f5f7fb; --card:#ffffff; --line:rgba(15,23,42,.07);
+  --grad:linear-gradient(135deg,#2563eb,#0ea5e9);
+}
+/* FR-X12 深色模式：跟随系统 + html[data-theme] 手动覆盖 */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e2e8f0; --ink2:#94a3b8; --ink3:#64748b;
+    --bg:#0b1220; --card:#111a2c; --line:rgba(148,163,184,.14);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e2e8f0; --ink2:#94a3b8; --ink3:#64748b;
+  --bg:#0b1220; --card:#111a2c; --line:rgba(148,163,184,.14);
+}
+:root[data-theme="dark"] .nav{background:var(--card)}
+:root[data-theme="dark"] .search-bar input{background:var(--card);color:var(--ink)}
+:root[data-theme="dark"] .more-wrap button{background:var(--card);color:var(--primary)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .nav{background:var(--card)}
+  :root:not([data-theme="light"]) .search-bar input{background:var(--card);color:var(--ink)}
+  :root:not([data-theme="light"]) .more-wrap button{background:var(--card);color:var(--primary)}
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh}
+a{text-decoration:none;color:inherit}
+.ambient{position:fixed;top:-180px;left:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle at center,rgba(37,99,235,.16),transparent 65%);z-index:0;pointer-events:none}
+.ambient.r{top:auto;bottom:-200px;right:-140px;left:auto;width:560px;height:560px;background:radial-gradient(circle at center,rgba(14,165,233,.14),transparent 65%)}
+
+/* 顶栏：与 article/index.html 同构（header-fix.js 运行后会用全站统一规格覆盖） */
+.nav{position:fixed;top:0;left:0;right:0;height:68px;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1200px;margin:0 auto;height:100%;display:flex;align-items:center;gap:28px;padding:0 24px}
+.logo{font-size:20px;font-weight:800;letter-spacing:.5px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+.nav-links a{display:block;padding:8px 14px;border-radius:999px;font-size:14px;color:var(--ink2);transition:.2s}
+.nav-links a:hover{color:var(--primary);background:rgba(37,99,235,.08)}
+.nav-links a.on{color:#fff;background:var(--grad);font-weight:600}
+.nav-user{font-size:14px;color:var(--ink2);white-space:nowrap}
+.nav-user a{color:var(--primary);font-weight:600}
+.nav-user .btn-exit{color:var(--ink3);margin-left:10px;cursor:pointer;border:0;background:none;font-size:13px}
+@media(max-width:900px){.nav-links{display:none}}
+
+.page{max-width:900px;margin:0 auto;padding:26px 24px 64px;position:relative;z-index:1}
+.page-head h1{font-size:30px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.page-head p{color:var(--ink2);margin-top:6px;font-size:15px}
+
+.search-bar{display:flex;gap:10px;margin:22px 0 12px}
+.search-bar input{flex:1;min-width:0;border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px 18px;font-size:15px;outline:none;transition:.18s}
+.search-bar input:focus{border-color:rgba(37,99,235,.5);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.search-bar button{border:0;background:var(--grad);color:#fff;border-radius:14px;padding:0 26px;font-size:15px;cursor:pointer;font-weight:600;white-space:nowrap}
+.search-bar button:disabled{opacity:.6;cursor:default}
+.search-meta{min-height:20px;color:var(--ink3);font-size:13px;margin-bottom:14px}
+.search-meta b{color:var(--primary);font-weight:600}
+
+.post-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px;margin-bottom:14px;transition:.2s;display:block;position:relative}
+a.post-card:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(15,23,42,.09);border-color:rgba(37,99,235,.25)}
+.post-card h2{font-size:17.5px;font-weight:700;line-height:1.5;color:var(--primary)}
+a.post-card:hover h2{text-decoration:underline;text-underline-offset:3px}
+.post-card p{color:var(--ink2);font-size:13.5px;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pc-meta{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+.pc-meta-item{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink3)}
+mark{background:rgba(37,99,235,.16);color:inherit;border-radius:4px;padding:0 2px}
+
+.empty{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:52px 24px;text-align:center;color:var(--ink3)}
+.empty b{display:block;font-size:16px;color:var(--ink2);margin-bottom:6px}
+.loading{display:flex;justify-content:center;padding:44px 0;color:var(--ink3)}
+.spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(37,99,235,.15);border-top-color:var(--primary);animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.more-wrap{display:flex;justify-content:center;margin-top:20px}
+.more-wrap button{border:1px solid var(--line);background:#fff;color:var(--primary);border-radius:12px;padding:10px 26px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+.more-wrap button:hover{border-color:rgba(37,99,235,.4);background:#f4f8ff}
+.more-wrap button:disabled{opacity:.5;cursor:default}
+</style>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style id="nav-pad">body{padding-top:58px}</style>
+</head>
+<body>
+<div class="ambient"></div><div class="ambient r"></div>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="/index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/index.html">首页</a>
+      <a href="/article/index.html">文章</a>
+      <a href="/aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="/user/login.html">登录</a><a href="/user/login.html#register" style="margin-left:10px">注册</a></div>
+<script>
+(function(){
+  try{
+    var b=document.getElementById("navUser"); if(!b) return;
+    var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+    var u=localStorage.getItem("xw_username");
+    if(u){
+      b.setAttribute("data-nav-user","ready");
+      b.innerHTML='<div class="nav-user-menu" style="position:relative;display:inline-block"><button type="button" class="nav-uname" style="border:1px solid rgba(148,163,184,.45);background:rgba(148,163,184,.12);color:#475569;cursor:pointer;font-size:13px;font-weight:600;padding:5px 14px;border-radius:999px;line-height:1.4">'+esc(u)+'</button><div class="nav-user-dropdown" style="position:absolute;top:calc(100% + 6px);right:0;min-width:140px;background:#fff;border:1px solid #e6edf5;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.12);padding:6px;z-index:100;display:none"><a href="/user/profile.html" style="display:block;padding:9px 14px;border-radius:8px;color:#0f172a;text-decoration:none;font-size:13.5px">👤 个人中心</a><a href="#" id="navLogoutBtn" style="display:block;padding:9px 14px;border-radius:8px;color:#dc2626;text-decoration:none;font-size:13.5px">退出</a></div></div>';
+      var un=b.querySelector(".nav-uname"), m=b.querySelector(".nav-user-dropdown");
+      if(un&&m){un.onclick=function(ev){ev.stopPropagation();m.style.display=m.style.display==="none"?"block":"none";};document.addEventListener("click",function(ev){if(!b.contains(ev.target))m.style.display="none";});}
+      var lo=b.querySelector("#navLogoutBtn"); if(lo)lo.onclick=function(ev){ev.preventDefault();try{["xw_token","xw_username","shawn_site_token","shawn_site_user","shawn_admin_token","shawn_admin_role"].forEach(function(k){localStorage.removeItem(k);});}catch(e){}try{fetch("/api/user/logout",{method:"POST",credentials:"include"});}catch(e){}location.reload();};
+    }
+  }catch(e){}
+})();
+</script>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-head">
+    <h1>站内搜索</h1>
+    <p>搜标题、摘要与正文，支持中文子串匹配。</p>
+  </div>
+
+  <form class="search-bar" id="searchForm" action="/search/index.html" method="get" role="search">
+    <input id="searchInput" name="q" type="search" placeholder="输入关键词，回车或点「搜索」" maxlength="100" autocomplete="off" aria-label="搜索关键词">
+    <button id="searchBtn" type="submit">搜索</button>
+  </form>
+
+  <div class="search-meta" id="searchMeta"></div>
+  <div id="resultList"></div>
+  <div class="more-wrap"><button id="moreBtn" type="button" hidden>加载更多</button></div>
+</main>
+
+<script src="/js/header-fix.js"></script>
+<script src="search.js"></script>
+</body>
+</html>

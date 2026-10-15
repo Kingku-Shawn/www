@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>three.js obj转js的详细步骤 convert_obj_three.py的用法</title><meta name="keywords" content="obj转js,convert_obj_three.py的使用方式,obj怎么转js,obj文件转成js文件"><meta name="description" content="three.js是最近非常流行的一个前端webgl库。js格式的模型文件是three.js中可以直接加载的文件。使用THREE.JSONLoader()直接加载，而不需要引用其它的loader插件。obj格式转js格式使用的是threejs.org官方提供的一个convert_obj_three.p">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">three.js obj转js的详细步骤 convert_obj_three.py的用法</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/image/articleimg/022f1c55a8fe4fe0087909dbcb76f10d_60339.png" title="three.js obj转js的详细步骤 convert_obj_three.py的用法" alt="three.js obj转js的详细步骤 convert_obj_three.py的用法"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-3-2 02:18:00">2016-3-2 02:18:00</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>three.js是最近非常流行的一个前端webgl库。</p>
+<p>js格式的模型文件是three.js中可以直接加载的文件。使用THREE.JSONLoader()直接加载，而不需要引用其它的loader插件。</p>
+<p>obj格式转js格式使用的是threejs.org官方提供的一个convert_obj_three.py的工具，这个工具的使用需要安装python环境。</p>
+<h3>文件准备：</h3>
+<ol>
+<li><p>convert_obj_three.py 在官网的下载的包中./utils/converters/obj/目录下可以找到。打开 <a href="../link@next=http%253A%252F%252Fthreejs.org%252F.html" title="three.js官网" target="_blank">three.js官网</a> ，点击如下图所示download链接，即可下载。下载好后解压，然后进入utils/converters/obj/下的文件夹即可找到。</p>
+<p><img src="../o/uploads/image/articleimg/022f1c55a8fe4fe0087909dbcb76f10d_60339.png" alt="three.js obj转js的详细步骤 convert_obj_three.py的用法" title="three.js obj转js的详细步骤 convert_obj_three.py的用法" />  </p>
+<p>也可以在github上面 <a href="../link@next=https%253A%252F%252Fgithub.com%252Fmrdoob%252Fthree.js%252Ftree%252Fmaster%252Futils%252Fconverters%252Fobj.html" target="_blank">https://github.com/mrdoob/three.js/tree/master/utils/converters/obj</a> 这里可以找到，点击conver_obj_three.py打开编辑页面，然后你在自己电脑上新建一个convert_obj_three.py的文本文件，把github上面那个内容拷贝进去保存就可以使用，</p>
+</li>
+<li><p>提示：<a href="../link@next=https%253A%252F%252Fgithub.com%252Fmrdoob%252Fthree.js%252Fblob%252Fmaster%252Futils%252Fconverters%252Fobj%252Fconvert_obj_three_for_python3.py.html" title="convert_obj_three_for_python3.py" target="_blank">convert_obj_three_for_python3.py</a> 这个也是同样的转换工具，只不过是给python 3.X版本的环境使用的。<a href="../link@next=https%253A%252F%252Fgithub.com%252Fmrdoob%252Fthree.js%252Fblob%252Fmaster%252Futils%252Fconverters%252Fobj%252Fconvert_obj_three.py.html" title="convert_obj_three.py" target="_blank">convert_obj_three.py</a> 这个是给python2.X 的版本使用的，建议使用python2.6以上的环境。</p>
+</li>
+<li><p>准备python环境</p>
+</li>
+</ol>
+<p>    进 <a href="../link@next=https%253A%252F%252Fwww.python.org%252F.html" target="_blank">https://www.python.org/</a>  的官网</p>
+<p>    <img src="../o/uploads/image/articleimg/0f26d99c0202640ec66ae1683901aaf1_79472.png" alt="three.js obj转js的详细步骤 convert_obj_three.py的用法" title="three.js obj转js的详细步骤 convert_obj_three.py的用法" /></p>
+<p>    点击如图所示，下载python-2.7.11.msi文件(我是windows系统)。然后按提示安装。</p>
+<p>    安装过程中有一项记得勾选，那就是把python目录添加到环境变量中<a href="../link@next=http%253A%252F%252Fshawn.qingyi.dpdns.org%252Farticle%252FUTVRF.html" title="清逸的博客" target="_blank">。</a>如果没添加那就自己手动添加。  </p>
+<h3>转换过程</h3>
+<ol>
+<li><p>将convert_obj_three.py和要转换的obj格式的文件拷贝到一个目录下。如果有mtl文件的话也要带上。</p>
+<p><img src="../o/uploads/image/articleimg/d94a837d4221c875207b3049a9ac429e_13526.png" alt="three.js obj转js的详细步骤 convert_obj_three.py的用法" title="three.js obj转js的详细步骤 convert_obj_three.py的用法" /></p>
+</li>
+<li><p>打开命令行工具，把目录切换到刚刚所建的文件夹，我建的文件夹是test</p>
+<p><img src="../o/uploads/image/articleimg/dbacdd7e0fabc5ff971f09819da9b406_45486.png" alt="three.js obj转js的详细步骤 convert_obj_three.py的用法" title="three.js obj转js的详细步骤 convert_obj_three.py的用法" /></p>
+<p>敲入命令dir可以列出当前文件夹中所包含的内容</p>
+</li>
+<li><p>执行命令</p>
+</li>
+</ol>
+<p>    用文本编辑工具打开convert_obj_three.py，可在文件顶部发现这样的注释。这个是教我们怎么使用这个工具。我们可以参照它</p>
+<pre><code class="language-python">&quot;&quot;&quot;Convert Wavefront OBJ / MTL files into Three.js (JSON model version, to be used with ascii / binary loader)
+
+-------------------------
+How to use this converter
+-------------------------
+
+python convert_obj_three.py -i infile.obj -o outfile.js [-m &quot;morphfiles*.obj&quot;] [-c &quot;morphcolors*.obj&quot;] [-a center|centerxz|top|bottom|none] [-s smooth|flat] [-t ascii|binary] [-d invert|normal] [-b] [-e]
+
+Notes:
+    - flags
+        -i infile.obj			input OBJ file
+        -o outfile.js			output JS file
+        -m &quot;morphfiles*.obj&quot;	morph OBJ files (can use wildcards, enclosed in quotes multiple patterns separate by space)
+        -c &quot;morphcolors*.obj&quot;	morph colors OBJ files (can use wildcards, enclosed in quotes multiple patterns separate by space)
+        -a center|centerxz|top|bottom|none model alignment
+        -s smooth|flat			smooth = export vertex normals, flat = no normals (face normals computed in loader)
+        -t ascii|binary			export ascii or binary format (ascii has more features, binary just supports vertices, faces, normals, uvs and materials)
+        -d invert|normal		invert transparency
+        -b						bake material colors into face colors
+        -x 10.0                 scale and truncate
+        -f 2                    morph frame sampling step
+
+    - by default:
+        use smooth shading (if there were vertex normals in the original model)
+        will be in ASCII format
+        original model is assumed to use non-inverted transparency / dissolve (0.0 fully transparent, 1.0 fully opaque)
+        no face colors baking
+        no scale and truncate
+        morph frame step = 1 (all files will be processed)
+
+    - binary conversion will create two files:
+        outfile.js  (materials)
+        outfile.bin (binary buffers)
+</code></pre>
+<p>    参考上面的注释，我们可以使用命令</p>
+<pre><code>    python convert_obj_three.py -i keyboard.obj -o keyboard.js
+</code></pre>
+<p>     来处理我们的obj文件。我们敲入命令  </p>
+<p>    <img src="../o/uploads/image/articleimg/e87de36a2cace4cd545a6d4788cb0154_4958.png" alt="three.js obj转js的详细步骤 convert_obj_three.py的用法" title="three.js obj转js的详细步骤 convert_obj_three.py的用法" /></p>
+<p>    回车：</p>
+<p>    <img src="../o/uploads/image/articleimg/50e21118376429f1d56be90f0864d33a_6851.png" alt="three.js obj转js的详细步骤 convert_obj_three.py的用法" title="three.js obj转js的详细步骤 convert_obj_three.py的用法" /></p>
+<p>    如图所示，我们的模型已经转换成功了。</p>
+<p>    <img src="../o/uploads/image/articleimg/ca89dbb980799dca3461c99568471a1f_15336.png" alt="three.js obj转js的详细步骤 convert_obj_three.py的用法" title="three.js obj转js的详细步骤 convert_obj_three.py的用法" /></p>
+<p>    我们在刚刚所建的文件夹中找到这个keyboard.js文件。</p>
+<h3>使用js格式文件：</h3>
+<p>    在刚刚的convert_obj_three.py文件中，我们还会发现如下的注释：  </p>
+<pre><code class="language-html">--------------------------------------------------
+How to use generated JS file in your HTML document    
+--------------------------------------------------
+
+    &lt;script type=&quot;text/javascript&quot; src=&quot;Three.js&quot;&gt;&lt;/script&gt;
+
+    ...
+
+    &lt;script type=&quot;text/javascript&quot;&gt;
+        ...
+
+        // load ascii model
+
+        var jsonLoader = new THREE.JSONLoader();
+        jsonLoader.load( &quot;Model_ascii.js&quot;, createScene );
+
+        // load binary model
+
+        var binLoader = new THREE.BinaryLoader();
+        binLoader.load( &quot;Model_bin.js&quot;, createScene );
+
+        function createScene( geometry, materials ) {
+
+            var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+
+        }
+
+        ...
+    &lt;/script&gt;
+</code></pre>
+<p>我们就参照这注释里边的方式在网页中加载这个模型吧。  </p>
+<p>OK！</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d75","article":{"id":"5a0bf49035583c99c0b28d75","title":"three.js obj转js的详细步骤 convert_obj_three.py的用法","snippet":"three.js是最近非常流行的一个前端webgl库。js格式的模型文件是three.js中可以直接加载的文件。使用THREE.JSONLoader()直接加载，而不需要引用其它的loader插件。obj格式转js格式使用的是threejs.org官方提供的一个convert_obj_three.p","image":"../o/uploads/image/articleimg/022f1c55a8fe4fe0087909dbcb76f10d_60339.png","tags":["three.js"],"category":["编程"],"keywords":["obj转js","convert_obj_three.py的使用方式","obj怎么转js","obj文件转成js文件"],"content":"<p>three.js是最近非常流行的一个前端webgl库。</p>\n<p>js格式的模型文件是three.js中可以直接加载的文件。使用THREE.JSONLoader()直接加载，而不需要引用其它的loader插件。</p>\n<p>obj格式转js格式使用的是threejs.org官方提供的一个convert_obj_three.py的工具，这个工具的使用需要安装python环境。</p>\n<h3>文件准备：</h3>\n<ol>\n<li><p>convert_obj_three.py 在官网的下载的包中./utils/converters/obj/目录下可以找到。打开 <a href=\\&quot;http://threejs.org/\\&quot;\" title=\"three.js官网\">three.js官网</a> ，点击如下图所示download链接，即可下载。下载好后解压，然后进入utils/converters/obj/下的文件夹即可找到。</p>\n<p><img src=\"../o/uploads/image/articleimg/022f1c55a8fe4fe0087909dbcb76f10d_60339.png\" alt=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" title=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" />  </p>\n<p>也可以在github上面 <a href=\\&quot;https://github.com/mrdoob/three.js/tree/master/utils/converters/obj\\&quot;\">https://github.com/mrdoob/three.js/tree/master/utils/converters/obj</a> 这里可以找到，点击conver_obj_three.py打开编辑页面，然后你在自己电脑上新建一个convert_obj_three.py的文本文件，把github上面那个内容拷贝进去保存就可以使用，</p>\n</li>\n<li><p>提示：<a href=\\&quot;https://github.com/mrdoob/three.js/blob/master/utils/converters/obj/convert_obj_three_for_python3.py\\&quot;\" title=\"convert_obj_three_for_python3.py\">convert_obj_three_for_python3.py</a> 这个也是同样的转换工具，只不过是给python 3.X版本的环境使用的。<a href=\\&quot;https://github.com/mrdoob/three.js/blob/master/utils/converters/obj/convert_obj_three.py\\&quot;\" title=\"convert_obj_three.py\">convert_obj_three.py</a> 这个是给python2.X 的版本使用的，建议使用python2.6以上的环境。</p>\n</li>\n<li><p>准备python环境</p>\n</li>\n</ol>\n<p>    进 <a href=\\&quot;https://www.python.org/\\&quot;\">https://www.python.org/</a>  的官网</p>\n<p>    <img src=\"../o/uploads/image/articleimg/0f26d99c0202640ec66ae1683901aaf1_79472.png\" alt=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" title=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" /></p>\n<p>    点击如图所示，下载python-2.7.11.msi文件(我是windows系统)。然后按提示安装。</p>\n<p>    安装过程中有一项记得勾选，那就是把python目录添加到环境变量中<a href=UTVRF.html\\&quot;\" title=\"清逸的博客\">。</a>如果没添加那就自己手动添加。  </p>\n<h3>转换过程</h3>\n<ol>\n<li><p>将convert_obj_three.py和要转换的obj格式的文件拷贝到一个目录下。如果有mtl文件的话也要带上。</p>\n<p><img src=\"../o/uploads/image/articleimg/d94a837d4221c875207b3049a9ac429e_13526.png\" alt=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" title=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" /></p>\n</li>\n<li><p>打开命令行工具，把目录切换到刚刚所建的文件夹，我建的文件夹是test</p>\n<p><img src=\"../o/uploads/image/articleimg/dbacdd7e0fabc5ff971f09819da9b406_45486.png\" alt=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" title=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" /></p>\n<p>敲入命令dir可以列出当前文件夹中所包含的内容</p>\n</li>\n<li><p>执行命令</p>\n</li>\n</ol>\n<p>    用文本编辑工具打开convert_obj_three.py，可在文件顶部发现这样的注释。这个是教我们怎么使用这个工具。我们可以参照它</p>\n<pre><code class=\"language-python\">&quot;&quot;&quot;Convert Wavefront OBJ / MTL files into Three.js (JSON model version, to be used with ascii / binary loader)\n\n-------------------------\nHow to use this converter\n-------------------------\n\npython convert_obj_three.py -i infile.obj -o outfile.js [-m &quot;morphfiles*.obj&quot;] [-c &quot;morphcolors*.obj&quot;] [-a center|centerxz|top|bottom|none] [-s smooth|flat] [-t ascii|binary] [-d invert|normal] [-b] [-e]\n\nNotes:\n    - flags\n        -i infile.obj\t\t\tinput OBJ file\n        -o outfile.js\t\t\toutput JS file\n        -m &quot;morphfiles*.obj&quot;\tmorph OBJ files (can use wildcards, enclosed in quotes multiple patterns separate by space)\n        -c &quot;morphcolors*.obj&quot;\tmorph colors OBJ files (can use wildcards, enclosed in quotes multiple patterns separate by space)\n        -a center|centerxz|top|bottom|none model alignment\n        -s smooth|flat\t\t\tsmooth = export vertex normals, flat = no normals (face normals computed in loader)\n        -t ascii|binary\t\t\texport ascii or binary format (ascii has more features, binary just supports vertices, faces, normals, uvs and materials)\n        -d invert|normal\t\tinvert transparency\n        -b\t\t\t\t\t\tbake material colors into face colors\n        -x 10.0                 scale and truncate\n        -f 2                    morph frame sampling step\n\n    - by default:\n        use smooth shading (if there were vertex normals in the original model)\n        will be in ASCII format\n        original model is assumed to use non-inverted transparency / dissolve (0.0 fully transparent, 1.0 fully opaque)\n        no face colors baking\n        no scale and truncate\n        morph frame step = 1 (all files will be processed)\n\n    - binary conversion will create two files:\n        outfile.js  (materials)\n        outfile.bin (binary buffers)\n</code></pre>\n<p>    参考上面的注释，我们可以使用命令</p>\n<pre><code>    python convert_obj_three.py -i keyboard.obj -o keyboard.js\n</code></pre>\n<p>     来处理我们的obj文件。我们敲入命令  </p>\n<p>    <img src=\"../o/uploads/image/articleimg/e87de36a2cace4cd545a6d4788cb0154_4958.png\" alt=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" title=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" /></p>\n<p>    回车：</p>\n<p>    <img src=\"../o/uploads/image/articleimg/50e21118376429f1d56be90f0864d33a_6851.png\" alt=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" title=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" /></p>\n<p>    如图所示，我们的模型已经转换成功了。</p>\n<p>    <img src=\"../o/uploads/image/articleimg/ca89dbb980799dca3461c99568471a1f_15336.png\" alt=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" title=\"three.js obj转js的详细步骤 convert_obj_three.py的用法\" /></p>\n<p>    我们在刚刚所建的文件夹中找到这个keyboard.js文件。</p>\n<h3>使用js格式文件：</h3>\n<p>    在刚刚的convert_obj_three.py文件中，我们还会发现如下的注释：  </p>\n<pre><code class=\"language-html\">--------------------------------------------------\nHow to use generated JS file in your HTML document    \n--------------------------------------------------\n\n    &lt;script type=&quot;text/javascript&quot; src=&quot;Three.js&quot;&gt;&lt;/script&gt;\n\n    ...\n\n    &lt;script type=&quot;text/javascript&quot;&gt;\n        ...\n\n        // load ascii model\n\n        var jsonLoader = new THREE.JSONLoader();\n        jsonLoader.load( &quot;Model_ascii.js&quot;, createScene );\n\n        // load binary model\n\n        var binLoader = new THREE.BinaryLoader();\n        binLoader.load( &quot;Model_bin.js&quot;, createScene );\n\n        function createScene( geometry, materials ) {\n\n            var mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );\n\n        }\n\n        ...\n    &lt;/script&gt;\n</code></pre>\n<p>我们就参照这注释里边的方式在网页中加载这个模型吧。  </p>\n<p>OK！</p>\n","createTime":1456856280000,"updatedTime":1785039346301},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

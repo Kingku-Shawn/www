@@ -1,0 +1,324 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>mongodb的主要命令集合 - 参考教程</title><meta name="keywords" content="mongodb主要命令,mongodb命令,mongodb命令大全,mongodb命令集合,mongodb shell集合,mongodb shell大全"><meta name="description" content="mongo&nbsp;Shell历史记录您可以检索以前发布的命令在mongo shell窗口中按上下箭头键。命令历史记录也存储在~ / .dbshell文件。命令行选项&nbsp;Command Line Optionsmongo命令可以跟随众多的选项。下表显示一些常见mongo选项:选项说明--h">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">mongodb的主要命令集合 - 参考教程</h1></header><section class="detail-section"><!----><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-2-18 03:18:42">2016-2-18 03:18:42</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><h2>mongo Shell历史记录</h2>
+<p>您可以检索以前发布的命令在mongo shell窗口中按上下箭头键。命令历史记录也存储在~ / .dbshell文件。</p>
+<h2>命令行选项 Command Line Options</h2>
+<p>mongo命令可以跟随众多的选项。</p>
+<p>下表显示一些常见mongo选项:</p>
+<p>选项</p>
+<p>说明</p>
+<p>--help</p>
+<p>显示命令行有哪些选项</p>
+<p>--nodb</p>
+<p>在没有连接到数据库时使用mongo shell。</p>
+<p>--shell</p>
+<p>用来运行一个javascript文件</p>
+<h2>命令行帮助<a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmongo-shell%252F%23command-helpers.html" title="Permalink to this headline" target="_blank"></a></h2>
+<p>mongo shell提供各种帮助。下表显示一些常见的帮助方法和命令:</p>
+<p>help方法和命令</p>
+<p>说明</p>
+<p>help</p>
+<p>显示帮助。</p>
+<p>db.help()</p>
+<p>显示关于数据库方法的帮助</p>
+<p>db.&lt;collection&gt;.help()</p>
+<p>显示关于集合方法的一些帮助 </p>
+<p>集合可以是现有的集合的名称或一个不存在的集合。.</p>
+<p>show dbs</p>
+<p>打印服务器上的所有数据库的列表。</p>
+<p>use &lt;db&gt;</p>
+<p>切换当前数据库到 &lt;db&gt;. mongo命令 variabledb 是切换到当前数据库</p>
+<p>show collections</p>
+<p>打印当前的数据库的所有集合的列表</p>
+<p>show users</p>
+<p>打印当前的数据库的用户列表。</p>
+<p>show roles</p>
+<p>对当前数据库打印所有角色列表,包括用户定义的和内置的。</p>
+<p>show profile</p>
+<p>打印最近五条操作。有关更多信息,请学习mongodb数据库分析器。</p>
+<p>show databases</p>
+<p>新的2.4版本中:打印所有可用的数据库列表。</p>
+<p>load()</p>
+<p>执行一个JavaScript文件。有关更多信息,请参见mongo Shell脚本。</p>
+<h2>基本的JavaScript shell操作</h2>
+<p>mongo shell为数据库操作提供了一个JavaScript API。</p>
+<p>在mongo 命令中,db表示的是当前数据库的变量引用。变量将自动设置为默认数据库test或设置成您使用 use &lt; db&gt;所切换到的当前的数据库</p>
+<p>下表显示一些常见的JavaScript操作:</p>
+<p>JavaScript Database Operations</p>
+<p>说明</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.auth%252F%23db.auth.html" title="db.auth()" target="_blank">db.auth()</a></p>
+<p>如果在安全模式下运行,对用户进行身份验证。</p>
+<p>coll = db.&lt;collection&gt;</p>
+<p>定义一个当前数据库中一个特定的集合变量,像下面的例子:</p>
+<pre><code>coll = db.myCollection;
+</code></pre>
+<p>您可以使用这个coll变量执行集合&lt;myCollection&gt;的操作,如以下示例:</p>
+<pre><code>coll.find();
+</code></pre>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.find%252F%23db.collection.find.html" title="db.collection.find()" target="_blank">find()</a></p>
+<p>找到集合中的所有文档,并返回一个指针。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.insert%252F%23db.collection.insert.html" title="db.collection.insert()" target="_blank">insert()</a></p>
+<p>将一个新文档插入到集合中。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.update%252F%23db.collection.update.html" title="db.collection.update()" target="_blank">update()</a></p>
+<p>在集合中更新现有文档。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.save%252F%23db.collection.save.html" title="db.collection.save()" target="_blank">save()</a></p>
+<p>插入一个新文档或更新现有集合中的文档。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.remove%252F%23db.collection.remove.html" title="db.collection.remove()" target="_blank">remove()</a></p>
+<p>从集合中删除文档。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.drop%252F%23db.collection.drop.html" title="db.collection.drop()" target="_blank">drop()</a></p>
+<p>drop或完全地删除集合。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.createIndex%252F%23db.collection.createIndex.html" title="db.collection.createIndex()" target="_blank">createIndex()</a></p>
+<p>创建一个新的索引收集如果索引不存在;否则,操作没有任何影响。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.getSiblingDB%252F%23db.getSiblingDB.html" title="db.getSiblingDB()" target="_blank">db.getSiblingDB()</a></p>
+<p>返回一个引用到另一个数据库使用相同的连接没有显式地转换当前数据库。这允许跨数据库查询。</p>
+<p>查看更多的信息, 可以查看官方的文档:</p>
+<ul>
+<li><p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Fcore%252Fcrud%252F.html" target="_blank">MongoDB CRUD Concepts</a></p>
+</li>
+<li><p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Fcore%252Fread-operations%252F.html" target="_blank">Read Operations</a></p>
+</li>
+<li><p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Fcore%252Fwrite-operations%252F.html" target="_blank">Write Operations</a></p>
+</li>
+<li><p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252F%23js-administrative-methods.html" target="_blank">mongo Shell Methods</a></p>
+</li>
+</ul>
+<h2><strong>快捷键</strong></h2>
+<p>在2.2版本中改变的。</p>
+<p>mongo shell提供了大部分键盘快捷键类似于bash shell或在编辑器中的。对于一些函数mongo提供多个键绑定,以适应几个熟悉的范例。</p>
+<p>下表列举了mongo shell支持的快捷键:</p>
+<p>快捷键</p>
+<p>功能</p>
+<p>Up-arrow</p>
+<p>上一个历史记录</p>
+<p>Down-arrow</p>
+<p>下一个历史记录</p>
+<p>Home</p>
+<p>光标移动至行首</p>
+<p>End</p>
+<p>光标移动至行尾</p>
+<p>Tab</p>
+<p>自动完成</p>
+<p>Left-arrow</p>
+<p>backward-character</p>
+<p>Right-arrow</p>
+<p>forward-character</p>
+<p>Ctrl-left-arrow</p>
+<p>backward-word</p>
+<p>Ctrl-right-arrow</p>
+<p>forward-word</p>
+<p>Meta-left-arrow</p>
+<p>backward-word</p>
+<p>Meta-right-arrow</p>
+<p>forward-word</p>
+<p>Ctrl-A</p>
+<p>beginning-of-line</p>
+<p>Ctrl-B</p>
+<p>backward-char</p>
+<p>Ctrl-C</p>
+<p>exit-shell</p>
+<p>Ctrl-D</p>
+<p>delete-char (or exit shell)</p>
+<p>Ctrl-E</p>
+<p>end-of-line</p>
+<p>Ctrl-F</p>
+<p>forward-char</p>
+<p>Ctrl-G</p>
+<p>abort</p>
+<p>Ctrl-J</p>
+<p>accept-line</p>
+<p>Ctrl-K</p>
+<p>kill-line</p>
+<p>Ctrl-L</p>
+<p>clear-screen</p>
+<p>Ctrl-M</p>
+<p>accept-line</p>
+<p>Ctrl-N</p>
+<p>next-history</p>
+<p>Ctrl-P</p>
+<p>previous-history</p>
+<p>Ctrl-R</p>
+<p>reverse-search-history</p>
+<p>Ctrl-S</p>
+<p>forward-search-history</p>
+<p>Ctrl-T</p>
+<p>transpose-chars</p>
+<p>Ctrl-U</p>
+<p>unix-line-discard</p>
+<p>Ctrl-W</p>
+<p>unix-word-rubout</p>
+<p>Ctrl-Y</p>
+<p>yank</p>
+<p>Ctrl-Z</p>
+<p>Suspend (job control works in linux)</p>
+<p>Ctrl-H (i.e. Backspace)</p>
+<p>backward-delete-char</p>
+<p>Ctrl-I (i.e. Tab)</p>
+<p>complete</p>
+<p>Meta-B</p>
+<p>backward-word</p>
+<p>Meta-C</p>
+<p>capitalize-word</p>
+<p>Meta-D</p>
+<p>kill-word</p>
+<p>Meta-F</p>
+<p>forward-word</p>
+<p>Meta-L</p>
+<p>downcase-word</p>
+<p>Meta-U</p>
+<p>upcase-word</p>
+<p>Meta-Y</p>
+<p>yank-pop</p>
+<p>Meta-[Backspace]</p>
+<p>backward-kill-word</p>
+<p>Meta-&lt;</p>
+<p>beginning-of-history</p>
+<p>Meta-&gt;</p>
+<p>end-of-history</p>
+<h2></h2>
+<h2>查询语句</h2>
+<h3><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmongo-shell%252F%23queries.html" title="Permalink to this headline" target="_blank"></a></h3>
+<p>在mongo shell执行读取操作使用find()和findOne()方法。</p>
+<p>find()方法返回一个指针对象的mongo shell迭代在屏幕上打印文档。默认情况下,mongo打印前20条。mongo shell将提示用户“Type it”来继续迭代接着的20的结果。</p>
+<p>下表提供了一些常见的mongo shell读取操作:</p>
+<p>Read Operations</p>
+<p>说明</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.find%252F%23db.collection.find.html" title="db.collection.find()" target="_blank">db.collection.find(&lt;query&gt;)</a></p>
+<p>找到相匹配的文档集合中的&lt;查询&gt;标准。如果没有指定&lt;查询&gt;标准或者是空的(即{ }),读操作将选择集合中的所有文档。 　　 　　</p>
+<p>下面的例子中选择文档users集合中的name字段等于“Joe”</p>
+<pre><code>coll = db.users;
+coll.find( { name: &quot;Joe&quot; } );
+</code></pre>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.find%252F%23db.collection.find.html" title="db.collection.find()" target="_blank">db.collection.find(&lt;query&gt;, &lt;projection&gt;)</a></p>
+<p>找到&lt;query&gt;标准匹配的文档并返回特定字段&lt;projection&gt;。</p>
+<p>下面的例子从集合中选择所有文件但只返回名称字段和_id字段。_id总是返回,除非显式指定不用返回。</p>
+<pre><code>coll = db.users;
+coll.find( { }, { name: true } );
+</code></pre>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fcursor.sort%252F%23cursor.sort.html" title="cursor.sort()" target="_blank">db.collection.find().sort(&lt;sort order&gt;)</a></p>
+<p>返回结果按指定的&lt;sort order&gt;排序。</p>
+<p>下面的例子从集合中选择所有文件并返回结果按name字段升序排列(1),按降序排序使用-1:</p>
+<pre><code>coll = db.users;
+coll.find().sort( { name: 1 } );
+</code></pre>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fcursor.sort%252F%23cursor.sort.html" title="cursor.sort()" target="_blank">db.collection.find(&lt;query&gt;).sort(&lt;sortorder&gt;)</a></p>
+<p>返回文档匹配&lt;query&gt;的结果并指定的&lt;sort order&gt;排序顺序</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fcursor.limit%252F%23cursor.limit.html" title="cursor.limit()" target="_blank">db.collection.find( ... ).limit( &lt;n&gt; )</a></p>
+<p>限制结果为&lt; n &gt;行。强烈推荐你使用,为了最佳性能你可以只需要一个特定的行数。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fcursor.skip%252F%23cursor.skip.html" title="cursor.skip()" target="_blank">db.collection.find( ... ).skip( &lt;n&gt; )</a></p>
+<p>跳过&lt;n&gt;条结果.</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.count%252F%23db.collection.count.html" title="db.collection.count()" target="_blank">count()</a></p>
+<p>返回集合中的文档的总数。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fcursor.count%252F%23cursor.count.html" title="cursor.count()" target="_blank">db.collection.find(&lt;query&gt;).count()</a></p>
+<p>返回查询匹配到的文档总数。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fcursor.count%252F%23cursor.count.html" title="cursor.count()" target="_blank">count()</a> 会忽略 <a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fcursor.limit%252F%23cursor.limit.html" title="cursor.limit()" target="_blank">limit()</a> 和 <a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fcursor.skip%252F%23cursor.skip.html" title="cursor.skip()" target="_blank">skip()</a>. 例如,如果100条记录匹配,但限制是10,count()将返回100。这比迭代自己g更快,但也需要时间。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.findOne%252F%23db.collection.findOne.html" title="db.collection.findOne()" target="_blank">db.collection.findOne(&lt;query&gt;)</a></p>
+<p>找到并返回一个单一的文档。如果没有找到就返回null。</p>
+<p>下面的示例集合中选择一个文档，用户集合中的name字段匹配“Joe”:</p>
+<pre><code>coll = db.users;
+coll.findOne( { name: &quot;Joe&quot; } );
+</code></pre>
+<p>在内部,findOne()方法等同于find()方法加上一个limit(1)。</p>
+<h2>错误检查方法</h2>
+<h3><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmongo-shell%252F%23error-checking-methods.html" title="Permalink to this headline" target="_blank"></a></h3>
+<p>在2.6版本中改变。</p>
+<p>现在mongo shell写方法集成问题直接写入方法执行,而不是一个单独的db.getLastError()方法。因此,现在写方法返回一个WriteResult()对象,它包含操作的结果,这个结果包括任何写错误和写关系错误。</p>
+<p>以前的版本使用db.getLastError()和db.getLastErrorObj()方法返回错误信息。</p>
+<h2>数据库管理命令行帮助<a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmongo-shell%252F%23administrative-command-helpers.html" title="Permalink to this headline" target="_blank"></a></h2>
+<p>下表列出了一些常见的方法来帮助数据库管理:</p>
+<p>JavaScript Database Administration Methods</p>
+<p>介绍</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.cloneDatabase%252F%23db.cloneDatabase.html" title="db.cloneDatabase()" target="_blank">db.cloneDatabase(&lt;host&gt;)</a></p>
+<p>从指定的&lt;host&gt;复制到当前数据库。</p>
+<p>&lt;host&gt;数据库实例必须在noauth模式。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.copyDatabase%252F%23db.copyDatabase.html" title="db.copyDatabase()" target="_blank">db.copyDatabase(&lt;from&gt;, &lt;to&gt;, &lt;host&gt;)</a></p>
+<p>在当前的服务器中，拷贝&lt;from&gt;数据库， 从&lt;host&gt;到&lt;to&gt;数据库</p>
+<p>&lt;host&gt;数据库实例必须在noauth模式。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.collection.renameCollection%252F%23db.collection.renameCollection.html" title="db.collection.renameCollection()" target="_blank">db.fromColl.renameCollection(&lt;toColl&gt;)</a></p>
+<p>重命名集合名，从 fromColl 到 &lt;toColl&gt;.</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.repairDatabase%252F%23db.repairDatabase.html" title="db.repairDatabase()" target="_blank">db.repairDatabase()</a></p>
+<p>修复和调整的当前数据库。此操作可能在大型数据库操作过程中非常缓慢。</p>
+<p>这个操作可以使数据库文件所占空间更小，因为mongodb在执行删除操作时，不会回收这个删除的文档所对应的空间。所以使用这个命令来统一回收。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.getCollectionNames%252F%23db.getCollectionNames.html" title="db.getCollectionNames()" target="_blank">db.getCollectionNames()</a></p>
+<p>获取当前数据库中的所有集合的列表。</p>
+<p><a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmethod%252Fdb.dropDatabase%252F%23db.dropDatabase.html" title="db.dropDatabase()" target="_blank">db.dropDatabase()</a></p>
+<p>删除当前数据库。</p>
+<h2></h2>
+<h2>打开新的数据库连接<a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmongo-shell%252F%23opening-additional-connections.html" title="Permalink to this headline" target="_blank"></a></h2>
+<p>您可以在mongo shell中创建新连接。</p>
+<p>下面的表显示了创建连接的方法:</p>
+<p>JavaScript Connection Create Methods</p>
+<p>说明</p>
+<pre><code>db = connect(&quot;&lt;host&gt;&lt;:port&gt;/&lt;dbname&gt;&quot;)
+</code></pre>
+<p>打开一个新的数据库连接。</p>
+<pre><code>conn = new Mongo()
+db = conn.getDB(&quot;dbname&quot;)
+</code></pre>
+<p>打开一个连接到一个新的服务器使用 new Mongo()。 　　 　</p>
+<p>使用getDB()方法选择一个数据库连接。</p>
+<h2>其它<a href="../link@next=https%253A%252F%252Fdocs.mongodb.org%252Fmanual%252Freference%252Fmongo-shell%252F%23miscellaneous.html" title="Permalink to this headline" target="_blank"></a></h2>
+<p>下面的表显示了一些其他方法:</p>
+<p>Method</p>
+<p>说明</p>
+<p>Object.bsonsize(&lt;document&gt;)</p>
+<p>打印&lt;document&gt;的BSON大小，以bytes描</p>
+<p>述</p>
+<p><strong>提示</strong>：MongoDB源代码存储库包含一个 /jstests 目录，这里边包含许多的 mongo shell脚本。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d74","article":{"id":"5a0bf49035583c99c0b28d74","title":"mongodb的主要命令集合 - 参考教程","snippet":"mongo&nbsp;Shell历史记录您可以检索以前发布的命令在mongo shell窗口中按上下箭头键。命令历史记录也存储在~ / .dbshell文件。命令行选项&nbsp;Command Line Optionsmongo命令可以跟随众多的选项。下表显示一些常见mongo选项:选项说明--h","image":null,"tags":["mongodb"],"category":["编程"],"keywords":["mongodb主要命令","mongodb命令","mongodb命令大全","mongodb命令集合","mongodb shell集合","mongodb shell大全"],"content":"<h2>mongo Shell历史记录</h2>\n<p>您可以检索以前发布的命令在mongo shell窗口中按上下箭头键。命令历史记录也存储在~ / .dbshell文件。</p>\n<h2>命令行选项 Command Line Options</h2>\n<p>mongo命令可以跟随众多的选项。</p>\n<p>下表显示一些常见mongo选项:</p>\n<p>选项</p>\n<p>说明</p>\n<p>--help</p>\n<p>显示命令行有哪些选项</p>\n<p>--nodb</p>\n<p>在没有连接到数据库时使用mongo shell。</p>\n<p>--shell</p>\n<p>用来运行一个javascript文件</p>\n<h2>命令行帮助<a href=\\&quot;https://docs.mongodb.org/manual/reference/mongo-shell/#command-helpers\"\" title=\"Permalink to this headline\"></a></h2>\n<p>mongo shell提供各种帮助。下表显示一些常见的帮助方法和命令:</p>\n<p>help方法和命令</p>\n<p>说明</p>\n<p>help</p>\n<p>显示帮助。</p>\n<p>db.help()</p>\n<p>显示关于数据库方法的帮助</p>\n<p>db.&lt;collection&gt;.help()</p>\n<p>显示关于集合方法的一些帮助 </p>\n<p>集合可以是现有的集合的名称或一个不存在的集合。.</p>\n<p>show dbs</p>\n<p>打印服务器上的所有数据库的列表。</p>\n<p>use &lt;db&gt;</p>\n<p>切换当前数据库到 &lt;db&gt;. mongo命令 variabledb 是切换到当前数据库</p>\n<p>show collections</p>\n<p>打印当前的数据库的所有集合的列表</p>\n<p>show users</p>\n<p>打印当前的数据库的用户列表。</p>\n<p>show roles</p>\n<p>对当前数据库打印所有角色列表,包括用户定义的和内置的。</p>\n<p>show profile</p>\n<p>打印最近五条操作。有关更多信息,请学习mongodb数据库分析器。</p>\n<p>show databases</p>\n<p>新的2.4版本中:打印所有可用的数据库列表。</p>\n<p>load()</p>\n<p>执行一个JavaScript文件。有关更多信息,请参见mongo Shell脚本。</p>\n<h2>基本的JavaScript shell操作</h2>\n<p>mongo shell为数据库操作提供了一个JavaScript API。</p>\n<p>在mongo 命令中,db表示的是当前数据库的变量引用。变量将自动设置为默认数据库test或设置成您使用 use &lt; db&gt;所切换到的当前的数据库</p>\n<p>下表显示一些常见的JavaScript操作:</p>\n<p>JavaScript Database Operations</p>\n<p>说明</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.auth/#db.auth\"\" title=\"db.auth()\">db.auth()</a></p>\n<p>如果在安全模式下运行,对用户进行身份验证。</p>\n<p>coll = db.&lt;collection&gt;</p>\n<p>定义一个当前数据库中一个特定的集合变量,像下面的例子:</p>\n<pre><code>coll = db.myCollection;\n</code></pre>\n<p>您可以使用这个coll变量执行集合&lt;myCollection&gt;的操作,如以下示例:</p>\n<pre><code>coll.find();\n</code></pre>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.find/#db.collection.find\"\" title=\"db.collection.find()\">find()</a></p>\n<p>找到集合中的所有文档,并返回一个指针。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.insert/#db.collection.insert\"\" title=\"db.collection.insert()\">insert()</a></p>\n<p>将一个新文档插入到集合中。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.update/#db.collection.update\"\" title=\"db.collection.update()\">update()</a></p>\n<p>在集合中更新现有文档。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.save/#db.collection.save\"\" title=\"db.collection.save()\">save()</a></p>\n<p>插入一个新文档或更新现有集合中的文档。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.remove/#db.collection.remove\"\" title=\"db.collection.remove()\">remove()</a></p>\n<p>从集合中删除文档。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.drop/#db.collection.drop\"\" title=\"db.collection.drop()\">drop()</a></p>\n<p>drop或完全地删除集合。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.createIndex/#db.collection.createIndex\"\" title=\"db.collection.createIndex()\">createIndex()</a></p>\n<p>创建一个新的索引收集如果索引不存在;否则,操作没有任何影响。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.getSiblingDB/#db.getSiblingDB\"\" title=\"db.getSiblingDB()\">db.getSiblingDB()</a></p>\n<p>返回一个引用到另一个数据库使用相同的连接没有显式地转换当前数据库。这允许跨数据库查询。</p>\n<p>查看更多的信息, 可以查看官方的文档:</p>\n<ul>\n<li><p><a href=\\&quot;https://docs.mongodb.org/manual/core/crud/\\&quot;\">MongoDB CRUD Concepts</a></p>\n</li>\n<li><p><a href=\\&quot;https://docs.mongodb.org/manual/core/read-operations/\\&quot;\">Read Operations</a></p>\n</li>\n<li><p><a href=\\&quot;https://docs.mongodb.org/manual/core/write-operations/\\&quot;\">Write Operations</a></p>\n</li>\n<li><p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/#js-administrative-methods\"\">mongo Shell Methods</a></p>\n</li>\n</ul>\n<h2><strong>快捷键</strong></h2>\n<p>在2.2版本中改变的。</p>\n<p>mongo shell提供了大部分键盘快捷键类似于bash shell或在编辑器中的。对于一些函数mongo提供多个键绑定,以适应几个熟悉的范例。</p>\n<p>下表列举了mongo shell支持的快捷键:</p>\n<p>快捷键</p>\n<p>功能</p>\n<p>Up-arrow</p>\n<p>上一个历史记录</p>\n<p>Down-arrow</p>\n<p>下一个历史记录</p>\n<p>Home</p>\n<p>光标移动至行首</p>\n<p>End</p>\n<p>光标移动至行尾</p>\n<p>Tab</p>\n<p>自动完成</p>\n<p>Left-arrow</p>\n<p>backward-character</p>\n<p>Right-arrow</p>\n<p>forward-character</p>\n<p>Ctrl-left-arrow</p>\n<p>backward-word</p>\n<p>Ctrl-right-arrow</p>\n<p>forward-word</p>\n<p>Meta-left-arrow</p>\n<p>backward-word</p>\n<p>Meta-right-arrow</p>\n<p>forward-word</p>\n<p>Ctrl-A</p>\n<p>beginning-of-line</p>\n<p>Ctrl-B</p>\n<p>backward-char</p>\n<p>Ctrl-C</p>\n<p>exit-shell</p>\n<p>Ctrl-D</p>\n<p>delete-char (or exit shell)</p>\n<p>Ctrl-E</p>\n<p>end-of-line</p>\n<p>Ctrl-F</p>\n<p>forward-char</p>\n<p>Ctrl-G</p>\n<p>abort</p>\n<p>Ctrl-J</p>\n<p>accept-line</p>\n<p>Ctrl-K</p>\n<p>kill-line</p>\n<p>Ctrl-L</p>\n<p>clear-screen</p>\n<p>Ctrl-M</p>\n<p>accept-line</p>\n<p>Ctrl-N</p>\n<p>next-history</p>\n<p>Ctrl-P</p>\n<p>previous-history</p>\n<p>Ctrl-R</p>\n<p>reverse-search-history</p>\n<p>Ctrl-S</p>\n<p>forward-search-history</p>\n<p>Ctrl-T</p>\n<p>transpose-chars</p>\n<p>Ctrl-U</p>\n<p>unix-line-discard</p>\n<p>Ctrl-W</p>\n<p>unix-word-rubout</p>\n<p>Ctrl-Y</p>\n<p>yank</p>\n<p>Ctrl-Z</p>\n<p>Suspend (job control works in linux)</p>\n<p>Ctrl-H (i.e. Backspace)</p>\n<p>backward-delete-char</p>\n<p>Ctrl-I (i.e. Tab)</p>\n<p>complete</p>\n<p>Meta-B</p>\n<p>backward-word</p>\n<p>Meta-C</p>\n<p>capitalize-word</p>\n<p>Meta-D</p>\n<p>kill-word</p>\n<p>Meta-F</p>\n<p>forward-word</p>\n<p>Meta-L</p>\n<p>downcase-word</p>\n<p>Meta-U</p>\n<p>upcase-word</p>\n<p>Meta-Y</p>\n<p>yank-pop</p>\n<p>Meta-[Backspace]</p>\n<p>backward-kill-word</p>\n<p>Meta-&lt;</p>\n<p>beginning-of-history</p>\n<p>Meta-&gt;</p>\n<p>end-of-history</p>\n<h2></h2>\n<h2>查询语句</h2>\n<h3><a href=\\&quot;https://docs.mongodb.org/manual/reference/mongo-shell/#queries\"\" title=\"Permalink to this headline\"></a></h3>\n<p>在mongo shell执行读取操作使用find()和findOne()方法。</p>\n<p>find()方法返回一个指针对象的mongo shell迭代在屏幕上打印文档。默认情况下,mongo打印前20条。mongo shell将提示用户“Type it”来继续迭代接着的20的结果。</p>\n<p>下表提供了一些常见的mongo shell读取操作:</p>\n<p>Read Operations</p>\n<p>说明</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.find/#db.collection.find\"\" title=\"db.collection.find()\">db.collection.find(&lt;query&gt;)</a></p>\n<p>找到相匹配的文档集合中的&lt;查询&gt;标准。如果没有指定&lt;查询&gt;标准或者是空的(即{ }),读操作将选择集合中的所有文档。 　　 　　</p>\n<p>下面的例子中选择文档users集合中的name字段等于“Joe”</p>\n<pre><code>coll = db.users;\ncoll.find( { name: &quot;Joe&quot; } );\n</code></pre>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.find/#db.collection.find\"\" title=\"db.collection.find()\">db.collection.find(&lt;query&gt;, &lt;projection&gt;)</a></p>\n<p>找到&lt;query&gt;标准匹配的文档并返回特定字段&lt;projection&gt;。</p>\n<p>下面的例子从集合中选择所有文件但只返回名称字段和_id字段。_id总是返回,除非显式指定不用返回。</p>\n<pre><code>coll = db.users;\ncoll.find( { }, { name: true } );\n</code></pre>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/cursor.sort/#cursor.sort\"\" title=\"cursor.sort()\">db.collection.find().sort(&lt;sort order&gt;)</a></p>\n<p>返回结果按指定的&lt;sort order&gt;排序。</p>\n<p>下面的例子从集合中选择所有文件并返回结果按name字段升序排列(1),按降序排序使用-1:</p>\n<pre><code>coll = db.users;\ncoll.find().sort( { name: 1 } );\n</code></pre>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/cursor.sort/#cursor.sort\"\" title=\"cursor.sort()\">db.collection.find(&lt;query&gt;).sort(&lt;sortorder&gt;)</a></p>\n<p>返回文档匹配&lt;query&gt;的结果并指定的&lt;sort order&gt;排序顺序</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/cursor.limit/#cursor.limit\"\" title=\"cursor.limit()\">db.collection.find( ... ).limit( &lt;n&gt; )</a></p>\n<p>限制结果为&lt; n &gt;行。强烈推荐你使用,为了最佳性能你可以只需要一个特定的行数。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/cursor.skip/#cursor.skip\"\" title=\"cursor.skip()\">db.collection.find( ... ).skip( &lt;n&gt; )</a></p>\n<p>跳过&lt;n&gt;条结果.</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.count/#db.collection.count\"\" title=\"db.collection.count()\">count()</a></p>\n<p>返回集合中的文档的总数。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/cursor.count/#cursor.count\"\" title=\"cursor.count()\">db.collection.find(&lt;query&gt;).count()</a></p>\n<p>返回查询匹配到的文档总数。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/cursor.count/#cursor.count\"\" title=\"cursor.count()\">count()</a> 会忽略 <a href=\\&quot;https://docs.mongodb.org/manual/reference/method/cursor.limit/#cursor.limit\"\" title=\"cursor.limit()\">limit()</a> 和 <a href=\\&quot;https://docs.mongodb.org/manual/reference/method/cursor.skip/#cursor.skip\"\" title=\"cursor.skip()\">skip()</a>. 例如,如果100条记录匹配,但限制是10,count()将返回100。这比迭代自己g更快,但也需要时间。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.findOne/#db.collection.findOne\"\" title=\"db.collection.findOne()\">db.collection.findOne(&lt;query&gt;)</a></p>\n<p>找到并返回一个单一的文档。如果没有找到就返回null。</p>\n<p>下面的示例集合中选择一个文档，用户集合中的name字段匹配“Joe”:</p>\n<pre><code>coll = db.users;\ncoll.findOne( { name: &quot;Joe&quot; } );\n</code></pre>\n<p>在内部,findOne()方法等同于find()方法加上一个limit(1)。</p>\n<h2>错误检查方法</h2>\n<h3><a href=\\&quot;https://docs.mongodb.org/manual/reference/mongo-shell/#error-checking-methods\"\" title=\"Permalink to this headline\"></a></h3>\n<p>在2.6版本中改变。</p>\n<p>现在mongo shell写方法集成问题直接写入方法执行,而不是一个单独的db.getLastError()方法。因此,现在写方法返回一个WriteResult()对象,它包含操作的结果,这个结果包括任何写错误和写关系错误。</p>\n<p>以前的版本使用db.getLastError()和db.getLastErrorObj()方法返回错误信息。</p>\n<h2>数据库管理命令行帮助<a href=\\&quot;https://docs.mongodb.org/manual/reference/mongo-shell/#administrative-command-helpers\"\" title=\"Permalink to this headline\"></a></h2>\n<p>下表列出了一些常见的方法来帮助数据库管理:</p>\n<p>JavaScript Database Administration Methods</p>\n<p>介绍</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.cloneDatabase/#db.cloneDatabase\"\" title=\"db.cloneDatabase()\">db.cloneDatabase(&lt;host&gt;)</a></p>\n<p>从指定的&lt;host&gt;复制到当前数据库。</p>\n<p>&lt;host&gt;数据库实例必须在noauth模式。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.copyDatabase/#db.copyDatabase\"\" title=\"db.copyDatabase()\">db.copyDatabase(&lt;from&gt;, &lt;to&gt;, &lt;host&gt;)</a></p>\n<p>在当前的服务器中，拷贝&lt;from&gt;数据库， 从&lt;host&gt;到&lt;to&gt;数据库</p>\n<p>&lt;host&gt;数据库实例必须在noauth模式。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.collection.renameCollection/#db.collection.renameCollection\"\" title=\"db.collection.renameCollection()\">db.fromColl.renameCollection(&lt;toColl&gt;)</a></p>\n<p>重命名集合名，从 fromColl 到 &lt;toColl&gt;.</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.repairDatabase/#db.repairDatabase\"\" title=\"db.repairDatabase()\">db.repairDatabase()</a></p>\n<p>修复和调整的当前数据库。此操作可能在大型数据库操作过程中非常缓慢。</p>\n<p>这个操作可以使数据库文件所占空间更小，因为mongodb在执行删除操作时，不会回收这个删除的文档所对应的空间。所以使用这个命令来统一回收。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.getCollectionNames/#db.getCollectionNames\"\" title=\"db.getCollectionNames()\">db.getCollectionNames()</a></p>\n<p>获取当前数据库中的所有集合的列表。</p>\n<p><a href=\\&quot;https://docs.mongodb.org/manual/reference/method/db.dropDatabase/#db.dropDatabase\"\" title=\"db.dropDatabase()\">db.dropDatabase()</a></p>\n<p>删除当前数据库。</p>\n<h2></h2>\n<h2>打开新的数据库连接<a href=\\&quot;https://docs.mongodb.org/manual/reference/mongo-shell/#opening-additional-connections\"\" title=\"Permalink to this headline\"></a></h2>\n<p>您可以在mongo shell中创建新连接。</p>\n<p>下面的表显示了创建连接的方法:</p>\n<p>JavaScript Connection Create Methods</p>\n<p>说明</p>\n<pre><code>db = connect(&quot;&lt;host&gt;&lt;:port&gt;/&lt;dbname&gt;&quot;)\n</code></pre>\n<p>打开一个新的数据库连接。</p>\n<pre><code>conn = new Mongo()\ndb = conn.getDB(&quot;dbname&quot;)\n</code></pre>\n<p>打开一个连接到一个新的服务器使用 new Mongo()。 　　 　</p>\n<p>使用getDB()方法选择一个数据库连接。</p>\n<h2>其它<a href=\\&quot;https://docs.mongodb.org/manual/reference/mongo-shell/#miscellaneous\"\" title=\"Permalink to this headline\"></a></h2>\n<p>下面的表显示了一些其他方法:</p>\n<p>Method</p>\n<p>说明</p>\n<p>Object.bsonsize(&lt;document&gt;)</p>\n<p>打印&lt;document&gt;的BSON大小，以bytes描</p>\n<p>述</p>\n<p><strong>提示</strong>：MongoDB源代码存储库包含一个 /jstests 目录，这里边包含许多的 mongo shell脚本。</p>\n","createTime":1455736722000,"updatedTime":1785052468444},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

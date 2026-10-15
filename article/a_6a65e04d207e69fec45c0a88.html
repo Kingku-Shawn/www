@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>物理建模钢琴音色校准：40 条血泪经验</title><meta name="keywords" content="钢琴音色,物理建模,加法合成,残差分析,信号处理"><meta name="description" content="最近在做一件事：纯代码合成一个像样钢琴音色。零音频文件、零采样资源、首屏零下载——靠 WebAudio 的加法合成 + 物理模型推导泛音参数，实时渲染出 88 键钢琴。\n写设计文档不难，难的是把合成出来的声音调到&quot;像那么回事&quot;。这篇文章整理的是校准过程中踩的坑和发现的规律——每条">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">物理建模钢琴音色校准：40 条血泪经验</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/article/pics/5f54efce9ae36e53bad50e9367adc8f0_252393.png" title="物理建模钢琴音色校准：40 条血泪经验" alt="物理建模钢琴音色校准：40 条血泪经验"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2026-7-26 18:24:13">2026-7-26 18:24:13</time></div><div class="tags"><!--[--><span> # 前端</span><span> # 音频技术</span><!--]--></div></div></section><div class="detail-content"><p>最近在做一件事：纯代码合成一个像样钢琴音色。零音频文件、零采样资源、首屏零下载——靠 WebAudio 的加法合成 + 物理模型推导泛音参数，实时渲染出 88 键钢琴。</p>
+<p>写设计文档不难，难的是把合成出来的声音调到&quot;像那么回事&quot;。这篇文章整理的是校准过程中踩的坑和发现的规律——每条都是反复试验后留下的。</p>
+<p><img src="../o/uploads/article/pics/1afe919e60ed89e13b251d0f1bb9013f_163572.jpg" alt="物理建模钢琴音色校准：40 条血泪经验" /></p>
+<h2>为什么纯合成这么难</h2>
+<p>拿 Salamander Grand Piano V3（一个 CC-BY 3.0 的音源）当参考音。一开始的方案很简单：分析参考音频的泛音参数，套到合成器里，用坐标下降调参数逼近。结果总分从 9.55 降到 7.27 就再也降不下去了——单听还能接受，和参考对比就怎么听都不对。</p>
+<p>问题出在方法论本身：<strong>逼近指标不等于逼近听感</strong>。MR-STFT、包络、分段频带这些指标优化到极致，听感上&quot;刺/糙/嗡&quot;的问题一个都没解决。转折点是把思路从&quot;指标逼近&quot;切换到&quot;残差迭代&quot;：</p>
+<pre><code>R0 = 参考原音
+ ├─ 分析：泛音跟踪（频率/相位/振幅包络）
+ ├─ 锁相再合成（相位必须锁定参考，否则相减无意义）
+ └─ 相减
+R1 ≈ 锤击瞬态 + 音板共鸣 + 拍频/失谐误差
+ ├─ 找 R1 最大特征 → 建锤击模型 → 减
+R2 ≈ 声音板/交感共鸣 + 随机成分
+ ├─ 建空间/共鸣模型 → 减
+R3 ≈ 随机噪声底 → 滤波噪声 → 残差≈静音（目标 -40dB）
+</code></pre>
+<p><strong>看残差，别看总分</strong>。残差能量（分频段、分时间段）是更硬的目标函数——相位错一点、频率偏一点都直接暴露，不像 MR-STFT 在平均时给你安慰。</p>
+<p>C4v8 全流程走完，残差降到 <strong>-21.7dB</strong>，用户耳测反馈：&quot;除起音外几乎模仿得很像&quot;。补齐锤击波片后起音也到位了。</p>
+<h2>原来高次泛音是&quot;双胞胎&quot;</h2>
+<p>对单键做泛音跟踪时，频谱上看 3.5kHz 以上往往看起来是&quot;一根模糊的刺&quot;——以为就是一个高次泛音，结果分析出来的相位轨迹是乱的。直到我们把每个高次频点按双脊线重新检测，才发现：</p>
+<p><strong>真实钢琴的高次泛音是双偏振 doublet</strong>。主脊旁边恒定点 +1.5% ~ +2% 的地方有一根<strong>伴线</strong>，而且伴线常常比主脊更强、更长寿。</p>
+<p>怎么判断它到底是弦的模态还是音板模态？换一个键重新分析——随 f0 成比例缩放的，是弦的模态；固定不变的，是音板固有共振。</p>
+<p>现在合成模型里，n ≥ 9 的高泛音全部分成 m3 组，按双偏振 + 双脊线处理。单成分强行拟合只会让合成音&quot;闷&quot;——两根线的拍频超出低通滤波器的 15Hz 带宽，相位永远糊成一片。</p>
+<h2>5ms 内满幅的起音是假的</h2>
+<p>一个血淋淋的教训：起音检测会偏早 ~11ms（回溯一个分析窗口）。参考音在&quot;击弦前&quot;那 10ms 其实是房间底噪，零能量。但合成音从那个点就开始发响了——结果 0-10ms 残差虚高 <strong>+17dB</strong>。</p>
+<p>解决方法是按能量陡升精修击弦点——取峰值 5% 作为阈值，重新定位的起音和参考对齐后，那个 17dB 的虚高直接消失。</p>
+<p>类似的：轨道的混叠镜像 artifact 也会制造参考里根本不存在的东西。有一次在 viewer 的频谱上看到 166Hz / 179Hz 两根对称边带，用户肉眼定位发现是 heterodyne 分析时的 2f 镜像穿过 hop 窗函数后在 344.5Hz 帧率下混叠成的——166 = 2×344.5 − 2f₀，179 = 2f₀ − 344.5。二阶低通 + 截止提到 30Hz 后镜抑制比从 1/5 提高到 1/35，边带干净了，总分反而从 -16.1dB 继续降。</p>
+<p><strong>教训：任何时候参考里没有对称边带，先查采样率/帧率互调。</strong></p>
+<h2>你扫出的&quot;高频泛音&quot;可能根本不是泛音</h2>
+<p>频谱上看，真钢琴 4-8kHz 高频段有一堆看似&quot;泛音&quot;的峰。但做相位线性度分析之后就原形毕露了：</p>
+<ul>
+<li><strong>相干泛音</strong>：相位-时间线性拟合残差 std ≤ 0.75 rad（含拍频晃动）</li>
+<li><strong>纯噪声</strong>：残差 std ≈ π/√3 ≈ 1.81 rad（完全随机）</li>
+</ul>
+<p>C4 的相干/噪声分界在 n ≈ 13（~3.5kHz）。上面那些&quot;泛音&quot;的 active 时间只有 0.06-0.5s，相位完全随机——<strong>它们是锤击噪声的带通投影，不是弦的谐波</strong>。</p>
+<p>这是残差方法论的第一个产出：单看频谱永远发现不了（两者在频谱上长得一模一样），但<strong>相位线性度直接区分</strong>。如果你用相干正弦堆满高频，合成出来一定&quot;刺耳&quot;，因为你把本应是随机噪声的东西用纯音复制了。</p>
+<p>顺便一提：8kHz 以上什么都别合成。参考音在那个频段的能量已经低于 16bit 的量化底噪，任何跟踪出来的轨道都是伪迹。</p>
+<h2>轨道泄漏：宽带反相音的真正元凶</h2>
+<p>主频道的 heterodyne 分析有相邻通道泄漏问题——boxcar hop 窗的主瓣/旁瓣对 ±262Hz 偏移只有 ~0.29 的抑制。最强的泛音（比如 f0 和前几个谐波）泄漏到隔壁的 heterodyne 通道，在 344.5Hz 帧率下混叠出 ~83Hz 的相位摆动，再合成时载波 ±83/±178Hz 位置出现&quot;裙边&quot;——用户频谱上看到的是&quot;宽带增强&quot;。</p>
+<p><strong>包络数据本身是干净的，污染在相位轨迹上</strong>（瞬时频率调制谱上能看到 83Hz 尖峰）。</p>
+<p>解法是<strong>匹配追踪 + 高斯-赛德尔精化</strong>：</p>
+<ol>
+<li>按强度降序跟踪每条轨道，接受后立即从工作信号中减去</li>
+<li>再跑 2 轮&quot;加回自身 → 在 ref−其他 上重测 → 重减&quot;</li>
+<li>强力轨的裙边从 +33~+43dB 降到基本干净</li>
+</ol>
+<p><strong>教训：所有轨道的共同裙边，先怀疑分析通道间泄漏，而不是合成插值问题。</strong></p>
+<h2>投影相干度：不要再靠相位线性度筛泛音了</h2>
+<p>相位线性度是好用，但会<strong>误杀拍频簇</strong>——两个真实泛音因为弦失谐拍在一起，叠加后的相位当然在游走，不能因此不要它。</p>
+<p>终极判别指标是<strong>投影相干度</strong>：把跟踪出来的那条轨道合成出来，和参考音频做内积——</p>
+<pre><code>coherence = &lt;ref, synth&gt; / &lt;synth, synth&gt;
+</code></pre>
+<p>这个东西直接回答&quot;这条轨道在 ref 里到底存在多少&quot;。真实泛音 ≥ 0.85，噪声 ≤ 0.27。阈值取 0.35。</p>
+<p>但投影相干度单独用也有坑：多条轨道各自 ≥ 0.5，但彼此高度相关时，朴素求和会重复计能（C4 的全局增益直接崩到 0.56）。<strong>必须用 Gram 矩阵做联合最小二乘定增益</strong>——相关对自动分配后，假支被压到 0.05。</p>
+<h2>相位必须相干</h2>
+<p>用随机相位 vs 同相激发做 A/B 对比，结论非常直白：</p>
+<p><strong>真实锤击时各泛音是同相激发的</strong>——出来的是干净的&quot;鸣&quot;。随机相位出来的是&quot;刺/糙&quot;——所有泛音能量都在，但听感天差地别。</p>
+<p>R1 管线从第一天就要求锁相（heterodyne 天然输出绝对相位），因为在相减前必须参考和合成严格同相。但这个结论的意义不止于此——未来全键数据出&quot;纯粹规律&quot;时，<strong>所有合成版音色都应该走同相激发</strong>。</p>
+<h2>几组关键的&quot;硬约束&quot;</h2>
+<p>校准过程中一些参数是在反复试验中定下来的，走偏了就完全不像：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+<th>走偏后果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>弦间失谐</td>
+<td>~1 cent（中音区）</td>
+<td>大了 = 没调准的松散</td>
+</tr>
+<tr>
+<td>B 非谐系数</td>
+<td>~0.9e-4（中音区）</td>
+<td>钢琴味 vs 风琴味的分水岭</td>
+</tr>
+<tr>
+<td>高泛音衰减</td>
+<td>60ms 泄到 30%</td>
+<td>砍太少 = 金属玻璃持续音；砍太多 = 丢 1-2kHz 主体</td>
+</tr>
+<tr>
+<td>n2Boost</td>
+<td>×2.5</td>
+<td>第二泛音被共鸣系统额外加强，物理模型覆盖不到</td>
+</tr>
+<tr>
+<td>shelf 底台</td>
+<td>0.004</td>
+<td>高阶泛音 n&gt;5 幂律滚降后的残余底台，过量则嗡嗡</td>
+</tr>
+<tr>
+<td>合成包络先平滑再锐化</td>
+<td>w5 → k0≈8.7ms</td>
+<td>先定后锐，向下扩展器会误伤真实弱成分</td>
+</tr>
+<tr>
+<td>衰减两段式（快 + 慢尾）</td>
+<td>0.45s→0.2 快段, 2.8s 尾</td>
+<td>单段快衰减 = 吉他味，不是钢琴</td>
+</tr>
+</tbody></table>
+<p>这些不是数学推导出来的——是反复二分法分文件定位、峰值轨迹表 + 分频段 dB 差表，把&quot;说不清&quot;变成数字后才摸到的。</p>
+<h2>几个被否决的方向</h2>
+<p>不是所有尝试都走到了最后，记录一下以免再踩：</p>
+<ul>
+<li><strong>噪声层</strong>：想用滤波噪声模拟高频随机分量，用户耳测直接否决——能量匹配 ±1dB 也不行</li>
+<li><strong>向下扩展器压包络</strong>：会自动误伤真实的弱泛音成分</li>
+<li><strong>精化轮数 &gt; 2</strong>：过拟合，残差反而变差</li>
+<li><strong>hop=32 细帧</strong>：总分变差</li>
+<li><strong>单层力度 + 音量映射</strong>：力度改变的是锤头硬度带来的音色变化，不是简单加减音量</li>
+</ul>
+<h2>未来方向</h2>
+<p>当前主路线：22 个采样键 × v4/v9/v14 三层力度 → 汇总插值，去波动 → 离线预渲染 → 引擎预采样播放。</p>
+<p>远景更有意思：全键数据出来后，不直接拿着参数插值，而是拟合出&quot;纯粹规律&quot;——理想的击弦点曲线、硬度曲线、衰减曲线——再用这些理想曲线重渲染。那就会得到一个<strong>比原录音更纯</strong>的钢琴音色。</p>
+<p><img src="../o/uploads/article/pics/57fd46e443a7cff77d6f6adf6bb61ed2_149692.jpg" alt="物理建模钢琴音色校准：40 条血泪经验" /></p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"6a65e04d207e69fec45c0a88","article":{"id":"6a65e04d207e69fec45c0a88","title":"物理建模钢琴音色校准：40 条血泪经验","snippet":"最近在做一件事：纯代码合成一个像样钢琴音色。零音频文件、零采样资源、首屏零下载——靠 WebAudio 的加法合成 + 物理模型推导泛音参数，实时渲染出 88 键钢琴。\n写设计文档不难，难的是把合成出来的声音调到&quot;像那么回事&quot;。这篇文章整理的是校准过程中踩的坑和发现的规律——每条","image":"../o/uploads/article/pics/5f54efce9ae36e53bad50e9367adc8f0_252393.png","tags":["物理建模","音频合成","WebAudio","信号处理"],"category":["前端","音频技术"],"keywords":["钢琴音色","物理建模","加法合成","残差分析","信号处理"],"content":"<p>最近在做一件事：纯代码合成一个像样钢琴音色。零音频文件、零采样资源、首屏零下载——靠 WebAudio 的加法合成 + 物理模型推导泛音参数，实时渲染出 88 键钢琴。</p>\n<p>写设计文档不难，难的是把合成出来的声音调到&quot;像那么回事&quot;。这篇文章整理的是校准过程中踩的坑和发现的规律——每条都是反复试验后留下的。</p>\n<p><img src=\"../o/uploads/article/pics/1afe919e60ed89e13b251d0f1bb9013f_163572.jpg\" alt=\"物理建模钢琴音色校准：40 条血泪经验\" /></p>\n<h2>为什么纯合成这么难</h2>\n<p>拿 Salamander Grand Piano V3（一个 CC-BY 3.0 的音源）当参考音。一开始的方案很简单：分析参考音频的泛音参数，套到合成器里，用坐标下降调参数逼近。结果总分从 9.55 降到 7.27 就再也降不下去了——单听还能接受，和参考对比就怎么听都不对。</p>\n<p>问题出在方法论本身：<strong>逼近指标不等于逼近听感</strong>。MR-STFT、包络、分段频带这些指标优化到极致，听感上&quot;刺/糙/嗡&quot;的问题一个都没解决。转折点是把思路从&quot;指标逼近&quot;切换到&quot;残差迭代&quot;：</p>\n<pre><code>R0 = 参考原音\n ├─ 分析：泛音跟踪（频率/相位/振幅包络）\n ├─ 锁相再合成（相位必须锁定参考，否则相减无意义）\n └─ 相减\nR1 ≈ 锤击瞬态 + 音板共鸣 + 拍频/失谐误差\n ├─ 找 R1 最大特征 → 建锤击模型 → 减\nR2 ≈ 声音板/交感共鸣 + 随机成分\n ├─ 建空间/共鸣模型 → 减\nR3 ≈ 随机噪声底 → 滤波噪声 → 残差≈静音（目标 -40dB）\n</code></pre>\n<p><strong>看残差，别看总分</strong>。残差能量（分频段、分时间段）是更硬的目标函数——相位错一点、频率偏一点都直接暴露，不像 MR-STFT 在平均时给你安慰。</p>\n<p>C4v8 全流程走完，残差降到 <strong>-21.7dB</strong>，用户耳测反馈：&quot;除起音外几乎模仿得很像&quot;。补齐锤击波片后起音也到位了。</p>\n<h2>原来高次泛音是&quot;双胞胎&quot;</h2>\n<p>对单键做泛音跟踪时，频谱上看 3.5kHz 以上往往看起来是&quot;一根模糊的刺&quot;——以为就是一个高次泛音，结果分析出来的相位轨迹是乱的。直到我们把每个高次频点按双脊线重新检测，才发现：</p>\n<p><strong>真实钢琴的高次泛音是双偏振 doublet</strong>。主脊旁边恒定点 +1.5% ~ +2% 的地方有一根<strong>伴线</strong>，而且伴线常常比主脊更强、更长寿。</p>\n<p>怎么判断它到底是弦的模态还是音板模态？换一个键重新分析——随 f0 成比例缩放的，是弦的模态；固定不变的，是音板固有共振。</p>\n<p>现在合成模型里，n ≥ 9 的高泛音全部分成 m3 组，按双偏振 + 双脊线处理。单成分强行拟合只会让合成音&quot;闷&quot;——两根线的拍频超出低通滤波器的 15Hz 带宽，相位永远糊成一片。</p>\n<h2>5ms 内满幅的起音是假的</h2>\n<p>一个血淋淋的教训：起音检测会偏早 ~11ms（回溯一个分析窗口）。参考音在&quot;击弦前&quot;那 10ms 其实是房间底噪，零能量。但合成音从那个点就开始发响了——结果 0-10ms 残差虚高 <strong>+17dB</strong>。</p>\n<p>解决方法是按能量陡升精修击弦点——取峰值 5% 作为阈值，重新定位的起音和参考对齐后，那个 17dB 的虚高直接消失。</p>\n<p>类似的：轨道的混叠镜像 artifact 也会制造参考里根本不存在的东西。有一次在 viewer 的频谱上看到 166Hz / 179Hz 两根对称边带，用户肉眼定位发现是 heterodyne 分析时的 2f 镜像穿过 hop 窗函数后在 344.5Hz 帧率下混叠成的——166 = 2×344.5 − 2f₀，179 = 2f₀ − 344.5。二阶低通 + 截止提到 30Hz 后镜抑制比从 1/5 提高到 1/35，边带干净了，总分反而从 -16.1dB 继续降。</p>\n<p><strong>教训：任何时候参考里没有对称边带，先查采样率/帧率互调。</strong></p>\n<h2>你扫出的&quot;高频泛音&quot;可能根本不是泛音</h2>\n<p>频谱上看，真钢琴 4-8kHz 高频段有一堆看似&quot;泛音&quot;的峰。但做相位线性度分析之后就原形毕露了：</p>\n<ul>\n<li><strong>相干泛音</strong>：相位-时间线性拟合残差 std ≤ 0.75 rad（含拍频晃动）</li>\n<li><strong>纯噪声</strong>：残差 std ≈ π/√3 ≈ 1.81 rad（完全随机）</li>\n</ul>\n<p>C4 的相干/噪声分界在 n ≈ 13（~3.5kHz）。上面那些&quot;泛音&quot;的 active 时间只有 0.06-0.5s，相位完全随机——<strong>它们是锤击噪声的带通投影，不是弦的谐波</strong>。</p>\n<p>这是残差方法论的第一个产出：单看频谱永远发现不了（两者在频谱上长得一模一样），但<strong>相位线性度直接区分</strong>。如果你用相干正弦堆满高频，合成出来一定&quot;刺耳&quot;，因为你把本应是随机噪声的东西用纯音复制了。</p>\n<p>顺便一提：8kHz 以上什么都别合成。参考音在那个频段的能量已经低于 16bit 的量化底噪，任何跟踪出来的轨道都是伪迹。</p>\n<h2>轨道泄漏：宽带反相音的真正元凶</h2>\n<p>主频道的 heterodyne 分析有相邻通道泄漏问题——boxcar hop 窗的主瓣/旁瓣对 ±262Hz 偏移只有 ~0.29 的抑制。最强的泛音（比如 f0 和前几个谐波）泄漏到隔壁的 heterodyne 通道，在 344.5Hz 帧率下混叠出 ~83Hz 的相位摆动，再合成时载波 ±83/±178Hz 位置出现&quot;裙边&quot;——用户频谱上看到的是&quot;宽带增强&quot;。</p>\n<p><strong>包络数据本身是干净的，污染在相位轨迹上</strong>（瞬时频率调制谱上能看到 83Hz 尖峰）。</p>\n<p>解法是<strong>匹配追踪 + 高斯-赛德尔精化</strong>：</p>\n<ol>\n<li>按强度降序跟踪每条轨道，接受后立即从工作信号中减去</li>\n<li>再跑 2 轮&quot;加回自身 → 在 ref−其他 上重测 → 重减&quot;</li>\n<li>强力轨的裙边从 +33~+43dB 降到基本干净</li>\n</ol>\n<p><strong>教训：所有轨道的共同裙边，先怀疑分析通道间泄漏，而不是合成插值问题。</strong></p>\n<h2>投影相干度：不要再靠相位线性度筛泛音了</h2>\n<p>相位线性度是好用，但会<strong>误杀拍频簇</strong>——两个真实泛音因为弦失谐拍在一起，叠加后的相位当然在游走，不能因此不要它。</p>\n<p>终极判别指标是<strong>投影相干度</strong>：把跟踪出来的那条轨道合成出来，和参考音频做内积——</p>\n<pre><code>coherence = &lt;ref, synth&gt; / &lt;synth, synth&gt;\n</code></pre>\n<p>这个东西直接回答&quot;这条轨道在 ref 里到底存在多少&quot;。真实泛音 ≥ 0.85，噪声 ≤ 0.27。阈值取 0.35。</p>\n<p>但投影相干度单独用也有坑：多条轨道各自 ≥ 0.5，但彼此高度相关时，朴素求和会重复计能（C4 的全局增益直接崩到 0.56）。<strong>必须用 Gram 矩阵做联合最小二乘定增益</strong>——相关对自动分配后，假支被压到 0.05。</p>\n<h2>相位必须相干</h2>\n<p>用随机相位 vs 同相激发做 A/B 对比，结论非常直白：</p>\n<p><strong>真实锤击时各泛音是同相激发的</strong>——出来的是干净的&quot;鸣&quot;。随机相位出来的是&quot;刺/糙&quot;——所有泛音能量都在，但听感天差地别。</p>\n<p>R1 管线从第一天就要求锁相（heterodyne 天然输出绝对相位），因为在相减前必须参考和合成严格同相。但这个结论的意义不止于此——未来全键数据出&quot;纯粹规律&quot;时，<strong>所有合成版音色都应该走同相激发</strong>。</p>\n<h2>几组关键的&quot;硬约束&quot;</h2>\n<p>校准过程中一些参数是在反复试验中定下来的，走偏了就完全不像：</p>\n<table>\n<thead>\n<tr>\n<th>参数</th>\n<th>值</th>\n<th>走偏后果</th>\n</tr>\n</thead>\n<tbody><tr>\n<td>弦间失谐</td>\n<td>~1 cent（中音区）</td>\n<td>大了 = 没调准的松散</td>\n</tr>\n<tr>\n<td>B 非谐系数</td>\n<td>~0.9e-4（中音区）</td>\n<td>钢琴味 vs 风琴味的分水岭</td>\n</tr>\n<tr>\n<td>高泛音衰减</td>\n<td>60ms 泄到 30%</td>\n<td>砍太少 = 金属玻璃持续音；砍太多 = 丢 1-2kHz 主体</td>\n</tr>\n<tr>\n<td>n2Boost</td>\n<td>×2.5</td>\n<td>第二泛音被共鸣系统额外加强，物理模型覆盖不到</td>\n</tr>\n<tr>\n<td>shelf 底台</td>\n<td>0.004</td>\n<td>高阶泛音 n&gt;5 幂律滚降后的残余底台，过量则嗡嗡</td>\n</tr>\n<tr>\n<td>合成包络先平滑再锐化</td>\n<td>w5 → k0≈8.7ms</td>\n<td>先定后锐，向下扩展器会误伤真实弱成分</td>\n</tr>\n<tr>\n<td>衰减两段式（快 + 慢尾）</td>\n<td>0.45s→0.2 快段, 2.8s 尾</td>\n<td>单段快衰减 = 吉他味，不是钢琴</td>\n</tr>\n</tbody></table>\n<p>这些不是数学推导出来的——是反复二分法分文件定位、峰值轨迹表 + 分频段 dB 差表，把&quot;说不清&quot;变成数字后才摸到的。</p>\n<h2>几个被否决的方向</h2>\n<p>不是所有尝试都走到了最后，记录一下以免再踩：</p>\n<ul>\n<li><strong>噪声层</strong>：想用滤波噪声模拟高频随机分量，用户耳测直接否决——能量匹配 ±1dB 也不行</li>\n<li><strong>向下扩展器压包络</strong>：会自动误伤真实的弱泛音成分</li>\n<li><strong>精化轮数 &gt; 2</strong>：过拟合，残差反而变差</li>\n<li><strong>hop=32 细帧</strong>：总分变差</li>\n<li><strong>单层力度 + 音量映射</strong>：力度改变的是锤头硬度带来的音色变化，不是简单加减音量</li>\n</ul>\n<h2>未来方向</h2>\n<p>当前主路线：22 个采样键 × v4/v9/v14 三层力度 → 汇总插值，去波动 → 离线预渲染 → 引擎预采样播放。</p>\n<p>远景更有意思：全键数据出来后，不直接拿着参数插值，而是拟合出&quot;纯粹规律&quot;——理想的击弦点曲线、硬度曲线、衰减曲线——再用这些理想曲线重渲染。那就会得到一个<strong>比原录音更纯</strong>的钢琴音色。</p>\n<p><img src=\"../o/uploads/article/pics/57fd46e443a7cff77d6f6adf6bb61ed2_149692.jpg\" alt=\"物理建模钢琴音色校准：40 条血泪经验\" /></p>\n","createTime":1785061453846,"updatedTime":1785062114450},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

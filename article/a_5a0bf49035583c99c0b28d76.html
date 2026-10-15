@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>WebGL框架比较之Three.js和Babylon.js的比较</title><meta name="keywords" content="Three.js和Babylon.js的比较,Three.js和Babylon.js的例子,WebGL框架的选型"><meta name="description" content="今天的web浏览器已经走了很长的路。由于出色的JavaScript WebGL&nbsp;api ,现代浏览器完全有能力在没有第三方插件帮助的情况下呈现先进的2 d和3 d图形。利用专用的图形处理器的性能,WebGL使我们访问的网页实现动态阴影和现实的物理。正如你可能已经猜到的,如此强大的api通常">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">WebGL框架比较之Three.js和Babylon.js的比较</h1></header><section class="detail-section"><!----><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-3-3 03:28:00">2016-3-3 03:28:00</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>今天的web浏览器已经走了很长的路。由于出色的JavaScript WebGL api ,现代浏览器完全有能力在没有第三方插件帮助的情况下呈现先进的2 d和3 d图形。利用专用的图形处理器的性能,WebGL使我们访问的网页实现动态阴影和现实的物理。</p>
+<p>正如你可能已经猜到的,如此强大的api通常有一个缺点。WebGL当然也不例外,其缺点是形式的复杂性。不要害怕,然而,当我们探索两个完全有能力框架的目标是,让你的生活更容易,甚至可能使用WebGL时更有效率。</p>
+<h2>三维框架的出身</h2>
+<p>曾经流行的 Three.js(<a href="../../link?next=http%3A%2F%2Fthreejs.org%2F)%E9%9A%8F%E7%9D%80%E6%96%B0%E7%9A%84" target="_blank">http://threejs.org/)随着新的</a> Babylon.js(<a href="../link@next=http%253A%252F%252Fwww.babylonjs.com%252F.html" target="_blank">http://www.babylonjs.com/</a>) 为web开发人员提供了一个抽象的，基础制作功能丰富的WebGL创作框架。</p>
+<p>Three.js 早在2009年4月开始出生,在换成JavaScript语言之前最初是用ActionScript。在WebGL的引入之前已经创建了three.js独特方便的模块化渲染接口，并在不用WebGL的情况下允许它使用SVG和HTML5画布元素。</p>
+<p>Babylon.js, 是相对陌生的来者, 它出生在2013年的夏天。由微软心中发布了Babylon.js和首次正式支持WebGL API的Internet Explorer 11。</p>
+<h2>设计的细微差异</h2>
+<p>Three.js and Babylon.js 两者都提供了易于使用的接口来处理错综复杂的WebGL动画。</p>
+<p>利用在HTML一样简单的一行脚本语句引入相应的JavaScript文件。注意:Babylon.js的依赖性,需要引入开源的hand.js。</p>
+<p>Three.js:</p>
+<pre><code class="language-html">&lt;script src=&quot;three.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<p>Babylon.js:</p>
+<pre><code class="language-html">&lt;script src=&quot;babylon.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;hand.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<p>两者之间的主要区别在于他们的预期用途。虽然两者都可以产生相同的效果，但是了解他们两个的过程是很重要的。</p>
+<p>Three.js的一个创作目标是:利用基于web的渲染器创建GPU增强的3d图形和动画。这样,这个框架使用非常广泛的方法web图形,而不需要不关注动画的任何一个细节。这种灵活的设计使得Three.js成为一个好工具(可以在<a href="../../link?next=http%3A%2F%2Fthreejs.org%2Fexamples%2F%E6%89%BE%E5%88%B0%E5%BE%88%E5%A4%9A%E7%9A%84%E4%BE%8B%E5%AD%90)%E3%80%82" target="_blank">http://threejs.org/examples/找到很多的例子)。</a></p>
+<p>尽管Three.js试图给WebGL带来许多的动画方式,而Babylon.js采用更有针对性的方法。最初设计作为一个Silverlight游戏引擎,Babylon.js的维护倾向于基于web的游戏开发与碰撞检测和抗锯齿等特性。在其官网<a href="../../link?next=http%3A%2F%2Fwww.babylonjs.com%2F%E4%B8%8A%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0%E8%AE%B8%E5%A4%9A%E7%9A%84%E4%BE%8B%E5%AD%90%E3%80%82" target="_blank">http://www.babylonjs.com/上可以看到许多的例子。</a></p>
+<h2>并排比较</h2>
+<p>为进一步体现这两个框架的相似点和不同点,让我们快速构建一个3d动画。我们的项目的选择将会是一个超级简单的立方体缓慢旋转的应用。在创建这两个示例项目,你应该开始了解这两种技术和逐渐发现他们独特的优势。让我们开始吧。</p>
+<p>第一个任务是初始化一个空白的画布，以便中包含我们的3 d动画。</p>
+<p>Three.js:</p>
+<pre><code class="language-html">&lt;div style=&quot;height:250px; width: 250px;&quot; id=&quot;three&quot;&gt;&lt;/div&gt;
+</code></pre>
+<pre><code class="language-js">var div = document.getElementById(&#39;three&#39;);
+</code></pre>
+<p>Babylon.js:</p>
+<pre><code class="language-html">&lt;div style=&quot;height:250px; width: 250px;&quot; id=&quot;babylon&quot;&gt;&lt;canvas id=&quot;babylonCanvas&quot;&gt;&lt;/canvas&gt;&lt;/div&gt;
+</code></pre>
+<pre><code class="language-js">var canvas = document.getElementById(&#39;babylonCanvas&#39;);
+</code></pre>
+<p>With Three.js we simply create an empty div as our container for the animation. Babylon.js on the other hand makes use of an explicitly defined HTML5 canvas to hold its 3D graphics.在使用Three.js时我们简单地创建一个空的div容器。而Babylon.js利用显式定义的HTML5 canvas来开始3D图像。</p>
+<p>接下来,我们加载渲染器然后准备场景并绘制到画布上。</p>
+<p>Three.js:</p>
+<pre><code class="language-js">var renderer = new THREE.WebGLRenderer();
+renderer.setSize(width, height);
+div.appendChild(renderer.domElement);
+</code></pre>
+<p>Babylon.js:</p>
+<pre><code class="language-js">var engine = new BABYLON.Engine(canvas, true);
+</code></pre>
+<p>这一步没有太多东西,我们只是初始化渲染器并把它们贴到我们的画布上。</p>
+<p>下一步我们设置一个场景来装下我们的相机和立方体cube。</p>
+<p>Three.js:</p>
+<pre><code class="language-js">var sceneT = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
+camera.position.z = 400;
+</code></pre>
+<p>Babylon.js:</p>
+<pre><code class="language-js">var sceneB = new BABYLON.Scene(engine);
+var camera = new BABYLON.ArcRotateCamera(&quot;camera&quot;, 1, 0.8, 10, new BABYLON.Vector3(0, 0, 0), sceneB);
+sceneB.activeCamera.attachControl(canvas);
+
+var light = new BABYLON.DirectionalLight(&quot;light&quot;, new BABYLON.Vector3(0, -1, 0), sceneB);
+light.diffuse = new BABYLON.Color3(1, 0, 0);
+light.specular = new BABYLON.Color3(1, 1, 1);
+</code></pre>
+<p>这里我们创建了我们几乎相同的场景,然后实现相机(两个框架支持不同类型),从我们创建的场景中获得视图。参数传递给相机决定各种细节包括相机的角度、视野、纵横比和深度。</p>
+<p>我们还得为Babylon.js加入方向性光源，同时将它附加到我们场景中，避免待会我们只能盯着漆黑一片的动画。</p>
+<p>我们的画布,场景和相机都已经准备好了，在渲染和动画起来之前我们只需要加入方块。</p>
+<p>Three.js:</p>
+<pre><code class="language-js">var cube = new THREE.CubeGeometry(100, 100, 100);
+
+var texture = THREE.ImageUtils.loadTexture(&#39;texture.gif&#39;);
+texture.anisotropy = renderer.getMaxAnisotropy();
+var material = new THREE.MeshBasicMaterial({ map: texture });
+
+var mesh = new THREE.Mesh(cube, material);
+sceneT.add(mesh);
+</code></pre>
+<p>Babylon.js:</p>
+<pre><code class="language-js">var box = BABYLON.Mesh.CreateBox(&quot;box&quot;, 3.0, sceneB);
+
+var material = new BABYLON.StandardMaterial(&quot;texture&quot;, sceneB);
+box.material = material;
+material.diffuseTexture = new BABYLON.Texture(&quot;texture.gif&quot;, sceneB);
+</code></pre>
+<p>First, we create our cube objects of the specified size and then create our material/mesh (think texture) that will be painted onto the cubes. Any image file will work for the texture and both frameworks support mesh exports from 3D modeling tools like Blender (<a href="../link@next=http%253A%252F%252Fwww.blender.org%252F.html" target="_blank">http://www.blender.org/</a>).</p>
+<p>首先,我们创建指定大小的立方体对象,然后创建我们的材质/网格，把材质涂在立方体的各个面。任何图像文件都可以导入纹理texture,而且两个框架都支持从3D模型工具软件(如 Blender)中导出模型。</p>
+<p>在最后一步,我们添加一个缓慢的旋转动画,然后渲染场景。</p>
+<p>Three.js:</p>
+<pre><code class="language-js">function animate() {
+     requestAnimationFrame(animate);
+     mesh.rotation.x += 0.005;
+     mesh.rotation.y += 0.01;
+     renderer.render(sceneT, camera);
+}
+</code></pre>
+<p>Babylon.js:</p>
+<pre><code class="language-js">engine.runRenderLoop(function () {
+     box.rotation.x += 0.005;
+     box.rotation.y += 0.01;
+     sceneB.render();
+     });
+</code></pre>
+<p>Three.jsjs和Babylon.js两者使用动画或渲染循环去更新一个新的旋转角度内容到画布上。您还将注意到Three.js与Babylon.js稍有不同。我们的最终产品是两个立方体在半空中轻轻旋转。</p>
+<h2>后言</h2>
+<p>两个WebGL框架基于相同的Web图形接口,但专注于增强的不同方面,。</p>
+<p>最后,这两个相对年轻的框架使web开发人员产生了能够更容易地利用强大的3 d WebGL的机会。这样,任何有兴趣进行3d web开发的同学，当然应该仔细看看这前沿技术。</p>
+<p>OK！</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d76","article":{"id":"5a0bf49035583c99c0b28d76","title":"WebGL框架比较之Three.js和Babylon.js的比较","snippet":"今天的web浏览器已经走了很长的路。由于出色的JavaScript WebGL&nbsp;api ,现代浏览器完全有能力在没有第三方插件帮助的情况下呈现先进的2 d和3 d图形。利用专用的图形处理器的性能,WebGL使我们访问的网页实现动态阴影和现实的物理。正如你可能已经猜到的,如此强大的api通常","image":"","tags":["three.js"],"category":["编程"],"keywords":["Three.js和Babylon.js的比较","Three.js和Babylon.js的例子","WebGL框架的选型"],"content":"<p>今天的web浏览器已经走了很长的路。由于出色的JavaScript WebGL api ,现代浏览器完全有能力在没有第三方插件帮助的情况下呈现先进的2 d和3 d图形。利用专用的图形处理器的性能,WebGL使我们访问的网页实现动态阴影和现实的物理。</p>\n<p>正如你可能已经猜到的,如此强大的api通常有一个缺点。WebGL当然也不例外,其缺点是形式的复杂性。不要害怕,然而,当我们探索两个完全有能力框架的目标是,让你的生活更容易,甚至可能使用WebGL时更有效率。</p>\n<h2>三维框架的出身</h2>\n<p>曾经流行的 Three.js(<a href=%5C%22http://threejs.org/)%E9%97%85%E5%BF%95%E6%BD%83%E9%8F%82%E6%89%AE%E6%AE%91%5C%22\">http://threejs.org/)随着新的</a> Babylon.js(<a href=\\&quot;http://www.babylonjs.com/\\&quot;\">http://www.babylonjs.com/</a>) 为web开发人员提供了一个抽象的，基础制作功能丰富的WebGL创作框架。</p>\n<p>Three.js 早在2009年4月开始出生,在换成JavaScript语言之前最初是用ActionScript。在WebGL的引入之前已经创建了three.js独特方便的模块化渲染接口，并在不用WebGL的情况下允许它使用SVG和HTML5画布元素。</p>\n<p>Babylon.js, 是相对陌生的来者, 它出生在2013年的夏天。由微软心中发布了Babylon.js和首次正式支持WebGL API的Internet Explorer 11。</p>\n<h2>设计的细微差异</h2>\n<p>Three.js and Babylon.js 两者都提供了易于使用的接口来处理错综复杂的WebGL动画。</p>\n<p>利用在HTML一样简单的一行脚本语句引入相应的JavaScript文件。注意:Babylon.js的依赖性,需要引入开源的hand.js。</p>\n<p>Three.js:</p>\n<pre><code class=\"language-html\">&lt;script src=&quot;three.js&quot;&gt;&lt;/script&gt;\n</code></pre>\n<p>Babylon.js:</p>\n<pre><code class=\"language-html\">&lt;script src=&quot;babylon.js&quot;&gt;&lt;/script&gt;\n&lt;script src=&quot;hand.js&quot;&gt;&lt;/script&gt;\n</code></pre>\n<p>两者之间的主要区别在于他们的预期用途。虽然两者都可以产生相同的效果，但是了解他们两个的过程是很重要的。</p>\n<p>Three.js的一个创作目标是:利用基于web的渲染器创建GPU增强的3d图形和动画。这样,这个框架使用非常广泛的方法web图形,而不需要不关注动画的任何一个细节。这种灵活的设计使得Three.js成为一个好工具(可以在<a href=%5C%22http://threejs.org/examples/%E9%8E%B5%E6%83%A7%E5%9F%8C%E5%AF%B0%E5%A0%9D%EE%98%BF%E9%90%A8%E5%8B%AA%E7%B7%A5%E7%80%9B%90)%E9%8A%86%E4%BF%93%22\">http://threejs.org/examples/找到很多的例子)。</a></p>\n<p>尽管Three.js试图给WebGL带来许多的动画方式,而Babylon.js采用更有针对性的方法。最初设计作为一个Silverlight游戏引擎,Babylon.js的维护倾向于基于web的游戏开发与碰撞检测和抗锯齿等特性。在其官网<a href=%5C%22http://www.babylonjs.com/%E6%B6%93%E5%A9%82%E5%BD%B2%E6%B5%A0%E3%83%A7%E6%B9%85%E9%8D%92%E6%8B%8C%EE%86%8F%E6%BE%B6%E6%B0%B1%E6%AE%91%E6%B8%9A%E5%AC%AA%E7%93%99%E9%8A%86%E4%BF%93%22\">http://www.babylonjs.com/上可以看到许多的例子。</a></p>\n<h2>并排比较</h2>\n<p>为进一步体现这两个框架的相似点和不同点,让我们快速构建一个3d动画。我们的项目的选择将会是一个超级简单的立方体缓慢旋转的应用。在创建这两个示例项目,你应该开始了解这两种技术和逐渐发现他们独特的优势。让我们开始吧。</p>\n<p>第一个任务是初始化一个空白的画布，以便中包含我们的3 d动画。</p>\n<p>Three.js:</p>\n<pre><code class=\"language-html\">&lt;div style=&quot;height:250px; width: 250px;&quot; id=&quot;three&quot;&gt;&lt;/div&gt;\n</code></pre>\n<pre><code class=\"language-js\">var div = document.getElementById(&#39;three&#39;);\n</code></pre>\n<p>Babylon.js:</p>\n<pre><code class=\"language-html\">&lt;div style=&quot;height:250px; width: 250px;&quot; id=&quot;babylon&quot;&gt;&lt;canvas id=&quot;babylonCanvas&quot;&gt;&lt;/canvas&gt;&lt;/div&gt;\n</code></pre>\n<pre><code class=\"language-js\">var canvas = document.getElementById(&#39;babylonCanvas&#39;);\n</code></pre>\n<p>With Three.js we simply create an empty div as our container for the animation. Babylon.js on the other hand makes use of an explicitly defined HTML5 canvas to hold its 3D graphics.在使用Three.js时我们简单地创建一个空的div容器。而Babylon.js利用显式定义的HTML5 canvas来开始3D图像。</p>\n<p>接下来,我们加载渲染器然后准备场景并绘制到画布上。</p>\n<p>Three.js:</p>\n<pre><code class=\"language-js\">var renderer = new THREE.WebGLRenderer();\nrenderer.setSize(width, height);\ndiv.appendChild(renderer.domElement);\n</code></pre>\n<p>Babylon.js:</p>\n<pre><code class=\"language-js\">var engine = new BABYLON.Engine(canvas, true);\n</code></pre>\n<p>这一步没有太多东西,我们只是初始化渲染器并把它们贴到我们的画布上。</p>\n<p>下一步我们设置一个场景来装下我们的相机和立方体cube。</p>\n<p>Three.js:</p>\n<pre><code class=\"language-js\">var sceneT = new THREE.Scene();\nvar camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);\ncamera.position.z = 400;\n</code></pre>\n<p>Babylon.js:</p>\n<pre><code class=\"language-js\">var sceneB = new BABYLON.Scene(engine);\nvar camera = new BABYLON.ArcRotateCamera(&quot;camera&quot;, 1, 0.8, 10, new BABYLON.Vector3(0, 0, 0), sceneB);\nsceneB.activeCamera.attachControl(canvas);\n\nvar light = new BABYLON.DirectionalLight(&quot;light&quot;, new BABYLON.Vector3(0, -1, 0), sceneB);\nlight.diffuse = new BABYLON.Color3(1, 0, 0);\nlight.specular = new BABYLON.Color3(1, 1, 1);\n</code></pre>\n<p>这里我们创建了我们几乎相同的场景,然后实现相机(两个框架支持不同类型),从我们创建的场景中获得视图。参数传递给相机决定各种细节包括相机的角度、视野、纵横比和深度。</p>\n<p>我们还得为Babylon.js加入方向性光源，同时将它附加到我们场景中，避免待会我们只能盯着漆黑一片的动画。</p>\n<p>我们的画布,场景和相机都已经准备好了，在渲染和动画起来之前我们只需要加入方块。</p>\n<p>Three.js:</p>\n<pre><code class=\"language-js\">var cube = new THREE.CubeGeometry(100, 100, 100);\n\nvar texture = THREE.ImageUtils.loadTexture(&#39;texture.gif&#39;);\ntexture.anisotropy = renderer.getMaxAnisotropy();\nvar material = new THREE.MeshBasicMaterial({ map: texture });\n\nvar mesh = new THREE.Mesh(cube, material);\nsceneT.add(mesh);\n</code></pre>\n<p>Babylon.js:</p>\n<pre><code class=\"language-js\">var box = BABYLON.Mesh.CreateBox(&quot;box&quot;, 3.0, sceneB);\n\nvar material = new BABYLON.StandardMaterial(&quot;texture&quot;, sceneB);\nbox.material = material;\nmaterial.diffuseTexture = new BABYLON.Texture(&quot;texture.gif&quot;, sceneB);\n</code></pre>\n<p>First, we create our cube objects of the specified size and then create our material/mesh (think texture) that will be painted onto the cubes. Any image file will work for the texture and both frameworks support mesh exports from 3D modeling tools like Blender (<a href=\\&quot;http://www.blender.org/\\&quot;\">http://www.blender.org/</a>).</p>\n<p>首先,我们创建指定大小的立方体对象,然后创建我们的材质/网格，把材质涂在立方体的各个面。任何图像文件都可以导入纹理texture,而且两个框架都支持从3D模型工具软件(如 Blender)中导出模型。</p>\n<p>在最后一步,我们添加一个缓慢的旋转动画,然后渲染场景。</p>\n<p>Three.js:</p>\n<pre><code class=\"language-js\">function animate() {\n     requestAnimationFrame(animate);\n     mesh.rotation.x += 0.005;\n     mesh.rotation.y += 0.01;\n     renderer.render(sceneT, camera);\n}\n</code></pre>\n<p>Babylon.js:</p>\n<pre><code class=\"language-js\">engine.runRenderLoop(function () {\n     box.rotation.x += 0.005;\n     box.rotation.y += 0.01;\n     sceneB.render();\n     });\n</code></pre>\n<p>Three.jsjs和Babylon.js两者使用动画或渲染循环去更新一个新的旋转角度内容到画布上。您还将注意到Three.js与Babylon.js稍有不同。我们的最终产品是两个立方体在半空中轻轻旋转。</p>\n<h2>后言</h2>\n<p>两个WebGL框架基于相同的Web图形接口,但专注于增强的不同方面,。</p>\n<p>最后,这两个相对年轻的框架使web开发人员产生了能够更容易地利用强大的3 d WebGL的机会。这样,任何有兴趣进行3d web开发的同学，当然应该仔细看看这前沿技术。</p>\n<p>OK！</p>\n","createTime":1456946880000,"updatedTime":1785052478311},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

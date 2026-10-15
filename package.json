@@ -1,0 +1,16 @@
+{
+  "name": "qingyi-blog-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "清逸的博客 · Cloudflare Worker 动态后端（API + 管理后台 + 文章详情动态渲染）",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute t_blog_qingyi --remote --file=migrations/0002_admin_full.sql",
+    "db:tables": "wrangler d1 execute t_blog_qingyi --remote --command \"SELECT name FROM sqlite_master WHERE type='table'\""
+  },
+  "devDependencies": {
+    "wrangler": "^3.80.0"
+  }
+}

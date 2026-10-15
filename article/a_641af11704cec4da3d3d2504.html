@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>机器学习 — 什么是张量？</title><meta name="description" content="张量（tensor）是一个数学概念，表示在不同向量空间之间的线性映射。在物理学和工程学中，张量通常用于描述物体的形状、力学和电磁场等性质。它可以看作是一种多维数组，具有特定的变换规律和运算法则，例如加法、乘法和缩并等。张量（tensor）是一种数学对象，它可以用来表示多维数组或向量。在计算机科学和机">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">机器学习 — 什么是张量？</h1></header><section class="detail-section"><!----><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2023-3-22 20:14:15">2023-3-22 20:14:15</time></div><div class="tags"><!--[--><span> # 机器学习</span><!--]--></div></div></section><div class="detail-content"><p>张量（tensor）是一个数学概念，表示在不同向量空间之间的线性映射。在物理学和工程学中，张量通常用于描述物体的形状、力学和电磁场等性质。它可以看作是一种多维数组，具有特定的变换规律和运算法则，例如加法、乘法和缩并等。</p>
+<p>张量（tensor）是一种数学对象，它可以用来表示多维数组或向量。在计算机科学和机器学习中，张量通常用于表示数据集、神经网络的权重和偏差等数据结构。张量的阶数（rank）指的是它所包含的维度数量，例如，一个标量（scalar）是一个零阶张量，向量（vector）是一个一阶张量，矩阵（matrix）是一个二阶张量，三阶张量将包含3个索引以此类推。  </p>
+<p>一阶张量是一个具有一个下标的张量，通常表示为一个向量。以下是一些一阶张量（向量）的示例：</p>
+<p>速度向量：描述物体在某个方向上的速度大小和方向。</p>
+<p>力向量：描述物体施加在其他物体上的力的大小和方向。</p>
+<p>电场强度向量：描述在某个点的电场强度大小和方向。</p>
+<p>磁感应强度向量：描述在某个点的磁场强度大小和方向。</p>
+<p>位移向量：描述物体从一个位置到另一个位置的位移大小和方向。  </p>
+<p>一个三阶张量可以看作是一个元素为标量值的三维数组，这个数组可以表示为一个立方体或者一个矩阵序列。以下是一些三阶张量的示例：</p>
+<p>RGB 图像可以被表示成一个 $n X m X 3$ 的三阶张量。其中 $n$ 和 $m$ 分别代表图像的高和宽，而第三个轴则对应着红、绿、蓝三种颜色通道。</p>
+<p>一个含有 $n$ 个样本、每个样本包含 $m$ 个特征的数据集可以被表示成一个 $n X m X p$ 的三阶张量。其中 $p$ 是一个超参数，用来控制数据集的维度。</p>
+<p>空间中的物理场可以被表示成一个 $n X m X l$ 的三阶张量，其中 $n$、$m$、$l$ 对应于空间中三个方向的离散采样点。这种表示方法在计算流体力学和固体力学等领域得到广泛应用。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"641af11704cec4da3d3d2504","article":{"id":"641af11704cec4da3d3d2504","title":"机器学习 — 什么是张量？","snippet":"张量（tensor）是一个数学概念，表示在不同向量空间之间的线性映射。在物理学和工程学中，张量通常用于描述物体的形状、力学和电磁场等性质。它可以看作是一种多维数组，具有特定的变换规律和运算法则，例如加法、乘法和缩并等。张量（tensor）是一种数学对象，它可以用来表示多维数组或向量。在计算机科学和机","tags":["机器学习"],"category":["机器学习"],"keywords":[],"content":"<p>张量（tensor）是一个数学概念，表示在不同向量空间之间的线性映射。在物理学和工程学中，张量通常用于描述物体的形状、力学和电磁场等性质。它可以看作是一种多维数组，具有特定的变换规律和运算法则，例如加法、乘法和缩并等。</p>\n<p>张量（tensor）是一种数学对象，它可以用来表示多维数组或向量。在计算机科学和机器学习中，张量通常用于表示数据集、神经网络的权重和偏差等数据结构。张量的阶数（rank）指的是它所包含的维度数量，例如，一个标量（scalar）是一个零阶张量，向量（vector）是一个一阶张量，矩阵（matrix）是一个二阶张量，三阶张量将包含3个索引以此类推。  </p>\n<p>一阶张量是一个具有一个下标的张量，通常表示为一个向量。以下是一些一阶张量（向量）的示例：</p>\n<p>速度向量：描述物体在某个方向上的速度大小和方向。</p>\n<p>力向量：描述物体施加在其他物体上的力的大小和方向。</p>\n<p>电场强度向量：描述在某个点的电场强度大小和方向。</p>\n<p>磁感应强度向量：描述在某个点的磁场强度大小和方向。</p>\n<p>位移向量：描述物体从一个位置到另一个位置的位移大小和方向。  </p>\n<p>一个三阶张量可以看作是一个元素为标量值的三维数组，这个数组可以表示为一个立方体或者一个矩阵序列。以下是一些三阶张量的示例：</p>\n<p>RGB 图像可以被表示成一个 $n X m X 3$ 的三阶张量。其中 $n$ 和 $m$ 分别代表图像的高和宽，而第三个轴则对应着红、绿、蓝三种颜色通道。</p>\n<p>一个含有 $n$ 个样本、每个样本包含 $m$ 个特征的数据集可以被表示成一个 $n X m X p$ 的三阶张量。其中 $p$ 是一个超参数，用来控制数据集的维度。</p>\n<p>空间中的物理场可以被表示成一个 $n X m X l$ 的三阶张量，其中 $n$、$m$、$l$ 对应于空间中三个方向的离散采样点。这种表示方法在计算流体力学和固体力学等领域得到广泛应用。</p>\n","createTime":1679487255275,"updatedTime":1785052441457},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

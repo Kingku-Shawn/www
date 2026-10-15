@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>jquery滚动条插件 nicescroll 的 详细 配置参数</title><meta name="keywords" content="jquery.nicescroll,nicescroll的配置参数,nicescroll参数详解,nicescroll官方文档翻译"><meta name="description" content="JQuery.NiceScroll这个工具可以让你的可滚动div有一个统一的样式，无论是在PC还是在移动端等所有的平台上。在现代浏览器上实施了硬件加速滚动。如果浏览器支持的话，它会使用animationFrame来平滑滚动。这个代码使用了严谨模式“use strict”测试过了的，而且支持Bower">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">jquery滚动条插件 nicescroll 的 详细 配置参数</h1></header><section class="detail-section"><!----><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-11-2 03:40:00">2016-11-2 03:40:00</time></div><div class="tags"><!--[--><span> # H5开发</span><!--]--></div></div></section><div class="detail-content"><h2>JQuery.NiceScroll</h2>
+<p>这个工具可以让你的可滚动div有一个统一的样式，无论是在PC还是在移动端等所有的平台上。</p>
+<p>在现代浏览器上实施了硬件加速滚动。如果浏览器支持的话，它会使用animationFrame来平滑滚动。</p>
+<p>这个代码使用了严谨模式“use strict”测试过了的，而且支持Bower和AMD模式。  </p>
+<p>本文翻译自官方原版的说明文档<a href="../link@next=https%253A%252F%252Fgithub.com%252Finuyaksa%252Fjquery.nicescroll.html" target="_blank">https://github.com/inuyaksa/jquery.nicescroll</a></p>
+<h2>特点：</h2>
+<ul>
+<li><p>很容易的安装和使用，几乎不用修改你现在的代码就可以运作了。(如果在某些特殊情况下发生了异常，请写信给NiceScroll插件的作者)。simple installation and activation, it works with NO modification of your code. (some exceptions can happen, so you can write to me)</p>
+</li>
+<li><p>非常时髦的滚动条，它不会在你的页面上占用空间(不过原始的浏览器会需要一些页面的空间，这会占用一些window或者div的可用宽度)。</p>
+</li>
+<li><p>你也可以在body节点上使用它。you can style main document scrollbar (body) too!!</p>
+</li>
+<li><p>在所有的浏览器上，你可以通过下面这些方式来滚动：拖动光标，鼠标轮滚（滚轮的速度可以自定义），键盘导航。on all browsers you can scroll: dragging the cursor, mouse wheel (speed customizable), keyboard navigation (cursor keys, pagup/down keys, home/end keys)</p>
+</li>
+<li><p>滚动式平湖的，而且速度是可自定义的。scroll is smooth (as modern tablet browsing), speed is customizable</p>
+</li>
+<li><p>支持缩放。zoom feature</p>
+</li>
+<li><p>如果设备能够支持，就会使用硬件加速。hardware accelerated scroll (where available)</p>
+</li>
+<li><p>使用了animation frame去平滑滚动并且节省cpu开销。 support for smoth scrolling and cpu-saving</p>
+</li>
+<li><p>触摸设备的拖动滚动模式下使用了滚动惯性。dragging scroll mode with scrolling momentum (as touch device)</p>
+</li>
+<li><p>在所有主流的PC浏览器和各个版本的移动端浏览器上测试通过了的。tested for all major browsers desktop and mobile versions</p>
+</li>
+<li><p>支持触摸设备support for touch devices</p>
+</li>
+<li><p>支持多点触控设备(在IE10上用了MSPointer)。support for multi-input devices (IE10 with MSPointer)</p>
+</li>
+<li><p>兼容许多非主流的浏览器, 包括IE6, Safari on Mac 和 WP7 !（6不6!!）</p>
+</li>
+<li><p>高可定制的滚动条样式</p>
+</li>
+<li><p>浏览器原生的滚动条也可以工作</p>
+</li>
+<li><p>充分的利用了jQuery</p>
+</li>
+<li><p>兼容 jQuery UI, jQuery Touch, jQuery Mobile</p>
+</li>
+</ul>
+<h2>依赖：</h2>
+<p>这是一个jquery的插件，使用的时候需要引入jquery库，你可以使用1.5.x以上版本的jquery。 It&#39;s a plugin for the jquery framework, you need to include jquery in your scripts. From 1.5.x version and on. (I&#39;d better to use 1.8.3+ minimum)</p>
+<p>使用方法：</p>
+<pre><code class="language-js">// 1. Simple mode, it styles document scrollbar:
+// 最简单的方式，给整个文档设置滚动条
+$(document).ready(function() {  
+    $(&quot;html&quot;).niceScroll();
+});
+
+// 2. Instance with object returned:
+//返回对象实例
+var nice = false;
+$(document).ready(function() {  
+    nice = $(&quot;html&quot;).niceScroll();
+});
+
+// 3. Style a DIV and change cursor color:
+//装饰一个div，并且修改光标的颜色
+$(document).ready(function() {  
+    $(&quot;#thisdiv&quot;).niceScroll({cursorcolor:&quot;#00F&quot;});
+});
+
+// 4. DIV with &quot;wrapper&quot;, formed by two divs, 
+// the first is the vieport, the latter is the content:
+//div带有包裹层时，设置两个div，通过第一个获取参数，第二个则是内容
+$(document).ready(function() {    
+    $(&quot;#viewportdiv&quot;).niceScroll(&quot;#wrapperdiv&quot;,{cursorcolor:&quot;#00F&quot;});
+});
+
+// 5. Get nicescroll object:
+//获取nicescroll实例对象
+var nice = $(&quot;#mydiv&quot;).getNiceScroll();
+
+// 6. Hide scrollbars:
+//隐藏滚动条
+$(&quot;#mydiv&quot;).getNiceScroll().hide();
+
+// 7. Check for scrollbars resize (when content or position have changed):
+//当内容或者是位置发生改变的时候。重新检查并更新滚动条的大小和位置。
+$(&quot;#mydiv&quot;).getNiceScroll().resize();
+
+// 8. Scrolling to a position:
+//滚动到指定位置
+$(&quot;#mydiv&quot;).getNiceScroll(0).doScrollLeft(x, duration); // Scroll X Axis
+$(&quot;#mydiv&quot;).getNiceScroll(0).doScrollTop(y, duration); // Scroll Y Axis
+</code></pre>
+<h2>配置参数：</h2>
+<p>当你在调用“niceScroll”的时候，你可以通过配置这些参数去自定义不同的视觉效果。When you call &quot;niceScroll&quot; you can pass some parameters to custom visual aspects:</p>
+<pre><code class="language-js">$(&quot;#thisdiv&quot;).niceScroll({
+    cursorcolor: &quot;#424242&quot;, // 滚动条光标的颜色 change cursor color in hex
+    cursoropacitymin: 0, // 滚动条在不激活状态下的透明度，默认是0 change opacity when cursor is inactive (scrollabar &quot;hidden&quot; state), range from 1 to 0
+    cursoropacitymax: 1, //滚动条在激活状态下的透明度，默认是1 change opacity when cursor is active (scrollabar &quot;visible&quot; state), range from 1 to 0
+    cursorwidth: &quot;5px&quot;, // 滚动条宽度 cursor width in pixel (you can also write &quot;5px&quot;)
+    cursorborder: &quot;1px solid #fff&quot;, //用css定义滚动条的边框 css definition for cursor border
+    cursorborderradius: &quot;5px&quot;, //滚动条的圆角半径 border radius in pixel for cursor
+    zindex: &quot;auto&quot; | &lt;number&gt;, //改变滚动条div的z-index的值 change z-index for scrollbar div
+    scrollspeed: 60, // 滚动速度
+    mousescrollstep: 40, //使用鼠标轮滚的时候的滚动速度 scrolling speed with mouse wheel (pixel)
+    touchbehavior: false, //在桌面电脑上启用光标拖动，就像触摸设备那样 enable cursor-drag scrolling like touch devices in desktop computer
+    hwacceleration: true, //如果设备支持，则启用硬件加速 use hardware accelerated scroll when supported
+    boxzoom: false, //给盒子的内容启用放大缩小功能 enable zoom for box content
+    dblclickzoom: true, //双击放大，在boxzoom=true的情况下 (only when boxzoom=true) zoom activated when double click on box
+    gesturezoom: true, //手势放大缩小，在boxzoom=true的情况下 (only when boxzoom=true and with touch devices) zoom activated when pinch out/in on box
+    grabcursorenabled: true //这个可以禁用&quot;grab&quot;鼠标光标 (only when touchbehavior=true) display &quot;grab&quot; icon
+    autohidemode: true, //设置在什么情况下隐藏scrollbar。 how hide the scrollbar works, possible values: 
+      true | // 在不滚动情况下隐藏。 hide when no scrolling
+      &quot;cursor&quot; | //只隐藏光标 only cursor hidden
+      false | //始终不隐藏 do not hide,
+      &quot;leave&quot; | //只在鼠标离开内容区是隐藏 hide only if pointer leaves content
+      &quot;hidden&quot; | //使用隐藏 hide always
+      &quot;scroll&quot;, //只在滚动的情况下显示，在不滚动的时候隐藏 show only on scroll          
+    background: &quot;&quot;, //设置背景颜色 change css for rail background
+    iframeautoresize: true, //在iframe的load事件中自动设置大小 autoresize iframe on load event
+    cursorminheight: 32, //设置最小的光标高度 set the minimum cursor height (pixel)
+    preservenativescrolling: true, //这个设置通过事件冒泡的方式使你能够滚动原生的滚动条。 you can scroll native scrollable areas with mouse, bubbling mouse wheel event
+    railoffset: false, //设置轨道的上或者左的偏移 you can add offset top/left for rail position
+    bouncescroll: false, //启用向手机上面的那种滚动回弹 (only hw accell) enable scroll bouncing at the end of content as mobile-like 
+    spacebarenabled: true, // enable page down scrolling when space bar has pressed
+    railpadding: { top: 0, right: 0, left: 0, bottom: 0 }, //设置轨道的内间距 set padding for rail bar
+    disableoutline: true, //在chrome浏览器上选择一个div使用nicescroll时禁用outline， for chrome browser, disable outline (orange highlight) when selecting a div with nicescroll
+    horizrailenabled: true, //设置是否处理水平滚动 nicescroll can manage horizontal scroll
+    railalign: right, //垂直对齐方式 alignment of vertical rail
+    railvalign: bottom, //水平对齐方式 alignment of horizontal rail
+    enabletranslate3d: true, //设置nicescroll是否使用css translate去滚动内容 nicescroll can use css translate to scroll content
+    enablemousewheel: true, //设置是否响应鼠标滚动事件 nicescroll can manage mouse wheel events
+    enablekeyboard: true, //设置是否响应键盘事件 nicescroll can manage keyboard events
+    smoothscroll: true, //使用平滑滚动 scroll with ease movement
+    sensitiverail: true, //在轨道上点击时是否滚动 click on rail make a scroll
+    enablemouselockapi: true, // can use mouse caption lock API (same issue on object dragging)
+    cursorfixedheight: false, //给光标设置固定的高度 set fixed height for cursor in pixel
+    hidecursordelay: 400, //设置隐藏光标的延迟时间，单位是毫秒 set the delay in microseconds to fading out scrollbars
+    directionlockdeadzone: 6, // dead zone in pixels for direction lock activation
+    nativeparentscrolling: true, //检测内容的底部和父节点是否允许滚动，像原生滚动条的实现方式 detect bottom of content and let parent to scroll, as native scroll does
+    enablescrollonselection: true, //在选择文字的时候自动滚动内容 enable auto-scrolling of content when selection text
+    cursordragspeed: 0.3, //当拖动光标时候的速度 speed of selection when dragged with cursor
+    rtlmode: &quot;auto&quot;, //设置水平滚动div的起始边是左还是右 horizontal div scrolling starts at left side
+    cursordragontouch: false, //设置在触摸模式下，是否可以拖动光标就可以滚动 drag cursor in touch / touchbehavior mode also
+    oneaxismousemode: &quot;auto&quot;, //设置鼠标滚轮在只有水平模式的情况下是否可用 it permits horizontal scrolling with mousewheel on horizontal only content, if false (vertical-only) mousewheel don&#39;t scroll horizontally, if value is auto detects two-axis mouse
+    scriptpath: &quot;&quot; //设置box模式下图标的路径，设成&quot;&quot;表示和script是同一个路径 define custom path for boxmode icons (&quot;&quot; =&gt; same script path)
+    preventmultitouchscrolling: true //防止在多点触摸情况下滚动 prevent scrolling on multitouch events
+    disablemutationobserver: false //稳定滚动条 force MutationObserver disabled
+});
+</code></pre>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d86","article":{"id":"5a0bf49035583c99c0b28d86","title":"jquery滚动条插件 nicescroll 的 详细 配置参数","snippet":"JQuery.NiceScroll这个工具可以让你的可滚动div有一个统一的样式，无论是在PC还是在移动端等所有的平台上。在现代浏览器上实施了硬件加速滚动。如果浏览器支持的话，它会使用animationFrame来平滑滚动。这个代码使用了严谨模式“use strict”测试过了的，而且支持Bower","image":"","tags":["html","js"],"category":["H5开发"],"keywords":["jquery.nicescroll","nicescroll的配置参数","nicescroll参数详解","nicescroll官方文档翻译"],"content":"<h2>JQuery.NiceScroll</h2>\n<p>这个工具可以让你的可滚动div有一个统一的样式，无论是在PC还是在移动端等所有的平台上。</p>\n<p>在现代浏览器上实施了硬件加速滚动。如果浏览器支持的话，它会使用animationFrame来平滑滚动。</p>\n<p>这个代码使用了严谨模式“use strict”测试过了的，而且支持Bower和AMD模式。  </p>\n<p>本文翻译自官方原版的说明文档<a href=\\&quot;https://github.com/inuyaksa/jquery.nicescroll\\&quot;\">https://github.com/inuyaksa/jquery.nicescroll</a></p>\n<h2>特点：</h2>\n<ul>\n<li><p>很容易的安装和使用，几乎不用修改你现在的代码就可以运作了。(如果在某些特殊情况下发生了异常，请写信给NiceScroll插件的作者)。simple installation and activation, it works with NO modification of your code. (some exceptions can happen, so you can write to me)</p>\n</li>\n<li><p>非常时髦的滚动条，它不会在你的页面上占用空间(不过原始的浏览器会需要一些页面的空间，这会占用一些window或者div的可用宽度)。</p>\n</li>\n<li><p>你也可以在body节点上使用它。you can style main document scrollbar (body) too!!</p>\n</li>\n<li><p>在所有的浏览器上，你可以通过下面这些方式来滚动：拖动光标，鼠标轮滚（滚轮的速度可以自定义），键盘导航。on all browsers you can scroll: dragging the cursor, mouse wheel (speed customizable), keyboard navigation (cursor keys, pagup/down keys, home/end keys)</p>\n</li>\n<li><p>滚动式平湖的，而且速度是可自定义的。scroll is smooth (as modern tablet browsing), speed is customizable</p>\n</li>\n<li><p>支持缩放。zoom feature</p>\n</li>\n<li><p>如果设备能够支持，就会使用硬件加速。hardware accelerated scroll (where available)</p>\n</li>\n<li><p>使用了animation frame去平滑滚动并且节省cpu开销。 support for smoth scrolling and cpu-saving</p>\n</li>\n<li><p>触摸设备的拖动滚动模式下使用了滚动惯性。dragging scroll mode with scrolling momentum (as touch device)</p>\n</li>\n<li><p>在所有主流的PC浏览器和各个版本的移动端浏览器上测试通过了的。tested for all major browsers desktop and mobile versions</p>\n</li>\n<li><p>支持触摸设备support for touch devices</p>\n</li>\n<li><p>支持多点触控设备(在IE10上用了MSPointer)。support for multi-input devices (IE10 with MSPointer)</p>\n</li>\n<li><p>兼容许多非主流的浏览器, 包括IE6, Safari on Mac 和 WP7 !（6不6!!）</p>\n</li>\n<li><p>高可定制的滚动条样式</p>\n</li>\n<li><p>浏览器原生的滚动条也可以工作</p>\n</li>\n<li><p>充分的利用了jQuery</p>\n</li>\n<li><p>兼容 jQuery UI, jQuery Touch, jQuery Mobile</p>\n</li>\n</ul>\n<h2>依赖：</h2>\n<p>这是一个jquery的插件，使用的时候需要引入jquery库，你可以使用1.5.x以上版本的jquery。 It&#39;s a plugin for the jquery framework, you need to include jquery in your scripts. From 1.5.x version and on. (I&#39;d better to use 1.8.3+ minimum)</p>\n<p>使用方法：</p>\n<pre><code class=\"language-js\">// 1. Simple mode, it styles document scrollbar:\n// 最简单的方式，给整个文档设置滚动条\n$(document).ready(function() {  \n    $(&quot;html&quot;).niceScroll();\n});\n\n// 2. Instance with object returned:\n//返回对象实例\nvar nice = false;\n$(document).ready(function() {  \n    nice = $(&quot;html&quot;).niceScroll();\n});\n\n// 3. Style a DIV and change cursor color:\n//装饰一个div，并且修改光标的颜色\n$(document).ready(function() {  \n    $(&quot;#thisdiv&quot;).niceScroll({cursorcolor:&quot;#00F&quot;});\n});\n\n// 4. DIV with &quot;wrapper&quot;, formed by two divs, \n// the first is the vieport, the latter is the content:\n//div带有包裹层时，设置两个div，通过第一个获取参数，第二个则是内容\n$(document).ready(function() {    \n    $(&quot;#viewportdiv&quot;).niceScroll(&quot;#wrapperdiv&quot;,{cursorcolor:&quot;#00F&quot;});\n});\n\n// 5. Get nicescroll object:\n//获取nicescroll实例对象\nvar nice = $(&quot;#mydiv&quot;).getNiceScroll();\n\n// 6. Hide scrollbars:\n//隐藏滚动条\n$(&quot;#mydiv&quot;).getNiceScroll().hide();\n\n// 7. Check for scrollbars resize (when content or position have changed):\n//当内容或者是位置发生改变的时候。重新检查并更新滚动条的大小和位置。\n$(&quot;#mydiv&quot;).getNiceScroll().resize();\n\n// 8. Scrolling to a position:\n//滚动到指定位置\n$(&quot;#mydiv&quot;).getNiceScroll(0).doScrollLeft(x, duration); // Scroll X Axis\n$(&quot;#mydiv&quot;).getNiceScroll(0).doScrollTop(y, duration); // Scroll Y Axis\n</code></pre>\n<h2>配置参数：</h2>\n<p>当你在调用“niceScroll”的时候，你可以通过配置这些参数去自定义不同的视觉效果。When you call &quot;niceScroll&quot; you can pass some parameters to custom visual aspects:</p>\n<pre><code class=\"language-js\">$(&quot;#thisdiv&quot;).niceScroll({\n    cursorcolor: &quot;#424242&quot;, // 滚动条光标的颜色 change cursor color in hex\n    cursoropacitymin: 0, // 滚动条在不激活状态下的透明度，默认是0 change opacity when cursor is inactive (scrollabar &quot;hidden&quot; state), range from 1 to 0\n    cursoropacitymax: 1, //滚动条在激活状态下的透明度，默认是1 change opacity when cursor is active (scrollabar &quot;visible&quot; state), range from 1 to 0\n    cursorwidth: &quot;5px&quot;, // 滚动条宽度 cursor width in pixel (you can also write &quot;5px&quot;)\n    cursorborder: &quot;1px solid #fff&quot;, //用css定义滚动条的边框 css definition for cursor border\n    cursorborderradius: &quot;5px&quot;, //滚动条的圆角半径 border radius in pixel for cursor\n    zindex: &quot;auto&quot; | &lt;number&gt;, //改变滚动条div的z-index的值 change z-index for scrollbar div\n    scrollspeed: 60, // 滚动速度\n    mousescrollstep: 40, //使用鼠标轮滚的时候的滚动速度 scrolling speed with mouse wheel (pixel)\n    touchbehavior: false, //在桌面电脑上启用光标拖动，就像触摸设备那样 enable cursor-drag scrolling like touch devices in desktop computer\n    hwacceleration: true, //如果设备支持，则启用硬件加速 use hardware accelerated scroll when supported\n    boxzoom: false, //给盒子的内容启用放大缩小功能 enable zoom for box content\n    dblclickzoom: true, //双击放大，在boxzoom=true的情况下 (only when boxzoom=true) zoom activated when double click on box\n    gesturezoom: true, //手势放大缩小，在boxzoom=true的情况下 (only when boxzoom=true and with touch devices) zoom activated when pinch out/in on box\n    grabcursorenabled: true //这个可以禁用&quot;grab&quot;鼠标光标 (only when touchbehavior=true) display &quot;grab&quot; icon\n    autohidemode: true, //设置在什么情况下隐藏scrollbar。 how hide the scrollbar works, possible values: \n      true | // 在不滚动情况下隐藏。 hide when no scrolling\n      &quot;cursor&quot; | //只隐藏光标 only cursor hidden\n      false | //始终不隐藏 do not hide,\n      &quot;leave&quot; | //只在鼠标离开内容区是隐藏 hide only if pointer leaves content\n      &quot;hidden&quot; | //使用隐藏 hide always\n      &quot;scroll&quot;, //只在滚动的情况下显示，在不滚动的时候隐藏 show only on scroll          \n    background: &quot;&quot;, //设置背景颜色 change css for rail background\n    iframeautoresize: true, //在iframe的load事件中自动设置大小 autoresize iframe on load event\n    cursorminheight: 32, //设置最小的光标高度 set the minimum cursor height (pixel)\n    preservenativescrolling: true, //这个设置通过事件冒泡的方式使你能够滚动原生的滚动条。 you can scroll native scrollable areas with mouse, bubbling mouse wheel event\n    railoffset: false, //设置轨道的上或者左的偏移 you can add offset top/left for rail position\n    bouncescroll: false, //启用向手机上面的那种滚动回弹 (only hw accell) enable scroll bouncing at the end of content as mobile-like \n    spacebarenabled: true, // enable page down scrolling when space bar has pressed\n    railpadding: { top: 0, right: 0, left: 0, bottom: 0 }, //设置轨道的内间距 set padding for rail bar\n    disableoutline: true, //在chrome浏览器上选择一个div使用nicescroll时禁用outline， for chrome browser, disable outline (orange highlight) when selecting a div with nicescroll\n    horizrailenabled: true, //设置是否处理水平滚动 nicescroll can manage horizontal scroll\n    railalign: right, //垂直对齐方式 alignment of vertical rail\n    railvalign: bottom, //水平对齐方式 alignment of horizontal rail\n    enabletranslate3d: true, //设置nicescroll是否使用css translate去滚动内容 nicescroll can use css translate to scroll content\n    enablemousewheel: true, //设置是否响应鼠标滚动事件 nicescroll can manage mouse wheel events\n    enablekeyboard: true, //设置是否响应键盘事件 nicescroll can manage keyboard events\n    smoothscroll: true, //使用平滑滚动 scroll with ease movement\n    sensitiverail: true, //在轨道上点击时是否滚动 click on rail make a scroll\n    enablemouselockapi: true, // can use mouse caption lock API (same issue on object dragging)\n    cursorfixedheight: false, //给光标设置固定的高度 set fixed height for cursor in pixel\n    hidecursordelay: 400, //设置隐藏光标的延迟时间，单位是毫秒 set the delay in microseconds to fading out scrollbars\n    directionlockdeadzone: 6, // dead zone in pixels for direction lock activation\n    nativeparentscrolling: true, //检测内容的底部和父节点是否允许滚动，像原生滚动条的实现方式 detect bottom of content and let parent to scroll, as native scroll does\n    enablescrollonselection: true, //在选择文字的时候自动滚动内容 enable auto-scrolling of content when selection text\n    cursordragspeed: 0.3, //当拖动光标时候的速度 speed of selection when dragged with cursor\n    rtlmode: &quot;auto&quot;, //设置水平滚动div的起始边是左还是右 horizontal div scrolling starts at left side\n    cursordragontouch: false, //设置在触摸模式下，是否可以拖动光标就可以滚动 drag cursor in touch / touchbehavior mode also\n    oneaxismousemode: &quot;auto&quot;, //设置鼠标滚轮在只有水平模式的情况下是否可用 it permits horizontal scrolling with mousewheel on horizontal only content, if false (vertical-only) mousewheel don&#39;t scroll horizontally, if value is auto detects two-axis mouse\n    scriptpath: &quot;&quot; //设置box模式下图标的路径，设成&quot;&quot;表示和script是同一个路径 define custom path for boxmode icons (&quot;&quot; =&gt; same script path)\n    preventmultitouchscrolling: true //防止在多点触摸情况下滚动 prevent scrolling on multitouch events\n    disablemutationobserver: false //稳定滚动条 force MutationObserver disabled\n});\n</code></pre>\n","createTime":1478029200000,"updatedTime":1784998657831},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

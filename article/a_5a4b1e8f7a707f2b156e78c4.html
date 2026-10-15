@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能</title><meta name="keywords" content="opencv4nodejs,Nodejs,OpenCV,人脸识别,深度神经网络,机器学习,图像识别"><meta name="description" content="这是一个为Nodejs实现的异步的OpenCV 3.X API,它包括了这些功能:人脸检测、机器学习、神经网络,手势识别、物体跟踪、特征匹配、图像直方图。这个库的examples文件夹中包含了一些程序示例。人脸检测人脸识别手势识别用深度神经网络进行物体识别机器学习包括手写文字学习物体追踪特征点检测与">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/dft_2018/240f5045a4a1708d17ab746cc2786ab4_44985.jpg" title="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2018-1-2 13:54:00">2018-1-2 13:54:00</time></div><div class="tags"><!--[--><span> # nodejs</span><span> # OpenCV</span><!--]--></div></div></section><div class="detail-content"><p>这是一个为Nodejs实现的异步的OpenCV 3.X API,它包括了这些功能:人脸检测、机器学习、神经网络,手势识别、物体跟踪、特征匹配、图像直方图。</p>
+<p>这个库的examples文件夹中包含了一些程序示例。</p>
+<p>人脸检测</p>
+<p><img src="../o/uploads/dft_2018/240f5045a4a1708d17ab746cc2786ab4_44985.jpg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /><img src="../o/uploads/dft_2018/6912340878c323b77207dc24f56f0812_17223.jpg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /></p>
+<p>人脸识别</p>
+<p><img src="../o/uploads/dft_2018/57dcb1317de55ca25b87ff7405dd1333_154325.jpg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /></p>
+<p>手势识别</p>
+<p><img src="../uploads/article/pics/69fba916d219440b7e148ffd56dc3f76_2027667.gif" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /></p>
+<p>用深度神经网络进行物体识别</p>
+<p><img src="../o/uploads/dft_2018/08d34ae5226deab2e8552f5fe533b9db_19677.jpg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /><img src="../o/uploads/dft_2018/7bb296a8157976789c2a0bd04d8a8f33_47019.jpeg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /><img src="../o/uploads/dft_2018/23a4b5814f8c020a67e77156204ae889_24906.jpg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /></p>
+<p>机器学习包括手写文字学习</p>
+<p>物体追踪</p>
+<p><img src="../uploads/article/pics/61bb52003e3089fb478d791fb56a5b11_784689.gif" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /></p>
+<p>特征点检测与匹配</p>
+<p><img src="../o/uploads/dft_2018/2a49cd3629d8d560e101e36a84e6a263_90945.jpg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /></p>
+<p>以及图像的直方图</p>
+<p><img src="../o/uploads/dft_2018/1d82b84277f32d9f3823c616e4f3a98b_28276.jpg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /><img src="../o/uploads/dft_2018/b3f4267ea0d4c281a10c7a711a9db235_10695.jpg" alt="opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能" /></p>
+<p>安装方式：</p>
+<pre><code class="language-bash">$ npm install --save opencv4nodejs
+</code></pre>
+<p>同时要确保你电脑里已经安装了OpenCV 3+版本程序。</p>
+<p>安装完OpenCV，记得设置环境变量：</p>
+<ol>
+<li><p>OPENCV_DIR 指向包含include目录的那个目录 或者显式地设置OPENCV_INCLUDE_DIR .</p>
+</li>
+<li><p>OPENCV_LIB_DIR 指向OpenCV中包含.lib或者.so文件的目录.</p>
+</li>
+</ol>
+<p>github地址：  </p>
+<p><a href="../link@next=https%253A%252F%252Fgithub.com%252Fjustadudewhohacks%252Fopencv4nodejs.html" target="_blank">https://github.com/justadudewhohacks/opencv4nodejs</a></p>
+<p>可以根据示例代码进行使用。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a4b1e8f7a707f2b156e78c4","article":{"id":"5a4b1e8f7a707f2b156e78c4","title":"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能","snippet":"这是一个为Nodejs实现的异步的OpenCV 3.X API,它包括了这些功能:人脸检测、机器学习、神经网络,手势识别、物体跟踪、特征匹配、图像直方图。这个库的examples文件夹中包含了一些程序示例。人脸检测人脸识别手势识别用深度神经网络进行物体识别机器学习包括手写文字学习物体追踪特征点检测与","image":"../o/uploads/dft_2018/240f5045a4a1708d17ab746cc2786ab4_44985.jpg","tags":["nodejs","OpenCV","机器学习"],"category":["nodejs","OpenCV"],"keywords":["opencv4nodejs","Nodejs","OpenCV","人脸识别","深度神经网络","机器学习","图像识别"],"content":"<p>这是一个为Nodejs实现的异步的OpenCV 3.X API,它包括了这些功能:人脸检测、机器学习、神经网络,手势识别、物体跟踪、特征匹配、图像直方图。</p>\n<p>这个库的examples文件夹中包含了一些程序示例。</p>\n<p>人脸检测</p>\n<p><img src=\"../o/uploads/dft_2018/240f5045a4a1708d17ab746cc2786ab4_44985.jpg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /><img src=\"../o/uploads/dft_2018/6912340878c323b77207dc24f56f0812_17223.jpg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /></p>\n<p>人脸识别</p>\n<p><img src=\"../o/uploads/dft_2018/57dcb1317de55ca25b87ff7405dd1333_154325.jpg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /></p>\n<p>手势识别</p>\n<p><img src=\\&quot;../../uploads/article/pics/69fba916d219440b7e148ffd56dc3f76_2027667.gif\\&quot;\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /></p>\n<p>用深度神经网络进行物体识别</p>\n<p><img src=\"../o/uploads/dft_2018/08d34ae5226deab2e8552f5fe533b9db_19677.jpg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /><img src=\"../o/uploads/dft_2018/7bb296a8157976789c2a0bd04d8a8f33_47019.jpeg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /><img src=\"../o/uploads/dft_2018/23a4b5814f8c020a67e77156204ae889_24906.jpg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /></p>\n<p>机器学习包括手写文字学习</p>\n<p>物体追踪</p>\n<p><img src=\\&quot;../../uploads/article/pics/61bb52003e3089fb478d791fb56a5b11_784689.gif\\&quot;\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /></p>\n<p>特征点检测与匹配</p>\n<p><img src=\"../o/uploads/dft_2018/2a49cd3629d8d560e101e36a84e6a263_90945.jpg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /></p>\n<p>以及图像的直方图</p>\n<p><img src=\"../o/uploads/dft_2018/1d82b84277f32d9f3823c616e4f3a98b_28276.jpg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /><img src=\"../o/uploads/dft_2018/b3f4267ea0d4c281a10c7a711a9db235_10695.jpg\" alt=\"opencv4nodejs—在Nodejs中借OpenCV实现包括人脸识别，深度神经网络在内的机器学习的功能\" /></p>\n<p>安装方式：</p>\n<pre><code class=\"language-bash\">$ npm install --save opencv4nodejs\n</code></pre>\n<p>同时要确保你电脑里已经安装了OpenCV 3+版本程序。</p>\n<p>安装完OpenCV，记得设置环境变量：</p>\n<ol>\n<li><p>OPENCV_DIR 指向包含include目录的那个目录 或者显式地设置OPENCV_INCLUDE_DIR .</p>\n</li>\n<li><p>OPENCV_LIB_DIR 指向OpenCV中包含.lib或者.so文件的目录.</p>\n</li>\n</ol>\n<p>github地址：  </p>\n<p><a href=\\&quot;https://github.com/justadudewhohacks/opencv4nodejs\\&quot;\">https://github.com/justadudewhohacks/opencv4nodejs</a></p>\n<p>可以根据示例代码进行使用。</p>\n","createTime":1514872440000,"updatedTime":1785042315540},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

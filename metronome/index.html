@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>在线节拍器 - html5网页节拍器 - html5 online metronome</title><meta name="description" content="shawn.com在线节拍器是一个专业的网页版H5节拍器APP,这是一个免费的模拟节拍器app软件,让你打开浏览器或手机浏览器即可使用的节拍器,使用html5技术而不是flash技术使节拍器能够完美兼容您的浏览器"><meta name="keywords" content="在线节拍器,乐器节拍器,音乐节拍器免费版,在线好用的节拍器,模拟节拍器,免费节拍器,手机在线节拍器,专业节拍器APP">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58pxbackground:#f5f7fb;}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="metronome"><div class="stage"><div class="pendulum"><div class="arm" style="transform:rotate(0deg);"><div class="bob" style="bottom:37.925925925925924px;"></div></div><div class="pivot"></div></div><div class="bpm-show"><div class="bpm-num">100</div><div class="bpm-unit"> BPM </div><div class="tempo-name">行板 Andante</div></div></div><div class="pai"><!--[--><div class="accent item"><div class="dot"></div><div class="num">1</div></div><div class="item"><div class="dot"></div><div class="num">2</div></div><div class="item"><div class="dot"></div><div class="num">3</div></div><div class="item"><div class="dot"></div><div class="num">4</div></div><!--]--></div><div class="ctl-bpm"><button type="button" class="xw-button"><!----><!--[--> -10 <!--]--></button><button type="button" class="xw-button"><!----><!--[--> -1 <!--]--></button><div class="xw-range bpm-range"><div class="xw-range-wrapper"><div class="bar" style="left:25.925925925925924%;"></div></div></div><button type="button" class="xw-button"><!----><!--[--> +1 <!--]--></button><button type="button" class="xw-button"><!----><!--[--> +10 <!--]--></button></div><div class="ctl-row"><div class="ctl-item"><span class="label">每小节拍数</span><button type="button" class="xw-button"><!----><!--[--> - <!--]--></button><span class="beats-num">4</span><button type="button" class="xw-button"><!----><!--[--> + <!--]--></button></div><div class="ctl-item"><span class="label">音色</span><!--[--><button type="button" class="xw-button select"><!----><!--[-->电子<!--]--></button><button type="button" class="xw-button"><!----><!--[-->机械<!--]--></button><button type="button" class="xw-button"><!----><!--[-->木质<!--]--></button><!--]--></div><div class="ctl-item"><span class="label">音量</span><div class="xw-range"><div class="xw-range-wrapper"><div class="bar" style="left:80%;"></div></div></div></div></div><div class="ctl-main"><button type="button" class="xw-button"><!----><!--[--> 点按测速 <!--]--></button><button type="button" class="xw-button primary start-btn"><!----><!--[-->开始<!--]--></button></div><div class="hint"> 空格 开始/停止 · ↑↓ 微调速度 · 点击节拍圆点切换 强拍/弱拍/静音 </div><div class="pinlun-intro"><h2>评论区</h2><p> 这个节拍器帮到你了吗？使用中遇到节拍不准、音色不合适，或者想要新的功能（比如更多拍号、复合节拍），都欢迎在下方留言告诉我们。 </p></div><div class="pinlun-wrapper"><div class="xw-pinlun2" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><!----><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__=undefined;
+        window._SSR_PAGE_="/metronome/"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  ﻿<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+
+
+<script src="../js/header-fix.js"></script>
+</body>
+</html>

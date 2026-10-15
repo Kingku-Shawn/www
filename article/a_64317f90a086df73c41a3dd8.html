@@ -1,0 +1,331 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）</title><meta name="keywords" content="清逸的开源清单"><meta name="description" content="第一个版本，使用esp8266创建一个wifi热点，使用esp32连接esp8266的wifi热点，esp32作为遥控端，读取摇杆中的电位器信号，通过UDP发送给esp8266端监听的UDP端口。esp8266接收到udp包，转换成pwm控制信号，分别控制舵机和电调控制小车。记得关注我物料清单 ht">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/article/pics/4b10e1dafd2be5dadeda4ef575ae67b7_363826.png" title="跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）" alt="跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2023-4-8 22:52:00">2023-4-8 22:52:00</time></div><div class="tags"><!--[--><span> # 清逸折腾硬件</span><!--]--></div></div></section><div class="detail-content"><p>第一个版本，使用esp8266创建一个wifi热点，使用esp32连接esp8266的wifi热点，esp32作为遥控端，读取摇杆中的电位器信号，通过UDP发送给esp8266端监听的UDP端口。esp8266接收到udp包，转换成pwm控制信号，分别控制舵机和电调控制小车。</p>
+<p><img src="../o/uploads/article/pics/4b10e1dafd2be5dadeda4ef575ae67b7_363826.png" alt="跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）" /></p>
+<p>记得关注我</p>
+<p><img src="../o/uploads/article/pics/621d7ad7c8b819c2d9a0f30cb0deb89d_134482.png" alt="跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）" /></p>
+<h2>物料清单</h2>
+<p><img src="../o/uploads/article/pics/1d24209d365967257135001403fc12a2_146650.png" alt="跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）" /></p>
+<p><a href="../link@next=https%253A%252F%252Fboardmix.cn%252Fapp%252Fshare%253Ftoken=FH6ClZfHtH5X1iuiSP3-u7DFAYVHt-hNiEGzTjq_ikHyz5PT92eZwl2LBrtUJSkk8moD62NrRUzEKCvmuaMYSVMM-_4dw1hSZ6OwOrz40vA=&amp;inviteCode=r4eTFl.html" target="_blank">https://boardmix.cn/app/share?token=FH6ClZfHtH5X1iuiSP3-u7DFAYVHt-hNiEGzTjq_ikHyz5PT92eZwl2LBrtUJSkk8moD62NrRUzEKCvmuaMYSVMM-_4dw1hSZ6OwOrz40vA=&amp;inviteCode=r4eTFl</a></p>
+<h2>视频地址</h2>
+<h3>说明视频地址</h3>
+<p><a href="../link@next=https%253A%252F%252Fwww.bilibili.com%252Fvideo%252FBV1Tx4y1N7Uz%252F.html" target="_blank">https://www.bilibili.com/video/BV1Tx4y1N7Uz/</a></p>
+<h3>接线视频地址</h3>
+<p><a href="../link@next=https%253A%252F%252Fwww.bilibili.com%252Fvideo%252FBV1MM4y1r7jm%252F.html" target="_blank">https://www.bilibili.com/video/BV1MM4y1r7jm/</a></p>
+<h2>开源代码</h2>
+<h3>接收端 （ESP8266，NodeMCU）</h3>
+<pre><code class="language-cpp">#include &lt;ESP8266WiFi.h&gt;
+#include &lt;WiFiClient.h&gt;
+#include &lt;WiFiUdp.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;Servo.h&gt;
+
+#ifndef APSSID
+#define APSSID &quot;xiaocheche&quot;     // 接收机，自动创建热点，wifi 名称
+#define APPSK &quot;xiaoxiaoche&quot;     // wifi密码
+#endif
+
+/* Set these to your desired credentials. */
+const char *ssid = APSSID;
+const char *password = APPSK;
+unsigned int localPort = 8888;  // local port to listen on
+// buffers for receiving and sending data
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE + 1];  // buffer to hold incoming packet,
+
+WiFiUDP Udp;
+bool ledShow = false;
+
+int sendMax = 1024;
+int sendHaf = sendMax / 2;
+
+int chanel1 = sendHaf;
+int chanel2 = sendHaf;
+
+int lastServo1Value = sendHaf;
+int lastServo2Value = sendHaf;
+Servo myservo1;
+Servo myservo1Haf;
+Servo myservo2;
+Servo myservo2Haf;
+
+unsigned long timeNow = 0;
+unsigned long lastDataTickTime = 0;
+
+
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);  // Initialize the LED_BUILTIN pin as an output
+  digitalWrite(LED_BUILTIN, LOW);
+
+  myservo1.attach(5); // GPIO5 D1        动力电机控制信号全强度，动力会很猛
+  myservo1Haf.attach(4); // GPIO4 D2     动力电机控制信号一半强度，动力会可控一些
+
+  myservo2.attach(12); // D6      方向舵机信号全强度， 容易侧翻
+  myservo2Haf.attach(13); // D7   方向舵机信号一半强度，防止转弯过度
+
+  // GPIO14 D5
+  // GPIO12 D6
+  // GPIO13 D7
+  // GPIO15 D8
+
+  Serial.begin(9600);
+  Serial.println();
+  Serial.print(&quot;Configuring access point...&quot;);
+  WiFi.softAP(ssid, password);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print(&quot;AP IP address: &quot;);
+  Serial.println(myIP);
+  Udp.begin(localPort);
+}
+
+
+void updateServo() {
+  if (chanel1 &gt; sendMax) {
+    chanel1 = sendMax;
+  }
+  if (chanel2 &gt; sendMax) chanel2 = sendMax;
+
+  if (lastServo1Value != chanel1) {
+    myservo1.write(int(float(chanel1) / sendMax * 180));
+    myservo1Haf.write(int(float(chanel1) / sendMax * 90) + 45);
+    lastServo1Value = chanel1;
+  }
+  if (lastServo2Value != chanel2) {
+    myservo2.write(180 - int(float(chanel2) / sendMax * 180));
+    myservo2Haf.write(90 - int(float(chanel2) / sendMax * 90) + 45);
+    lastServo2Value = chanel2;
+  }
+}
+
+void loop() {
+  timeNow = millis();
+  // if there&#39;s data available, read a packet
+  int packetSize = Udp.parsePacket();
+  if (packetSize) {
+    int n = Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+    packetBuffer[n] = 0;
+    sscanf(packetBuffer, &quot;chanelData:%d:%d&quot;, &amp;chanel1, &amp;chanel2);
+    lastDataTickTime = timeNow;
+    updateServo();
+    // Serial.printf(&quot;\t chanel1: %d \t chanel2: %d \t \n&quot;, chanel1, chanel2);
+
+    if (ledShow) {
+      digitalWrite(LED_BUILTIN, LOW);
+      ledShow = false;
+    } else {
+      digitalWrite(LED_BUILTIN, HIGH);
+      ledShow = true;
+    }
+  }
+
+// 超过1秒没收到信号，就把设备归中
+  if (timeNow - lastDataTickTime &gt; 1000) {
+    chanel1 = sendHaf;
+    chanel2 = sendHaf;
+    updateServo();
+  }
+
+
+  delay(1);
+}
+</code></pre>
+<h3>发送端 （ESP32）</h3>
+<pre><code class="language-cpp">#include &lt;WiFi.h&gt;
+#include &lt;WiFiUdp.h&gt;
+
+// WiFi network name and password:
+const char * networkName = &quot;xiaocheche&quot;;
+const char * networkPswd = &quot;xiaoxiaoche&quot;;
+
+const char * udpAddress = &quot;192.168.4.1&quot;;
+const int udpPort = 8888;
+
+//Are we currently connected?
+boolean connected = false;
+
+//The udp library class
+WiFiUDP udp;
+
+int LED_BUILTIN = 2;
+bool ledShow = false;
+
+int baseX = 0;
+int baseY = 0;
+
+// 100的间隙
+int gap = 100;
+
+void setup() {
+  Serial.begin(9600);
+  baseX = analogRead(35);  // X 读取35针脚
+  baseY = analogRead(34);  // Y 读取34针脚
+
+  //Connect to the WiFi network
+  connectToWiFi(networkName, networkPswd);
+  pinMode(LED_BUILTIN, OUTPUT);  // Initialize the LED_BUILTIN pin as an output
+}
+
+int MAX = 4096;
+int vx = 0;
+int vy = 0;
+
+
+int sendMax = 1024;
+int sendHaf = sendMax / 2;
+// 输出到频道值 0 - 1024；
+int sendx = 0;
+int sendy = 0;
+
+// the loop function runs over and over again forever
+void loop() {
+
+  vx = analogRead(35);
+  vy = analogRead(34);
+
+  sendx = sendHaf;
+  sendy = sendHaf;
+
+  if (vx &gt; baseX) {
+    if (vx &gt; baseX + gap) {
+      sendx = int(float(vx - baseX - gap) / (MAX - baseX - gap) * sendHaf) + sendHaf;
+    }
+  } else {
+    if (vx &lt; baseX - gap) {
+      sendx = int(float(vx) / float(baseX - gap) * sendHaf);
+    }
+  }
+
+  if (vy &gt; baseY) {
+    if (vy &gt; baseY + gap) {
+      sendy = int(float(vy - baseY - gap) / (MAX - baseY - gap) * sendHaf) + sendHaf;
+    }
+  } else {
+    if (vy &lt; baseY - gap) {
+      sendy = int(float(vy) / float(baseY - gap) * sendHaf);
+    }
+  }
+
+
+  if(connected){
+    //Send a packet
+    udp.beginPacket(udpAddress,udpPort);
+    // 下面这行注释掉，会更快
+    Serial.printf(&quot;\t vx: %d \t vy: %d \t sy: %d \t sy: %d \n&quot;, vx, vy, sendx, sendy);
+    udp.printf(&quot;chanelData:%d:%d&quot;, sendx, sendy);
+    udp.endPacket();
+  }
+
+
+  if (ledShow) {
+    digitalWrite(LED_BUILTIN, LOW);
+    ledShow = false;
+  } else {
+    digitalWrite(LED_BUILTIN, HIGH);
+    ledShow = true;
+  }
+  delay(10); // 可去掉
+}
+
+
+
+
+void connectToWiFi(const char * ssid, const char * pwd){
+  Serial.println(&quot;Connecting to WiFi network: &quot; + String(ssid));
+
+  // delete old config
+  WiFi.disconnect(true);
+  //register event handler
+  WiFi.onEvent(WiFiEvent);
+  
+  //Initiate connection
+  WiFi.begin(ssid, pwd);
+
+  Serial.println(&quot;Waiting for WIFI connection...&quot;);
+}
+
+
+//wifi event handler
+void WiFiEvent(WiFiEvent_t event){
+    switch(event) {
+      case SYSTEM_EVENT_STA_GOT_IP:
+          //When connected set 
+          Serial.print(&quot;WiFi connected! IP address: &quot;);
+          Serial.println(WiFi.localIP());  
+          //initializes the UDP state
+          //This initializes the transfer buffer
+          udp.begin(WiFi.localIP(),udpPort);
+          connected = true;
+          break;
+      case SYSTEM_EVENT_STA_DISCONNECTED:
+          Serial.println(&quot;WiFi lost connection&quot;);
+          connected = false;
+          break;
+      default: break;
+    }
+}
+</code></pre>
+<h2>代码烧写方式</h2>
+<p>参考资料：</p>
+<p><a href="../link@next=https%253A%252F%252Fblog.csdn.net%252Fqq%255C_45836948%252Farticle%252Fdetails%252F117548024.html" target="_blank">https://blog.csdn.net/qq\_45836948/article/details/117548024</a></p>
+<p>Arduino + ESP8266</p>
+<p><a href="../link@next=https%253A%252F%252Fblog.csdn.net%252Fweixin%255C_49861340%252Farticle%252Fdetails%252F123792561.html" target="_blank">https://blog.csdn.net/weixin\_49861340/article/details/123792561</a></p>
+<p>Arduino + ESP32</p>
+<p><a href="../link@next=https%253A%252F%252Fzhuanlan.zhihu.com%252Fp%252F473218064.html" target="_blank">https://zhuanlan.zhihu.com/p/473218064</a></p>
+<p>建议在B站上面搜索相关教程</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"64317f90a086df73c41a3dd8","article":{"id":"64317f90a086df73c41a3dd8","title":"跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）","snippet":"第一个版本，使用esp8266创建一个wifi热点，使用esp32连接esp8266的wifi热点，esp32作为遥控端，读取摇杆中的电位器信号，通过UDP发送给esp8266端监听的UDP端口。esp8266接收到udp包，转换成pwm控制信号，分别控制舵机和电调控制小车。记得关注我物料清单 ht","image":"../o/uploads/article/pics/4b10e1dafd2be5dadeda4ef575ae67b7_363826.png","tags":["ESP32","ESP8266"],"category":["清逸折腾硬件"],"keywords":["清逸的开源清单"],"content":"<p>第一个版本，使用esp8266创建一个wifi热点，使用esp32连接esp8266的wifi热点，esp32作为遥控端，读取摇杆中的电位器信号，通过UDP发送给esp8266端监听的UDP端口。esp8266接收到udp包，转换成pwm控制信号，分别控制舵机和电调控制小车。</p>\n<p><img src=\"../o/uploads/article/pics/4b10e1dafd2be5dadeda4ef575ae67b7_363826.png\" alt=\"跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）\" /></p>\n<p>记得关注我</p>\n<p><img src=\"../o/uploads/article/pics/621d7ad7c8b819c2d9a0f30cb0deb89d_134482.png\" alt=\"跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）\" /></p>\n<h2>物料清单</h2>\n<p><img src=\"../o/uploads/article/pics/1d24209d365967257135001403fc12a2_146650.png\" alt=\"跟清逸折腾硬件之第一版本 esp32控+esp8266接收端 （UDP协议，Arduino IDE）\" /></p>\n<p><a href=\\&quot;https://boardmix.cn/app/share?token=FH6ClZfHtH5X1iuiSP3-u7DFAYVHt-hNiEGzTjq_ikHyz5PT92eZwl2LBrtUJSkk8moD62NrRUzEKCvmuaMYSVMM-_4dw1hSZ6OwOrz40vA=&amp;inviteCode=r4eTFl\\&quot;\">https://boardmix.cn/app/share?token=FH6ClZfHtH5X1iuiSP3-u7DFAYVHt-hNiEGzTjq_ikHyz5PT92eZwl2LBrtUJSkk8moD62NrRUzEKCvmuaMYSVMM-_4dw1hSZ6OwOrz40vA=&amp;inviteCode=r4eTFl</a></p>\n<h2>视频地址</h2>\n<h3>说明视频地址</h3>\n<p><a href=\\&quot;https://www.bilibili.com/video/BV1Tx4y1N7Uz/\\&quot;\">https://www.bilibili.com/video/BV1Tx4y1N7Uz/</a></p>\n<h3>接线视频地址</h3>\n<p><a href=\\&quot;https://www.bilibili.com/video/BV1MM4y1r7jm/\\&quot;\">https://www.bilibili.com/video/BV1MM4y1r7jm/</a></p>\n<h2>开源代码</h2>\n<h3>接收端 （ESP8266，NodeMCU）</h3>\n<pre><code class=\"language-cpp\">#include &lt;ESP8266WiFi.h&gt;\n#include &lt;WiFiClient.h&gt;\n#include &lt;WiFiUdp.h&gt;\n#include &lt;stdio.h&gt;\n#include &lt;Servo.h&gt;\n\n#ifndef APSSID\n#define APSSID &quot;xiaocheche&quot;     // 接收机，自动创建热点，wifi 名称\n#define APPSK &quot;xiaoxiaoche&quot;     // wifi密码\n#endif\n\n/* Set these to your desired credentials. */\nconst char *ssid = APSSID;\nconst char *password = APPSK;\nunsigned int localPort = 8888;  // local port to listen on\n// buffers for receiving and sending data\nchar packetBuffer[UDP_TX_PACKET_MAX_SIZE + 1];  // buffer to hold incoming packet,\n\nWiFiUDP Udp;\nbool ledShow = false;\n\nint sendMax = 1024;\nint sendHaf = sendMax / 2;\n\nint chanel1 = sendHaf;\nint chanel2 = sendHaf;\n\nint lastServo1Value = sendHaf;\nint lastServo2Value = sendHaf;\nServo myservo1;\nServo myservo1Haf;\nServo myservo2;\nServo myservo2Haf;\n\nunsigned long timeNow = 0;\nunsigned long lastDataTickTime = 0;\n\n\nvoid setup() {\n  pinMode(LED_BUILTIN, OUTPUT);  // Initialize the LED_BUILTIN pin as an output\n  digitalWrite(LED_BUILTIN, LOW);\n\n  myservo1.attach(5); // GPIO5 D1        动力电机控制信号全强度，动力会很猛\n  myservo1Haf.attach(4); // GPIO4 D2     动力电机控制信号一半强度，动力会可控一些\n\n  myservo2.attach(12); // D6      方向舵机信号全强度， 容易侧翻\n  myservo2Haf.attach(13); // D7   方向舵机信号一半强度，防止转弯过度\n\n  // GPIO14 D5\n  // GPIO12 D6\n  // GPIO13 D7\n  // GPIO15 D8\n\n  Serial.begin(9600);\n  Serial.println();\n  Serial.print(&quot;Configuring access point...&quot;);\n  WiFi.softAP(ssid, password);\n  IPAddress myIP = WiFi.softAPIP();\n  Serial.print(&quot;AP IP address: &quot;);\n  Serial.println(myIP);\n  Udp.begin(localPort);\n}\n\n\nvoid updateServo() {\n  if (chanel1 &gt; sendMax) {\n    chanel1 = sendMax;\n  }\n  if (chanel2 &gt; sendMax) chanel2 = sendMax;\n\n  if (lastServo1Value != chanel1) {\n    myservo1.write(int(float(chanel1) / sendMax * 180));\n    myservo1Haf.write(int(float(chanel1) / sendMax * 90) + 45);\n    lastServo1Value = chanel1;\n  }\n  if (lastServo2Value != chanel2) {\n    myservo2.write(180 - int(float(chanel2) / sendMax * 180));\n    myservo2Haf.write(90 - int(float(chanel2) / sendMax * 90) + 45);\n    lastServo2Value = chanel2;\n  }\n}\n\nvoid loop() {\n  timeNow = millis();\n  // if there&#39;s data available, read a packet\n  int packetSize = Udp.parsePacket();\n  if (packetSize) {\n    int n = Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);\n    packetBuffer[n] = 0;\n    sscanf(packetBuffer, &quot;chanelData:%d:%d&quot;, &amp;chanel1, &amp;chanel2);\n    lastDataTickTime = timeNow;\n    updateServo();\n    // Serial.printf(&quot;\\t chanel1: %d \\t chanel2: %d \\t \\n&quot;, chanel1, chanel2);\n\n    if (ledShow) {\n      digitalWrite(LED_BUILTIN, LOW);\n      ledShow = false;\n    } else {\n      digitalWrite(LED_BUILTIN, HIGH);\n      ledShow = true;\n    }\n  }\n\n// 超过1秒没收到信号，就把设备归中\n  if (timeNow - lastDataTickTime &gt; 1000) {\n    chanel1 = sendHaf;\n    chanel2 = sendHaf;\n    updateServo();\n  }\n\n\n  delay(1);\n}\n</code></pre>\n<h3>发送端 （ESP32）</h3>\n<pre><code class=\"language-cpp\">#include &lt;WiFi.h&gt;\n#include &lt;WiFiUdp.h&gt;\n\n// WiFi network name and password:\nconst char * networkName = &quot;xiaocheche&quot;;\nconst char * networkPswd = &quot;xiaoxiaoche&quot;;\n\nconst char * udpAddress = &quot;192.168.4.1&quot;;\nconst int udpPort = 8888;\n\n//Are we currently connected?\nboolean connected = false;\n\n//The udp library class\nWiFiUDP udp;\n\nint LED_BUILTIN = 2;\nbool ledShow = false;\n\nint baseX = 0;\nint baseY = 0;\n\n// 100的间隙\nint gap = 100;\n\nvoid setup() {\n  Serial.begin(9600);\n  baseX = analogRead(35);  // X 读取35针脚\n  baseY = analogRead(34);  // Y 读取34针脚\n\n  //Connect to the WiFi network\n  connectToWiFi(networkName, networkPswd);\n  pinMode(LED_BUILTIN, OUTPUT);  // Initialize the LED_BUILTIN pin as an output\n}\n\nint MAX = 4096;\nint vx = 0;\nint vy = 0;\n\n\nint sendMax = 1024;\nint sendHaf = sendMax / 2;\n// 输出到频道值 0 - 1024；\nint sendx = 0;\nint sendy = 0;\n\n// the loop function runs over and over again forever\nvoid loop() {\n\n  vx = analogRead(35);\n  vy = analogRead(34);\n\n  sendx = sendHaf;\n  sendy = sendHaf;\n\n  if (vx &gt; baseX) {\n    if (vx &gt; baseX + gap) {\n      sendx = int(float(vx - baseX - gap) / (MAX - baseX - gap) * sendHaf) + sendHaf;\n    }\n  } else {\n    if (vx &lt; baseX - gap) {\n      sendx = int(float(vx) / float(baseX - gap) * sendHaf);\n    }\n  }\n\n  if (vy &gt; baseY) {\n    if (vy &gt; baseY + gap) {\n      sendy = int(float(vy - baseY - gap) / (MAX - baseY - gap) * sendHaf) + sendHaf;\n    }\n  } else {\n    if (vy &lt; baseY - gap) {\n      sendy = int(float(vy) / float(baseY - gap) * sendHaf);\n    }\n  }\n\n\n  if(connected){\n    //Send a packet\n    udp.beginPacket(udpAddress,udpPort);\n    // 下面这行注释掉，会更快\n    Serial.printf(&quot;\\t vx: %d \\t vy: %d \\t sy: %d \\t sy: %d \\n&quot;, vx, vy, sendx, sendy);\n    udp.printf(&quot;chanelData:%d:%d&quot;, sendx, sendy);\n    udp.endPacket();\n  }\n\n\n  if (ledShow) {\n    digitalWrite(LED_BUILTIN, LOW);\n    ledShow = false;\n  } else {\n    digitalWrite(LED_BUILTIN, HIGH);\n    ledShow = true;\n  }\n  delay(10); // 可去掉\n}\n\n\n\n\nvoid connectToWiFi(const char * ssid, const char * pwd){\n  Serial.println(&quot;Connecting to WiFi network: &quot; + String(ssid));\n\n  // delete old config\n  WiFi.disconnect(true);\n  //register event handler\n  WiFi.onEvent(WiFiEvent);\n  \n  //Initiate connection\n  WiFi.begin(ssid, pwd);\n\n  Serial.println(&quot;Waiting for WIFI connection...&quot;);\n}\n\n\n//wifi event handler\nvoid WiFiEvent(WiFiEvent_t event){\n    switch(event) {\n      case SYSTEM_EVENT_STA_GOT_IP:\n          //When connected set \n          Serial.print(&quot;WiFi connected! IP address: &quot;);\n          Serial.println(WiFi.localIP());  \n          //initializes the UDP state\n          //This initializes the transfer buffer\n          udp.begin(WiFi.localIP(),udpPort);\n          connected = true;\n          break;\n      case SYSTEM_EVENT_STA_DISCONNECTED:\n          Serial.println(&quot;WiFi lost connection&quot;);\n          connected = false;\n          break;\n      default: break;\n    }\n}\n</code></pre>\n<h2>代码烧写方式</h2>\n<p>参考资料：</p>\n<p><a href=%5C%22https://blog.csdn.net/qq%5C_45836948/article/details/117548024%5C%22\">https://blog.csdn.net/qq\\_45836948/article/details/117548024</a></p>\n<p>Arduino + ESP8266</p>\n<p><a href=%5C%22https://blog.csdn.net/weixin%5C_49861340/article/details/123792561%5C%22\">https://blog.csdn.net/weixin\\_49861340/article/details/123792561</a></p>\n<p>Arduino + ESP32</p>\n<p><a href=\\&quot;https://zhuanlan.zhihu.com/p/473218064\\&quot;\">https://zhuanlan.zhihu.com/p/473218064</a></p>\n<p>建议在B站上面搜索相关教程</p>\n","createTime":1680965520969,"updatedTime":1785058780443},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

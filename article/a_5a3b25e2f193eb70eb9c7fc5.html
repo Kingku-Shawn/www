@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>Nodejs中Buffer对象中buf.swap16，buf.swap32，buf.swap64的使用</title><meta name="keywords" content="Nodejs,Buffer,swap16,swap32,swap64"><meta name="description" content="swap的意思是交换，在Nodejs中Buffer对象的类成员函数swapXX实现的是Buffer值中的高低位交换。这是在nodejs的V5.10.0版本之后新增的特性。下面我来写个代码进行测试一下。先看swap16const&nbsp;buf1&nbsp;=&nbsp;Buffer.from([0">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">Nodejs中Buffer对象中buf.swap16，buf.swap32，buf.swap64的使用</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/dft_2017/4219ec9997f15f6684f9f771a8feea4c_31187.png" title="Nodejs中Buffer对象中buf.swap16，buf.swap32，buf.swap64的使用" alt="Nodejs中Buffer对象中buf.swap16，buf.swap32，buf.swap64的使用"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2017-12-21 11:09:00">2017-12-21 11:09:00</time></div><div class="tags"><!--[--><span> # nodejs</span><!--]--></div></div></section><div class="detail-content"><p>swap的意思是交换，在Nodejs中Buffer对象的类成员函数swapXX实现的是Buffer值中的高低位交换。</p>
+<p>这是在nodejs的V5.10.0版本之后新增的特性。</p>
+<p>下面我来写个代码进行测试一下。</p>
+<h2>先看swap16</h2>
+<pre><code class="language-js">const buf1 = Buffer.from([0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8]);
+console.log(buf1);
+//这时会打印 &lt;Buffer 01 02 03 04 05 06 07 08&gt;
+
+buf1.swap16();
+console.log(buf1);
+//这时会打印 &lt;Buffer 02 01 04 03 06 05 08 07&gt;
+
+const buf2 = Buffer.from([0x1, 0x2, 0x3]);
+buf2.swap16();
+// 这里会抛出一个RangeError:Buffer size must be a multiple of 16-bits
+</code></pre>
+<p>执行之后会看到buf的每两个字节都会进行一次高低位交换。</p>
+<p>如果buf的长度不满足2的倍数就会抛出一个RangeError异常。 </p>
+<h2>再来看swap32</h2>
+<pre><code class="language-js">const buf1 = Buffer.from([0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8]);
+console.log(buf1);
+//这时会打印 &lt;Buffer 01 02 03 04 05 06 07 08&gt;
+
+buf1.swap32();
+console.log(buf1);
+//这时会打印 &lt;Buffer 04 03 02 01 08 07 06 05&gt;
+
+const buf2 = Buffer.from([0x1, 0x2, 0x3]);
+buf2.swap32();
+// 这里会抛出一个RangeError:Buffer size must be a multiple of 32-bits
+</code></pre>
+<p>可以看到的是，作用和swap16类似，只不过这是每4个字节就会进行一次高低位交换。</p>
+<p>如果buf的长度不满足4的倍数就会抛出一个RangeError异常。 </p>
+<h2>再来看swap64</h2>
+<pre><code class="language-js">const buf1 = Buffer.from([0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8]);
+console.log(buf1);
+//这时会打印 &lt;Buffer 01 02 03 04 05 06 07 08&gt;
+
+buf1.swap64();
+console.log(buf1);
+//这时会打印 &lt;Buffer 08 07 06 05 04 03 02 01&gt;
+
+const buf2 = Buffer.from([0x1, 0x2, 0x3]);
+buf2.swap32();
+// 这里会抛出一个RangeError:Buffer size must be a multiple of 64-bits
+</code></pre>
+<p>可以看到的是，作用和swap16类似，只不过这是每8个字节就会进行一次高低位交换。</p>
+<p>如果buf的长度不满足8的倍数就会抛出一个RangeError异常。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a3b25e2f193eb70eb9c7fc5","article":{"id":"5a3b25e2f193eb70eb9c7fc5","title":"Nodejs中Buffer对象中buf.swap16，buf.swap32，buf.swap64的使用","snippet":"swap的意思是交换，在Nodejs中Buffer对象的类成员函数swapXX实现的是Buffer值中的高低位交换。这是在nodejs的V5.10.0版本之后新增的特性。下面我来写个代码进行测试一下。先看swap16const&nbsp;buf1&nbsp;=&nbsp;Buffer.from([0","image":"../o/uploads/dft_2017/4219ec9997f15f6684f9f771a8feea4c_31187.png","tags":["nodejs"],"category":["nodejs"],"keywords":["Nodejs","Buffer","swap16","swap32","swap64"],"content":"<p>swap的意思是交换，在Nodejs中Buffer对象的类成员函数swapXX实现的是Buffer值中的高低位交换。</p>\n<p>这是在nodejs的V5.10.0版本之后新增的特性。</p>\n<p>下面我来写个代码进行测试一下。</p>\n<h2>先看swap16</h2>\n<pre><code class=\"language-js\">const buf1 = Buffer.from([0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8]);\nconsole.log(buf1);\n//这时会打印 &lt;Buffer 01 02 03 04 05 06 07 08&gt;\n\nbuf1.swap16();\nconsole.log(buf1);\n//这时会打印 &lt;Buffer 02 01 04 03 06 05 08 07&gt;\n\nconst buf2 = Buffer.from([0x1, 0x2, 0x3]);\nbuf2.swap16();\n// 这里会抛出一个RangeError:Buffer size must be a multiple of 16-bits\n</code></pre>\n<p>执行之后会看到buf的每两个字节都会进行一次高低位交换。</p>\n<p>如果buf的长度不满足2的倍数就会抛出一个RangeError异常。 </p>\n<h2>再来看swap32</h2>\n<pre><code class=\"language-js\">const buf1 = Buffer.from([0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8]);\nconsole.log(buf1);\n//这时会打印 &lt;Buffer 01 02 03 04 05 06 07 08&gt;\n\nbuf1.swap32();\nconsole.log(buf1);\n//这时会打印 &lt;Buffer 04 03 02 01 08 07 06 05&gt;\n\nconst buf2 = Buffer.from([0x1, 0x2, 0x3]);\nbuf2.swap32();\n// 这里会抛出一个RangeError:Buffer size must be a multiple of 32-bits\n</code></pre>\n<p>可以看到的是，作用和swap16类似，只不过这是每4个字节就会进行一次高低位交换。</p>\n<p>如果buf的长度不满足4的倍数就会抛出一个RangeError异常。 </p>\n<h2>再来看swap64</h2>\n<pre><code class=\"language-js\">const buf1 = Buffer.from([0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8]);\nconsole.log(buf1);\n//这时会打印 &lt;Buffer 01 02 03 04 05 06 07 08&gt;\n\nbuf1.swap64();\nconsole.log(buf1);\n//这时会打印 &lt;Buffer 08 07 06 05 04 03 02 01&gt;\n\nconst buf2 = Buffer.from([0x1, 0x2, 0x3]);\nbuf2.swap32();\n// 这里会抛出一个RangeError:Buffer size must be a multiple of 64-bits\n</code></pre>\n<p>可以看到的是，作用和swap16类似，只不过这是每8个字节就会进行一次高低位交换。</p>\n<p>如果buf的长度不满足8的倍数就会抛出一个RangeError异常。</p>\n","createTime":1513825740000,"updatedTime":1785052451553},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

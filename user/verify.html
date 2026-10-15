@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<title>邮箱验证 - 清逸的博客</title>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f6f8fb;color:#1f2430;font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  .nav{position:fixed;top:0;left:0;right:0;height:58px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e6ebf2;z-index:50}
+  .nav-in{max-width:1100px;height:100%;margin:0 auto;display:flex;align-items:center;gap:22px;padding:0 20px}
+  .nav .logo{font-size:18px;font-weight:700;color:#2563eb;text-decoration:none}
+  .nav-links{display:flex;gap:18px;flex:1}
+  .nav-links a{color:#475569;text-decoration:none;font-size:14px}
+  .nav-user a{color:#2563eb;text-decoration:none;font-size:14px}
+  .wrap{max-width:520px;margin:0 auto;padding:110px 20px 60px}
+  .card{background:#fff;border:1px solid #e6ebf2;border-radius:18px;padding:34px 30px;box-shadow:0 12px 34px rgba(15,23,42,.07)}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:#94a3b8;font-size:13px;margin-bottom:20px}
+  .msg{padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.7;background:#f8fafc;border:1px solid #e2e8f0;color:#475569}
+  .msg.ok{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+  .msg.err{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+  button{margin-top:18px;width:100%;padding:12px 0;border:0;border-radius:11px;background:#2563eb;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  .foot{margin-top:18px;text-align:center;font-size:13px;color:#94a3b8}
+  .foot a{color:#2563eb;text-decoration:none}
+  code{background:#eef2ff;color:#4f46e5;padding:2px 6px;border-radius:6px;font-size:12.5px}
+  @media(max-width:720px){.nav-links{display:none}.card{padding:26px 18px}.wrap{padding:90px 14px 40px}}
+  /* ---- FR-X12 深色模式 ---- */
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]) body{background:#0b1220;color:#e2e8f0}
+    html:not([data-theme="light"]) .nav{background:rgba(17,26,44,.92);border-color:#1e293b}
+    html:not([data-theme="light"]) .card{background:#111a2c;border-color:#1e293b}
+    html:not([data-theme="light"]) .sub{color:#94a3b8}
+    html:not([data-theme="light"]) .msg{background:#16223a;border-color:#1e293b;color:#94a3b8}
+    html:not([data-theme="light"]) .nav-links a{color:#94a3b8}
+    html:not([data-theme="light"]) .nav-user a{color:#60a5fa}
+    html:not([data-theme="light"]) .foot a{color:#60a5fa}
+  }
+  html[data-theme="dark"] body{background:#0b1220;color:#e2e8f0}
+  html[data-theme="dark"] .nav{background:rgba(17,26,44,.92);border-color:#1e293b}
+  html[data-theme="dark"] .card{background:#111a2c;border-color:#1e293b}
+  html[data-theme="dark"] .sub{color:#94a3b8}
+  html[data-theme="dark"] .msg{background:#16223a;border-color:#1e293b;color:#94a3b8}
+  html[data-theme="dark"] .nav-links a{color:#94a3b8}
+  html[data-theme="dark"] .nav-user a{color:#60a5fa}
+  html[data-theme="dark"] .foot a{color:#60a5fa}
+  .theme-toggle{width:auto;margin:0 0 0 10px;border:1px solid rgba(148,163,184,.45);background:rgba(148,163,184,.14);color:#475569;cursor:pointer;font-size:13px;padding:5px 12px;border-radius:999px}
+  html[data-theme="dark"] .theme-toggle{color:#cbd5e1;border-color:#334155;background:#1e293b}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in" id="navIn">
+    <a class="logo" href="/index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/index.html">首页</a>
+      <a href="/article/index.html">文章</a>
+      <a href="/aboutme/index.html">关于我</a>
+      <a href="/search/index.html" data-search="1">搜索</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="/user/login.html">登录</a></div>
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="切换深浅色" title="切换深浅色">🌙 深色</button>
+  </div>
+</header>
+<script>
+(function(){var b=document.getElementById("themeToggle");if(!b)return;
+function apply(){var s=null;try{s=localStorage.getItem("blog_theme")}catch(e){}
+var h=document.documentElement;var d=s?s==="dark":(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);
+if(s)h.setAttribute("data-theme",s);else h.removeAttribute("data-theme");h.style.colorScheme=d?"dark":"light";b.textContent=d?"☀️ 浅色":"🌙 深色";}
+b.onclick=function(){var h=document.documentElement;var nd=h.getAttribute("data-theme")==="dark"||(!h.getAttribute("data-theme")&&window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);
+var n=nd?"light":"dark";h.setAttribute("data-theme",n);h.style.colorScheme=n;try{localStorage.setItem("blog_theme",n)}catch(e){}b.textContent=n==="dark"?"☀️ 浅色":"🌙 深色";};apply();})();
+</script>
+
+<div class="wrap">
+  <div class="card">
+    <h1>邮箱验证</h1>
+    <div class="sub">验证邮箱后可用于接收回复通知与找回密码</div>
+
+    <div class="msg" id="msg">正在检查…</div>
+    <button id="btn" type="button" style="display:none">发送验证邮件</button>
+
+    <div class="foot"><a href="/index.html">返回首页</a> · <a href="/user/login.html">登录</a></div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var msg = document.getElementById("msg");
+    var btn = document.getElementById("btn");
+    function token() {
+      try { return localStorage.getItem("xw_token") || localStorage.getItem("shawn_admin_token") || ""; } catch (e) { return ""; }
+    }
+    function show(text, cls) {
+      msg.className = "msg" + (cls ? " " + cls : "");
+      msg.innerHTML = text;
+    }
+
+    var qs = "";
+    try { qs = new URLSearchParams(location.search).get("token") || ""; } catch (e) {}
+
+    if (qs) {
+      // 从邮件链接进入：直接确认
+      fetch("/api/auth/email/verify/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: qs })
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j && j.ok) show((j.msg || "邮箱验证成功") + '<br><br><a href="/index.html">返回首页</a>', "ok");
+        else show((j && j.msg) || "验证链接无效或已过期", "err");
+      }).catch(function () { show("网络异常，请稍后再试", "err"); });
+      return;
+    }
+
+    // 无 token：登录后可主动发送验证邮件
+    if (!token()) {
+      show('请先 <a href="/user/login.html?next=/user/verify.html">登录</a>，再发送验证邮件。', "err");
+      return;
+    }
+    show("点击下方按钮，为你的账号生成邮箱验证链接。");
+    btn.style.display = "block";
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      btn.textContent = "提交中…";
+      fetch("/api/auth/email/verify/request", { method: "POST", headers: { "X-Token": token() } })
+        .then(function (r) { return r.json(); }).then(function (j) {
+          btn.disabled = false;
+          btn.textContent = "发送验证邮件";
+          if (j && j.ok) {
+            var extra = (j.data && j.data.mailConfigured)
+              ? ""
+              : '<br><br>当前<strong>未配置邮件服务</strong>：验证链接只输出在服务端日志（<code>npx wrangler tail</code>），请联系站长获取。';
+            show((j.msg || "已生成验证链接") + extra, "ok");
+          } else {
+            show((j && j.msg) || "请求失败", "err");
+          }
+        }).catch(function () {
+          btn.disabled = false;
+          btn.textContent = "发送验证邮件";
+          show("网络异常，请稍后再试", "err");
+        });
+    });
+  })();
+</script>
+<script src="/js/header-fix.js"></script>
+</body>
+</html>

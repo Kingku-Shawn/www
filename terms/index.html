@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="清逸的博客服务条款：内容版权与许可、评论规范、免责声明与联系方式。">
+<link rel="canonical" href="https://blog.qingyi.dpdns.org/terms/">
+<title>服务条款 - 清逸的博客</title>
+<link rel="stylesheet" href="/soulsoft-tools.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f6f8fb;color:#1f2430;font:15px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  .nav{position:fixed;top:0;left:0;right:0;height:58px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e6ebf2;z-index:50}
+  .nav-in{max-width:1100px;height:100%;margin:0 auto;display:flex;align-items:center;gap:22px;padding:0 20px}
+  .nav .logo{font-size:18px;font-weight:700;color:#2563eb;text-decoration:none}
+  .nav-links{display:flex;gap:18px;flex:1}
+  .nav-links a{color:#475569;text-decoration:none;font-size:14px}
+  .nav-links a:hover{color:#2563eb}
+  .nav-user a{color:#2563eb;text-decoration:none;font-size:14px}
+  .wrap{max-width:860px;margin:0 auto;padding:100px 20px 60px}
+  .card{background:#fff;border:1px solid #e6ebf2;border-radius:18px;padding:40px 34px;box-shadow:0 12px 34px rgba(15,23,42,.06)}
+  h1{font-size:26px;margin:0 0 6px}
+  .meta{color:#94a3b8;font-size:13px;margin-bottom:26px}
+  h2{font-size:17px;margin:30px 0 10px;padding-left:12px;border-left:3px solid #2563eb}
+  p,li{color:#334155;font-size:14.5px}
+  ul{padding-left:22px;margin:8px 0}
+  li{margin:5px 0}
+  code{background:#eef2ff;color:#4f46e5;padding:2px 6px;border-radius:6px;font-size:13px}
+  .tip{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:14px 16px;font-size:13.5px;color:#475569;margin:18px 0}
+  a{color:#2563eb}
+  .foot{margin-top:26px;text-align:center;color:#94a3b8;font-size:12.5px}
+  @media(max-width:720px){
+    .nav-links a:not(.logo){display:none}
+    .card{padding:26px 18px}
+    .wrap{padding:84px 14px 40px}
+  }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in" id="navIn">
+    <a class="logo" href="/index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/index.html">首页</a>
+      <a href="/article/index.html">文章</a>
+      <a href="/aboutme/index.html">关于我</a>
+      <a href="/search/index.html" data-search="1">搜索</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="/user/login.html">登录</a><a href="/user/login.html#register" style="margin-left:10px">注册</a></div>
+<script>
+(function(){
+  try{
+    var b=document.getElementById("navUser"); if(!b) return;
+    var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+    var u=localStorage.getItem("xw_username");
+    if(u){
+      b.setAttribute("data-nav-user","ready");
+      b.innerHTML='<div class="nav-user-menu" style="position:relative;display:inline-block"><button type="button" class="nav-uname" style="border:1px solid rgba(148,163,184,.45);background:rgba(148,163,184,.12);color:#475569;cursor:pointer;font-size:13px;font-weight:600;padding:5px 14px;border-radius:999px;line-height:1.4">'+esc(u)+'</button><div class="nav-user-dropdown" style="position:absolute;top:calc(100% + 6px);right:0;min-width:140px;background:#fff;border:1px solid #e6edf5;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.12);padding:6px;z-index:100;display:none"><a href="/user/profile.html" style="display:block;padding:9px 14px;border-radius:8px;color:#0f172a;text-decoration:none;font-size:13.5px">👤 个人中心</a><a href="#" id="navLogoutBtn" style="display:block;padding:9px 14px;border-radius:8px;color:#dc2626;text-decoration:none;font-size:13.5px">退出</a></div></div>';
+      var un=b.querySelector(".nav-uname"), m=b.querySelector(".nav-user-dropdown");
+      if(un&&m){un.onclick=function(ev){ev.stopPropagation();m.style.display=m.style.display==="none"?"block":"none";};document.addEventListener("click",function(ev){if(!b.contains(ev.target))m.style.display="none";});}
+      var lo=b.querySelector("#navLogoutBtn"); if(lo)lo.onclick=function(ev){ev.preventDefault();try{["xw_token","xw_username","shawn_site_token","shawn_site_user","shawn_admin_token","shawn_admin_role"].forEach(function(k){localStorage.removeItem(k);});}catch(e){}try{fetch("/api/user/logout",{method:"POST",credentials:"include"});}catch(e){}location.reload();};
+    }
+  }catch(e){}
+})();
+</script>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h1>服务条款</h1>
+    <div class="meta">最后更新：2026-10-12　|　适用站点：blog.qingyi.dpdns.org</div>
+
+    <p>访问或使用本站即表示你同意本条款。本站是<strong>个人技术博客</strong>，按「现状」提供内容与服务，不承诺任何形式的可用性保证。</p>
+
+    <h2>一、内容版权与许可</h2>
+    <ul>
+      <li>本站<strong>原创文章</strong>（含代码片段）默认采用 <strong>CC BY-NC-SA 4.0</strong> 许可：署名 + 非商业性使用 + 相同方式共享；商业用途请先联系站长。</li>
+      <li>转载、翻译、二次整理请保留原文链接与作者署名，并注明是否修改。</li>
+      <li>文章中引用的第三方代码、图片、音频、字体等归各自权利人所有；若你是权利人且不希望被引用，请联系站长删除。</li>
+      <li>「在线工具」页面（钢琴、乐器、调音器、节拍器等）供个人学习与练习使用，<strong>不保证</strong>用于演出、教学或专业场景时的准确性与稳定性。</li>
+    </ul>
+
+    <h2>二、用户行为规范</h2>
+    <ul>
+      <li>评论与账号信息不得包含违法、辱骂、歧视、广告刷屏、恶意链接或侵犯他人隐私的内容。</li>
+      <li>不得使用自动化手段高频请求接口、批量注册、刷阅读量或尝试绕过后台鉴权（<code>/admin</code> 仅站长可访问）。</li>
+      <li>本站对违规内容可<strong>不予通知地删除或隐藏</strong>，并对相关账号限制评论或封禁；评论删除属不可恢复操作。</li>
+    </ul>
+
+    <h2>三、免责声明</h2>
+    <ul>
+      <li>文章与代码示例仅供学习参考。因参考本站内容造成的任何直接或间接损失（数据丢失、设备损坏、生产事故等），本站不承担责任。</li>
+      <li>本站可能包含指向第三方站点的链接，其内容与安全性由该第三方负责。</li>
+      <li>接口与页面可能调整、下线或迁移；已发布的 <code>/api/*</code> 接口未承诺向后兼容。</li>
+    </ul>
+
+    <h2>四、隐私</h2>
+    <p>数据收集与 Cookie 使用详见 <a href="/privacy/index.html">隐私政策</a>。本站不使用广告追踪，不向你推送营销信息。</p>
+
+    <h2>五、条款变更</h2>
+    <p>本条款可能随功能调整更新，更新后以本页内容为准，并修改页面顶部的「最后更新」日期。</p>
+
+    <h2>六、联系方式</h2>
+    <p>版权、合作、删稿或其他事项，请通过 <a href="/aboutme/index.html">关于我</a> 页面提供的联系方式与站长联系。</p>
+
+    <div class="tip">本页为通用模板，具体许可与责任范围以站长最终确认为准。若站点部署在中国大陆境内并涉及备案，请在此补充备案号与主体信息。</div>
+
+    <div class="foot">© 清逸的博客 · <a href="/privacy/index.html">隐私政策</a> · <a href="/index.html">返回首页</a></div>
+  </div>
+</div>
+<script src="/js/header-fix.js"></script>
+</body>
+</html>

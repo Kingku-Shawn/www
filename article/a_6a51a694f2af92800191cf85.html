@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换</title><meta name="description" content="变更说明\n钢琴录制功能此前导出的 .xmid 文件是本站自定义格式，无法被其他 MIDI 软件识别和编辑。本次更新后，录制保存的文件将直接输出为标准的 .mid (MIDI) 格式。\n具体变更\n录制导出改为标准 .mid 格式\n\n录制完成后点击「保存」按钮，现在会导出标准的 MIDI 文件（.mid">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/article/pics/9013a82dedc7b8e6a8b961af0d272152_139735.png" title="在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换" alt="在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2026-7-11 10:12:36">2026-7-11 10:12:36</time></div><div class="tags"><!--[--><span> # 在线钢琴</span><!--]--></div></div></section><div class="detail-content"><h2>变更说明</h2>
+<p>钢琴录制功能此前导出的 <code>.xmid</code> 文件是本站自定义格式，无法被其他 MIDI 软件识别和编辑。本次更新后，录制保存的文件将直接输出为标准的 <code>.mid</code> (MIDI) 格式。</p>
+<h2>具体变更</h2>
+<h3>录制导出改为标准 <code>.mid</code> 格式</h3>
+<ul>
+<li>录制完成后点击「保存」按钮，现在会导出标准的 MIDI 文件（<code>.mid</code>），而非之前的 <code>.xmid</code> 文件</li>
+<li>导出的 MIDI 文件符合 SMF (Standard MIDI File) 格式规范，可在任何支持 MIDI 的软件中打开（如 GarageBand、Cubase、MuseScore 等）</li>
+</ul>
+<p><img src="../o/uploads/article/pics/9013a82dedc7b8e6a8b961af0d272152_139735.png" alt="在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换" /></p>
+<h3>兼容旧版 <code>.xmid</code> 文件</h3>
+<ul>
+<li>MIDI 播放面板仍然支持拖入或选择旧版 <code>.xmid</code> 文件进行播放</li>
+<li>提供了一个归档级别的转换页面 <a href="../link@next=https%253A%252F%252Fshawn.qingyi.dpdns.org%252Farchive%252Fxmid.html" target="_blank">/archive/xmid</a>，可将旧版 <code>.xmid</code> 文件批量转换为标准 <code>.mid</code> 格式</li>
+</ul>
+<p><img src="../o/uploads/article/pics/56b21d4c7f02d7a64c47d16c9ce9f4ea_42203.png" alt="在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换" /></p>
+<h3>技术细节</h3>
+<ul>
+<li>MIDI 输出格式：Format 0 (单轨)、480 TPQN (ticks per quarter note)、120 BPM 默认速度</li>
+<li>录制事件队列中的绝对时间戳（毫秒）按 120 BPM 换算为 MIDI delta time（tick）</li>
+<li>音符力度（velocity）保留原始录制值</li>
+</ul>
+<h2>影响范围</h2>
+<ul>
+<li>新录制文件：一切正常，直接获得 <code>.mid</code> 文件</li>
+<li>旧版 <code>.xmid</code> 文件：依然可以在 MIDI 播放面板中直接拖入播放，无需转换</li>
+<li>如需将旧 <code>.xmid</code> 转为 <code>.mid</code>：直接访问 <a href="../link@next=https%253A%252F%252Fshawn.qingyi.dpdns.org%252Farchive%252Fxmid.html" target="_blank">/archive/xmid</a> 页面</li>
+</ul>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"6a51a694f2af92800191cf85","article":{"id":"6a51a694f2af92800191cf85","title":"在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换","snippet":"变更说明\n钢琴录制功能此前导出的 .xmid 文件是本站自定义格式，无法被其他 MIDI 软件识别和编辑。本次更新后，录制保存的文件将直接输出为标准的 .mid (MIDI) 格式。\n具体变更\n录制导出改为标准 .mid 格式\n\n录制完成后点击「保存」按钮，现在会导出标准的 MIDI 文件（.mid","image":"../o/uploads/article/pics/9013a82dedc7b8e6a8b961af0d272152_139735.png","tags":["xmid文件"],"category":["在线钢琴"],"keywords":[],"content":"<h2>变更说明</h2>\n<p>钢琴录制功能此前导出的 <code>.xmid</code> 文件是本站自定义格式，无法被其他 MIDI 软件识别和编辑。本次更新后，录制保存的文件将直接输出为标准的 <code>.mid</code> (MIDI) 格式。</p>\n<h2>具体变更</h2>\n<h3>录制导出改为标准 <code>.mid</code> 格式</h3>\n<ul>\n<li>录制完成后点击「保存」按钮，现在会导出标准的 MIDI 文件（<code>.mid</code>），而非之前的 <code>.xmid</code> 文件</li>\n<li>导出的 MIDI 文件符合 SMF (Standard MIDI File) 格式规范，可在任何支持 MIDI 的软件中打开（如 GarageBand、Cubase、MuseScore 等）</li>\n</ul>\n<p><img src=\"../o/uploads/article/pics/9013a82dedc7b8e6a8b961af0d272152_139735.png\" alt=\"在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换\" /></p>\n<h3>兼容旧版 <code>.xmid</code> 文件</h3>\n<ul>\n<li>MIDI 播放面板仍然支持拖入或选择旧版 <code>.xmid</code> 文件进行播放</li>\n<li>提供了一个归档级别的转换页面 <a href=\\&quot;../../archive/xmid\\&quot;\">/archive/xmid</a>，可将旧版 <code>.xmid</code> 文件批量转换为标准 <code>.mid</code> 格式</li>\n</ul>\n<p><img src=\"../o/uploads/article/pics/56b21d4c7f02d7a64c47d16c9ce9f4ea_42203.png\" alt=\"在线钢琴页面-录制功能升级 - mid文件生成修改 - xmid文件转换\" /></p>\n<h3>技术细节</h3>\n<ul>\n<li>MIDI 输出格式：Format 0 (单轨)、480 TPQN (ticks per quarter note)、120 BPM 默认速度</li>\n<li>录制事件队列中的绝对时间戳（毫秒）按 120 BPM 换算为 MIDI delta time（tick）</li>\n<li>音符力度（velocity）保留原始录制值</li>\n</ul>\n<h2>影响范围</h2>\n<ul>\n<li>新录制文件：一切正常，直接获得 <code>.mid</code> 文件</li>\n<li>旧版 <code>.xmid</code> 文件：依然可以在 MIDI 播放面板中直接拖入播放，无需转换</li>\n<li>如需将旧 <code>.xmid</code> 转为 <code>.mid</code>：直接访问 <a href=\\&quot;../../archive/xmid\\&quot;\">/archive/xmid</a> 页面</li>\n</ul>\n","createTime":1783735956386,"updatedTime":1785058756642},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

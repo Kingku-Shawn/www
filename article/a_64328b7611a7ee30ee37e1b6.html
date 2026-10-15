@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)</title><meta name="keywords" content="清逸的开源清单"><meta name="description" content="这个是第四个版本，使用手机连接esp32的热点模式，使用手机网页发送http请求到esp32。esp32接收端接收到信号包，转换成pwm控制信号，分别控制舵机和电调控制小车。【手机网页，陀螺仪，遥控，比想象中容易实现】 https://www.bilibili.com/video/BV1w84y1M">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/article/pics/162551ec355779901064f37279c8e781_950690.png" title="跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)" alt="跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2023-4-9 17:55:02">2023-4-9 17:55:02</time></div><div class="tags"><!--[--><span> # 清逸折腾硬件</span><!--]--></div></div></section><div class="detail-content"><p>这个是第四个版本，使用手机连接esp32的热点模式，使用手机网页发送http请求到esp32。esp32接收端接收到信号包，转换成pwm控制信号，分别控制舵机和电调控制小车。  </p>
+<p><img src="../o/uploads/article/pics/162551ec355779901064f37279c8e781_950690.png" alt="跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)" /></p>
+<p>【手机网页，陀螺仪，遥控，比想象中容易实现】 <a href="../link@next=https%253A%252F%252Fwww.bilibili.com%252Fvideo%252FBV1w84y1M7e9%252F%253Fshare%255C_source=copy%255C_web&amp;vd%255C_source=dda83490bf489caf98403d3f28833535.html" target="_blank">https://www.bilibili.com/video/BV1w84y1M7e9/?share\_source=copy\_web&amp;vd\_source=dda83490bf489caf98403d3f28833535</a></p>
+<h2><img src="../o/uploads/article/pics/621d7ad7c8b819c2d9a0f30cb0deb89d_134482.png" alt="跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)" /></h2>
+<h2>可参考以前的物料清单</h2>
+<p>只需要下面这个清单中的</p>
+<p>ESP32开发板，有刷电调，2S电池。</p>
+<p><img src="../o/uploads/article/pics/1d24209d365967257135001403fc12a2_146650.png" alt="跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)" /></p>
+<p><a href="../../link?next=https%3A%2F%2Fshawn.qingyi.dpdns.org%2Flink%3Fnext%3Dhttps%3A%2F%2Fboardmix.cn%2Fapp%2Fshare%3Ftoken%3DFH6ClZfHtH5X1iuiSP3-u7DFAYVHt-hNiEGzTjq_ikHyz5PT92eZwl2LBrtUJSkk8moD62NrRUzEKCvmuaMYSVMM-_4dw1hSZ6OwOrz40vA%3D%26inviteCode%3Dr4eTFl" target="_blank">https://boardmix.cn/app/share?token=FH6ClZfHtH5X1iuiSP3-u7DFAYVHt-hNiEGzTjq_ikHyz5PT92eZwl2LBrtUJSkk8moD62NrRUzEKCvmuaMYSVMM-_4dw1hSZ6OwOrz40vA=&amp;inviteCode=r4eTFl</a></p>
+<h2>Web遥控器地址</h2>
+<p>网页遥控地址： <a href="../link@next=https%253A%252F%252Fshawn.qingyi.dpdns.org%252Fweb-rc%252Fv1.html" target="_blank">../../web-rc/v1</a></p>
+<p><img src="../o/uploads/article/pics/725f09c51ffb533a32ff8df105398c87_1485.png" alt="跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)" />手机可直接扫码，用微信，浏览器都行</p>
+<p>（这个网页暂时不支持离线，记得在连接esp32的热点之前，先打开这个网页，不然连接完Esp32的之后会打不开。我后续会给网页加上Service Worker的能力，让这个网页支持离线打开。）</p>
+<p>使用手机打开，目前只处理成支持touch的事件+陀螺仪的事件。（陀螺仪遥控要稍微练习和适应一下，刚开始玩会有点不适应）</p>
+<p>Esp32开启热点，默认自身的ip是192.168.4.1</p>
+<p>实际使用过程中如果ip有变化，可自行调整。</p>
+<h2>接线方式</h2>
+<h3>车子端，接收端</h3>
+<p>电调连接电源（以物料单中的有刷电调为例）(此处可参考第一版本视频中的接法)</p>
+<p>● 两黑两红的外侧黑线 接 2S电池(7.4v)的负极</p>
+<p>● 两黑两红的外侧红线 接 2S电池(7.4v)的正极</p>
+<p>电调连接电机（以物料单中的有刷电调为例）(此处可参考第一版本视频中的接法)</p>
+<p>● 中间的窄JST接口黑线 接 电机红线</p>
+<p>● 中间的窄JST接口红线 接 电机 黑线</p>
+<p>(如果行驶方向相反，可以把这两根线交换连接)</p>
+<p>esp32 连接电调</p>
+<p>● esp32 VIN 连接 电调三pin排线的红线</p>
+<p>● esp32 GND(VIN旁) 连接 电调三pin线的黑线</p>
+<p>● 电调3pin线的白线(信号线) 连接 esp32的 D22(半功率)或者D23(满功率)</p>
+<p>esp32 连接转向舵机</p>
+<p>● 转向舵机3pin线的红色线 连接 esp32的 3V3</p>
+<p>● 转向舵机3pin线的棕色线 连接 esp32的 GND(3V3旁)</p>
+<p>● 转向舵机3pin线的黄色线 连接 esp32的 D25(半角度) 或者 D26(满角度)</p>
+<h2>代码</h2>
+<p>接收端（Esp32 ）</p>
+<p>可修改中间部分代码</p>
+<pre><code class="language-cpp">#include &lt;WiFi.h&gt;
+#include &lt;WiFiClient.h&gt;
+#include &lt;WebServer.h&gt;
+#include &lt;ESPmDNS.h&gt;
+#include &lt;stdio.h&gt;
+
+/**
+ * 舵机控制相关
+*/
+class LedcServo {
+  public:
+    float freq = 50;
+    int resolution = 8;
+    float pwmBaseScale;
+    float pwmMin;
+    float pwmMax;
+    int channel;
+    int scale = 1;
+    void setup(float freq, int resolution, int channel);
+    /* 0 &lt; scale &lt;= 1 */
+    void setScale(float scale);
+    void attachPin(int pin);
+    void write(float value, float min, float max);
+};
+void LedcServo:: setup(float f, int r, int c) {
+  this-&gt;freq = f;
+  this-&gt;resolution = r;
+  this-&gt;pwmBaseScale = this-&gt;freq * pow(2, this-&gt;resolution) / 1000;
+  this-&gt;pwmMin = 1 * this-&gt;pwmBaseScale;
+  this-&gt;pwmMax = 2 * this-&gt;pwmBaseScale;
+  this-&gt;channel = c;
+  ledcSetup(this-&gt;channel, this-&gt;freq, this-&gt;resolution);
+}
+void LedcServo:: setScale(float s) {
+  if (s &lt;= 0) throw &quot;s 不能小于等于0&quot;;
+  if (s &gt; 1) throw &quot;s 不能大于1&quot;;
+
+  this-&gt;scale = s;
+  this-&gt;pwmMin = (1.5 - s * 0.5) * this-&gt;pwmBaseScale;
+  this-&gt;pwmMax = (1.5 + s * 0.5) * this-&gt;pwmBaseScale;
+}
+void LedcServo:: attachPin(int p) {
+  ledcAttachPin(p, this-&gt;channel);
+}
+void LedcServo:: write(float v, float min, float max) {
+  float newV = v;
+  if (max &gt; min) {
+    if (v &gt; max) newV = max;
+    if (v &lt; min) newV = min;
+  } else {
+    if (v &gt; min) newV = min;
+    if (v &lt; max) newV = max;
+  }
+  ledcWrite(this-&gt;channel, map(newV, min, max, this-&gt;pwmMin, this-&gt;pwmMax));
+}
+
+
+float sendMin = -100;
+float sendMax = 100;
+float sendHaf = 0;
+
+float rxC1 = sendHaf;
+float rxC2 = sendHaf;
+
+// 设置为-1
+float lastRxC1 = rxC1;
+float lastRxC2 = rxC2;
+
+LedcServo rxC1Servo;
+LedcServo rxC1ServoHaf;
+LedcServo rxC2Servo;
+LedcServo rxC2ServoHaf;
+
+/**
+ * 接收信息的web server 监听80端口
+*/
+WebServer server(80);
+
+unsigned long timeNow = 0;
+unsigned long lastDataTickTime = 0;
+
+int LED_BUILTIN = 2;
+bool ledShow = false;
+int ledLoopTick = -1;
+
+void handleRoot() {
+  String c = server.arg(&quot;c&quot;);
+  // Serial.println(c.c_str());
+  sscanf(c.c_str(), &quot;c:%f,%f&quot;, &amp;rxC1, &amp;rxC2);
+  // Serial.println(rxC1);
+  // Serial.println(rxC2);
+  lastDataTickTime = millis();
+  server.send(200, &quot;text/plain&quot;, &quot;success&quot;);
+}
+
+
+void registerEvent() {
+  server.on(&quot;/&quot;, handleRoot);
+
+  server.enableCORS();
+  server.begin();
+  Serial.println(&quot;HTTP server started&quot;);
+}
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(LED_BUILTIN, OUTPUT);  // Initialize the LED_BUILTIN pin as an output
+  digitalWrite(LED_BUILTIN, LOW);
+
+  rxC1Servo.setup(100, 10, 8);
+  rxC1Servo.attachPin(23); // 动力电机控制信号全强度，动力会很猛
+  rxC1Servo.setScale(1); // 全强度
+  rxC1Servo.write(0, -1, 1);
+
+  rxC1ServoHaf.setup(100, 10, 9);
+  rxC1ServoHaf.attachPin(22); // 动力电机控制信号一半强度，动力会可控一些
+  rxC1ServoHaf.setScale(0.3); // 半强度
+  rxC1ServoHaf.write(0, -1, 1);
+
+  rxC2Servo.setup(500, 10, 10);
+  rxC2Servo.attachPin(26); // 方向舵机信号全强度， 容易侧翻
+  rxC2Servo.setScale(0.7); // 半角度，顽皮龙D12的转向角最大到这个角度，继续调大，会让舵机在左右两边憋力，最后可能造成舵机齿轮扫坏。
+  // 其它类型的车辆
+  rxC2Servo.write(0, -1, 1);
+
+  rxC2ServoHaf.setup(500, 10, 11);
+  rxC2ServoHaf.attachPin(25); // 方向舵机信号一半强度，防止转弯过度
+  rxC2ServoHaf.setScale(0.3); // 小角度
+  rxC2ServoHaf.write(0, -1, 1);
+
+
+  
+  Serial.println();
+  Serial.print(&quot;Configuring access point...&quot;);
+
+  // 下面这一段是使用esp32开启热点，让手机连
+  WiFi.softAP(&quot;xiaocheche&quot;, &quot;xiaoxiaoche&quot;);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print(&quot;AP IP address: &quot;);
+  Serial.println(myIP);
+
+  // 下面这一段是使用esp32连接路由器或者手机的热点
+  // WiFi.mode(WIFI_STA);
+  // WiFi.begin(&quot;mangguo&quot;, &quot;xiaomangguo&quot;);
+  // if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+  //   Serial.println(&quot;WiFi Connect Failed! Rebooting...&quot;);
+  //   delay(1000);
+  //   ESP.restart();
+  // }
+  // Serial.print(&quot;AP IP address: &quot;);
+  // Serial.println(WiFi.localIP());
+
+
+
+  if (MDNS.begin(&quot;esp32&quot;)) {
+    Serial.println(&quot;MDNS responder started&quot;);
+  }
+
+  registerEvent();
+}
+
+
+void updateServo() {
+  if (lastRxC1 != rxC1) {
+    rxC1Servo.write(rxC1, sendMax, sendMin);
+    rxC1ServoHaf.write(rxC1, sendMax, sendMin);
+    lastRxC1 = rxC1;
+  }
+  if (lastRxC2 != rxC2) {
+    rxC2Servo.write(rxC2, sendMax, sendMin); // 反向
+    rxC2ServoHaf.write(rxC2, sendMax, sendMin); // 反向
+    lastRxC2 = rxC2;
+  }
+}
+
+
+void loop() {
+  server.handleClient();
+  timeNow = millis();
+
+  if (timeNow &gt; lastDataTickTime &amp;&amp; timeNow - lastDataTickTime &gt; 1000) {
+    // 超过1秒未收到数据，自动归中，开始闪灯
+    rxC1 = sendHaf;
+    rxC2 = sendHaf;
+
+    ledLoopTick += 1;
+    if (ledLoopTick &gt;= 50) { // 闪太快看不清，隔50帧闪一次
+      ledLoopTick = 0;
+    }
+    if (ledLoopTick == 0) {
+      if (ledShow) {
+        digitalWrite(LED_BUILTIN, LOW);
+        ledShow = false;
+      } else {
+        digitalWrite(LED_BUILTIN, HIGH);
+        ledShow = true;
+      }
+    }
+  } else {
+    // 有数据，就常亮
+    digitalWrite(LED_BUILTIN, HIGH);
+    ledShow = true;
+  }
+  updateServo();
+}
+</code></pre>
+<p>有问题可以在网页下方留言哦！</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"64328b7611a7ee30ee37e1b6","article":{"id":"64328b7611a7ee30ee37e1b6","title":"跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)","snippet":"这个是第四个版本，使用手机连接esp32的热点模式，使用手机网页发送http请求到esp32。esp32接收端接收到信号包，转换成pwm控制信号，分别控制舵机和电调控制小车。【手机网页，陀螺仪，遥控，比想象中容易实现】 https://www.bilibili.com/video/BV1w84y1M","image":"../o/uploads/article/pics/162551ec355779901064f37279c8e781_950690.png","tags":["ESP32"],"category":["清逸折腾硬件"],"keywords":["清逸的开源清单"],"content":"<p>这个是第四个版本，使用手机连接esp32的热点模式，使用手机网页发送http请求到esp32。esp32接收端接收到信号包，转换成pwm控制信号，分别控制舵机和电调控制小车。  </p>\n<p><img src=\"../o/uploads/article/pics/162551ec355779901064f37279c8e781_950690.png\" alt=\"跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)\" /></p>\n<p>【手机网页，陀螺仪，遥控，比想象中容易实现】 <a href=%5C%22https://www.bilibili.com/video/BV1w84y1M7e9/?share%5C_source=copy%5C_web&amp;vd%5C_source=dda83490bf489caf98403d3f28833535%5C%22\">https://www.bilibili.com/video/BV1w84y1M7e9/?share\\_source=copy\\_web&amp;vd\\_source=dda83490bf489caf98403d3f28833535</a></p>\n<h2><img src=\"../o/uploads/article/pics/621d7ad7c8b819c2d9a0f30cb0deb89d_134482.png\" alt=\"跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)\" /></h2>\n<h2>可参考以前的物料清单</h2>\n<p>只需要下面这个清单中的</p>\n<p>ESP32开发板，有刷电调，2S电池。</p>\n<p><img src=\"../o/uploads/article/pics/1d24209d365967257135001403fc12a2_146650.png\" alt=\"跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)\" /></p>\n<p><a href=\\&quot;../../link?next=https%3A%2F%2Fboardmix.cn%2Fapp%2Fshare%3Ftoken%3DFH6ClZfHtH5X1iuiSP3-u7DFAYVHt-hNiEGzTjq_ikHyz5PT92eZwl2LBrtUJSkk8moD62NrRUzEKCvmuaMYSVMM-_4dw1hSZ6OwOrz40vA%3D%26inviteCode%3Dr4eTFl\\&quot;\">https://boardmix.cn/app/share?token=FH6ClZfHtH5X1iuiSP3-u7DFAYVHt-hNiEGzTjq_ikHyz5PT92eZwl2LBrtUJSkk8moD62NrRUzEKCvmuaMYSVMM-_4dw1hSZ6OwOrz40vA=&amp;inviteCode=r4eTFl</a></p>\n<h2>Web遥控器地址</h2>\n<p>网页遥控地址： <a href=\\&quot;../../web-rc/v1\\&quot;\">../../web-rc/v1</a></p>\n<p><img src=\"../o/uploads/article/pics/725f09c51ffb533a32ff8df105398c87_1485.png\" alt=\"跟清逸折腾硬件之第四版本 手机网页控制esp32接收端 (http request，Arduino IDE)\" />手机可直接扫码，用微信，浏览器都行</p>\n<p>（这个网页暂时不支持离线，记得在连接esp32的热点之前，先打开这个网页，不然连接完Esp32的之后会打不开。我后续会给网页加上Service Worker的能力，让这个网页支持离线打开。）</p>\n<p>使用手机打开，目前只处理成支持touch的事件+陀螺仪的事件。（陀螺仪遥控要稍微练习和适应一下，刚开始玩会有点不适应）</p>\n<p>Esp32开启热点，默认自身的ip是192.168.4.1</p>\n<p>实际使用过程中如果ip有变化，可自行调整。</p>\n<h2>接线方式</h2>\n<h3>车子端，接收端</h3>\n<p>电调连接电源（以物料单中的有刷电调为例）(此处可参考第一版本视频中的接法)</p>\n<p>● 两黑两红的外侧黑线 接 2S电池(7.4v)的负极</p>\n<p>● 两黑两红的外侧红线 接 2S电池(7.4v)的正极</p>\n<p>电调连接电机（以物料单中的有刷电调为例）(此处可参考第一版本视频中的接法)</p>\n<p>● 中间的窄JST接口黑线 接 电机红线</p>\n<p>● 中间的窄JST接口红线 接 电机 黑线</p>\n<p>(如果行驶方向相反，可以把这两根线交换连接)</p>\n<p>esp32 连接电调</p>\n<p>● esp32 VIN 连接 电调三pin排线的红线</p>\n<p>● esp32 GND(VIN旁) 连接 电调三pin线的黑线</p>\n<p>● 电调3pin线的白线(信号线) 连接 esp32的 D22(半功率)或者D23(满功率)</p>\n<p>esp32 连接转向舵机</p>\n<p>● 转向舵机3pin线的红色线 连接 esp32的 3V3</p>\n<p>● 转向舵机3pin线的棕色线 连接 esp32的 GND(3V3旁)</p>\n<p>● 转向舵机3pin线的黄色线 连接 esp32的 D25(半角度) 或者 D26(满角度)</p>\n<h2>代码</h2>\n<p>接收端（Esp32 ）</p>\n<p>可修改中间部分代码</p>\n<pre><code class=\"language-cpp\">#include &lt;WiFi.h&gt;\n#include &lt;WiFiClient.h&gt;\n#include &lt;WebServer.h&gt;\n#include &lt;ESPmDNS.h&gt;\n#include &lt;stdio.h&gt;\n\n/**\n * 舵机控制相关\n*/\nclass LedcServo {\n  public:\n    float freq = 50;\n    int resolution = 8;\n    float pwmBaseScale;\n    float pwmMin;\n    float pwmMax;\n    int channel;\n    int scale = 1;\n    void setup(float freq, int resolution, int channel);\n    /* 0 &lt; scale &lt;= 1 */\n    void setScale(float scale);\n    void attachPin(int pin);\n    void write(float value, float min, float max);\n};\nvoid LedcServo:: setup(float f, int r, int c) {\n  this-&gt;freq = f;\n  this-&gt;resolution = r;\n  this-&gt;pwmBaseScale = this-&gt;freq * pow(2, this-&gt;resolution) / 1000;\n  this-&gt;pwmMin = 1 * this-&gt;pwmBaseScale;\n  this-&gt;pwmMax = 2 * this-&gt;pwmBaseScale;\n  this-&gt;channel = c;\n  ledcSetup(this-&gt;channel, this-&gt;freq, this-&gt;resolution);\n}\nvoid LedcServo:: setScale(float s) {\n  if (s &lt;= 0) throw &quot;s 不能小于等于0&quot;;\n  if (s &gt; 1) throw &quot;s 不能大于1&quot;;\n\n  this-&gt;scale = s;\n  this-&gt;pwmMin = (1.5 - s * 0.5) * this-&gt;pwmBaseScale;\n  this-&gt;pwmMax = (1.5 + s * 0.5) * this-&gt;pwmBaseScale;\n}\nvoid LedcServo:: attachPin(int p) {\n  ledcAttachPin(p, this-&gt;channel);\n}\nvoid LedcServo:: write(float v, float min, float max) {\n  float newV = v;\n  if (max &gt; min) {\n    if (v &gt; max) newV = max;\n    if (v &lt; min) newV = min;\n  } else {\n    if (v &gt; min) newV = min;\n    if (v &lt; max) newV = max;\n  }\n  ledcWrite(this-&gt;channel, map(newV, min, max, this-&gt;pwmMin, this-&gt;pwmMax));\n}\n\n\nfloat sendMin = -100;\nfloat sendMax = 100;\nfloat sendHaf = 0;\n\nfloat rxC1 = sendHaf;\nfloat rxC2 = sendHaf;\n\n// 设置为-1\nfloat lastRxC1 = rxC1;\nfloat lastRxC2 = rxC2;\n\nLedcServo rxC1Servo;\nLedcServo rxC1ServoHaf;\nLedcServo rxC2Servo;\nLedcServo rxC2ServoHaf;\n\n/**\n * 接收信息的web server 监听80端口\n*/\nWebServer server(80);\n\nunsigned long timeNow = 0;\nunsigned long lastDataTickTime = 0;\n\nint LED_BUILTIN = 2;\nbool ledShow = false;\nint ledLoopTick = -1;\n\nvoid handleRoot() {\n  String c = server.arg(&quot;c&quot;);\n  // Serial.println(c.c_str());\n  sscanf(c.c_str(), &quot;c:%f,%f&quot;, &amp;rxC1, &amp;rxC2);\n  // Serial.println(rxC1);\n  // Serial.println(rxC2);\n  lastDataTickTime = millis();\n  server.send(200, &quot;text/plain&quot;, &quot;success&quot;);\n}\n\n\nvoid registerEvent() {\n  server.on(&quot;/&quot;, handleRoot);\n\n  server.enableCORS();\n  server.begin();\n  Serial.println(&quot;HTTP server started&quot;);\n}\n\nvoid setup() {\n  Serial.begin(9600);\n\n  pinMode(LED_BUILTIN, OUTPUT);  // Initialize the LED_BUILTIN pin as an output\n  digitalWrite(LED_BUILTIN, LOW);\n\n  rxC1Servo.setup(100, 10, 8);\n  rxC1Servo.attachPin(23); // 动力电机控制信号全强度，动力会很猛\n  rxC1Servo.setScale(1); // 全强度\n  rxC1Servo.write(0, -1, 1);\n\n  rxC1ServoHaf.setup(100, 10, 9);\n  rxC1ServoHaf.attachPin(22); // 动力电机控制信号一半强度，动力会可控一些\n  rxC1ServoHaf.setScale(0.3); // 半强度\n  rxC1ServoHaf.write(0, -1, 1);\n\n  rxC2Servo.setup(500, 10, 10);\n  rxC2Servo.attachPin(26); // 方向舵机信号全强度， 容易侧翻\n  rxC2Servo.setScale(0.7); // 半角度，顽皮龙D12的转向角最大到这个角度，继续调大，会让舵机在左右两边憋力，最后可能造成舵机齿轮扫坏。\n  // 其它类型的车辆\n  rxC2Servo.write(0, -1, 1);\n\n  rxC2ServoHaf.setup(500, 10, 11);\n  rxC2ServoHaf.attachPin(25); // 方向舵机信号一半强度，防止转弯过度\n  rxC2ServoHaf.setScale(0.3); // 小角度\n  rxC2ServoHaf.write(0, -1, 1);\n\n\n  \n  Serial.println();\n  Serial.print(&quot;Configuring access point...&quot;);\n\n  // 下面这一段是使用esp32开启热点，让手机连\n  WiFi.softAP(&quot;xiaocheche&quot;, &quot;xiaoxiaoche&quot;);\n  IPAddress myIP = WiFi.softAPIP();\n  Serial.print(&quot;AP IP address: &quot;);\n  Serial.println(myIP);\n\n  // 下面这一段是使用esp32连接路由器或者手机的热点\n  // WiFi.mode(WIFI_STA);\n  // WiFi.begin(&quot;mangguo&quot;, &quot;xiaomangguo&quot;);\n  // if (WiFi.waitForConnectResult() != WL_CONNECTED) {\n  //   Serial.println(&quot;WiFi Connect Failed! Rebooting...&quot;);\n  //   delay(1000);\n  //   ESP.restart();\n  // }\n  // Serial.print(&quot;AP IP address: &quot;);\n  // Serial.println(WiFi.localIP());\n\n\n\n  if (MDNS.begin(&quot;esp32&quot;)) {\n    Serial.println(&quot;MDNS responder started&quot;);\n  }\n\n  registerEvent();\n}\n\n\nvoid updateServo() {\n  if (lastRxC1 != rxC1) {\n    rxC1Servo.write(rxC1, sendMax, sendMin);\n    rxC1ServoHaf.write(rxC1, sendMax, sendMin);\n    lastRxC1 = rxC1;\n  }\n  if (lastRxC2 != rxC2) {\n    rxC2Servo.write(rxC2, sendMax, sendMin); // 反向\n    rxC2ServoHaf.write(rxC2, sendMax, sendMin); // 反向\n    lastRxC2 = rxC2;\n  }\n}\n\n\nvoid loop() {\n  server.handleClient();\n  timeNow = millis();\n\n  if (timeNow &gt; lastDataTickTime &amp;&amp; timeNow - lastDataTickTime &gt; 1000) {\n    // 超过1秒未收到数据，自动归中，开始闪灯\n    rxC1 = sendHaf;\n    rxC2 = sendHaf;\n\n    ledLoopTick += 1;\n    if (ledLoopTick &gt;= 50) { // 闪太快看不清，隔50帧闪一次\n      ledLoopTick = 0;\n    }\n    if (ledLoopTick == 0) {\n      if (ledShow) {\n        digitalWrite(LED_BUILTIN, LOW);\n        ledShow = false;\n      } else {\n        digitalWrite(LED_BUILTIN, HIGH);\n        ledShow = true;\n      }\n    }\n  } else {\n    // 有数据，就常亮\n    digitalWrite(LED_BUILTIN, HIGH);\n    ledShow = true;\n  }\n  updateServo();\n}\n</code></pre>\n<p>有问题可以在网页下方留言哦！</p>\n","createTime":1681034102370,"updatedTime":1785052437561},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

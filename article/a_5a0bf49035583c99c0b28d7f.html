@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>three.js下载与开发指南</title><meta name="keywords" content="three.js下载与开发指南,three.js下载,three.js指南,three.js解析,three.js安装与部署"><meta name="description" content="three.js - 一个javascript&nbsp;3D代码库这个项目的目的是用最简单的开发模式创建一个轻量级的3 d代码库，这个js库提供了canvas,svg,css3d和webgl这四种渲染方式。下载地址:&nbsp;&nbsp;&nbsp;&nbsp;下载地址：https://gith">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">three.js下载与开发指南</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/image/articleimg/04e8d4b0980a50aeea268c9b0f00136f_101692.png" title="three.js下载与开发指南" alt="three.js下载与开发指南"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-5-18 09:31:00">2016-5-18 09:31:00</time></div><div class="tags"><!--[--><span> # three.js</span><!--]--></div></div></section><div class="detail-content"><h2>three.js - 一个javascript 3D代码库</h2>
+<p>这个项目的目的是用最简单的开发模式创建一个轻量级的3 d代码库，这个js库提供了canvas,svg,css3d和webgl这四种渲染方式。</p>
+<h3>下载地址:</h3>
+<p>    下载地址：<a href="../link@next=https%253A%252F%252Fgithub.com%252Fmrdoob%252Fthree.js%252Farchive%252Fmaster.zip.html" title="three.js代码库" target="_blank">https://github.com/mrdoob/three.js/archive/master.zip</a></p>
+<p><a href="../link@next=https%253A%252F%252Fgithub.com%252Fmrdoob%252Fthree.js%252Farchive%252Fmaster.zip.html" title="three.js代码库" target="_blank"></a>    或者打开threejs.org点击下图箭头所示链接进行下载。</p>
+<p><img src="../o/uploads/image/articleimg/04e8d4b0980a50aeea268c9b0f00136f_101692.png" alt="three.js下载与开发指南" title="three.js下载与开发指南" /></p>
+<p>下载得到一个这样的压缩包：</p>
+<p><img src="../o/uploads/image/articleimg/9044714ac95ebd4494ca229326765b1c_14828.png" alt="three.js下载与开发指南" title="three.js下载与开发指南" /></p>
+<p>我们解压它:</p>
+<p><img src="../o/uploads/image/articleimg/2c0d6d71c387a3ef3cc472e2cfbed68f_45494.png" alt="three.js下载与开发指南" title="three.js下载与开发指南" /></p>
+<h5>目录结构：</h5>
+<p>    .github目录：没什么用。  </p>
+<p>    Build目录：这个目录里边有两个文件，three.js 和three.min.js 。一个是没有压缩的three.js，一个已经压缩的。这两个js左右引用一个就OK。</p>
+<p>    Docs目录：这里是three.js的帮助文档，我们可以双击目录里的Index.html打开这个帮助文档，里边介绍了three.js的各个API，不过解释的不是特别详细。</p>
+<p>    Editor目录：这是一个网页版的3D编辑程序，你可以用它来构建three.js的场景。你可以直接通过访问<a href="../../link?next=http%3A%2F%2Fthreejs.org%2Feditor%2F%E6%9D%A5%E6%9F%A5%E7%9C%8B%E6%95%88%E6%9E%9C%EF%BC%8C%E5%90%8C%E6%A0%B7%E4%B9%9F%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87index.html%E6%9D%A5%E6%89%93%E5%BC%80%E5%AE%83%E3%80%82" target="_blank">http://threejs.org/editor/来查看效果，同样也可以通过index.html来打开它。</a></p>
+<p>    Examples目录：这个目录里边有很多的示例代码，你可以直接通过访问<a href="../../link?next=http%3A%2F%2Fthreejs.org%2Fexamples%2F%E6%9D%A5%E6%9F%A5%E7%9C%8B%E5%AE%83%E3%80%82" target="_blank">http://threejs.org/examples/来查看它。</a></p>
+<p>    Src目录：这个是three.js的源代码的目录，里面是所有源代码。</p>
+<p>    Test目录：一些测试代码，基本没用。</p>
+<p>    Utils目录：存放了一些three.js开发过程中一些需要用到的工具。例如将3D-Max格式的模型转换为three.js特有的json模型。还有用得最常见的convert_obj_three.py，这个可以将obj格式的模型，转换成three.js的js格式的模型。</p>
+<p>    .gitignore文件，license文件等：对我们来说没有用。</p>
+<p>    bower.json是包管理工具bower用的文件。  </p>
+<p>    readme.md文件：这个是github项目中必备的文件，用来介绍three.js，markdown格式。</p>
+<p>我们把它拷贝到我们本地的服务器的www目录下，用一个wampserver,xampp等等你都可以建立一个本地的服务器环境，这样避免在访问网页的时候用的是file:///协议。file:///协议会使three.js加载模型时会发生类似下面的异常：</p>
+<pre><code class="language-bash">    XMLHttpRequest cannot load file:///E:/sortware%20lib/three.js-master/examples/models/collada/monster/monster.dae. Cross origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension, https, chrome-extension-resource.load @ ColladaLoader.js:125
+
+    ColladaLoader.js:86 ColladaLoader: Empty or non-existing file (./models/collada/monster/monster.dae)request.onreadystatechange @ ColladaLoader.js:86
+
+    ColladaLoader.js:125 Uncaught NetworkError: Failed to execute &#39;send&#39; on &#39;XMLHttpRequest&#39;: Failed to load &#39;file:///E:/sortware%20lib/three.js-master/examples/models/collada/monster/monster.dae&#39;.
+</code></pre>
+<p><img src="../o/uploads/image/articleimg/02f46cd212db8924a3174587754d64f5_21037.png" alt="three.js下载与开发指南" title="three.js下载与开发指南" /></p>
+<p>上面这个异常，直接双击打开examples目录下的webgl_loader_collada.html时产生的。</p>
+<p>如果访问这个例子代码的时候用本地服务器的方式就会正常<img src="../o/uploads/image/articleimg/78bab8c369f5fd44119af094c5707d78_191099.png" alt="three.js下载与开发指南" title="three.js下载与开发指南" /></p>
+<p>学习的时候，可以拷贝官网的例子进行修改来学习，这样可以很快速的学习到three.js的干货，同时避免了很多的弯路。新手写three.js代码的时候常会遇到很多的错误，而且不知道怎么去解，这样的学习是很危险的，会消磨人的学习意志。所以我建议学习的时候直接拷贝官网的源码，然后一行行代码的调整，去学习各个函数和接口的作用。因为我也是这么走过来的0.0</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d7f","article":{"id":"5a0bf49035583c99c0b28d7f","title":"three.js下载与开发指南","snippet":"three.js - 一个javascript&nbsp;3D代码库这个项目的目的是用最简单的开发模式创建一个轻量级的3 d代码库，这个js库提供了canvas,svg,css3d和webgl这四种渲染方式。下载地址:&nbsp;&nbsp;&nbsp;&nbsp;下载地址：https://gith","image":"../o/uploads/image/articleimg/04e8d4b0980a50aeea268c9b0f00136f_101692.png","tags":["js","three.js"],"category":["three.js"],"keywords":["three.js下载与开发指南","three.js下载","three.js指南","three.js解析","three.js安装与部署"],"content":"<h2>three.js - 一个javascript 3D代码库</h2>\n<p>这个项目的目的是用最简单的开发模式创建一个轻量级的3 d代码库，这个js库提供了canvas,svg,css3d和webgl这四种渲染方式。</p>\n<h3>下载地址:</h3>\n<p>    下载地址：<a href=\\&quot;https://github.com/mrdoob/three.js/archive/master.zip\\&quot;\" title=\"three.js代码库\">https://github.com/mrdoob/three.js/archive/master.zip</a></p>\n<p><a href=\\&quot;https://github.com/mrdoob/three.js/archive/master.zip\\&quot;\" title=\"three.js代码库\"></a>    或者打开threejs.org点击下图箭头所示链接进行下载。</p>\n<p><img src=\"../o/uploads/image/articleimg/04e8d4b0980a50aeea268c9b0f00136f_101692.png\" alt=\"three.js下载与开发指南\" title=\"three.js下载与开发指南\" /></p>\n<p>下载得到一个这样的压缩包：</p>\n<p><img src=\"../o/uploads/image/articleimg/9044714ac95ebd4494ca229326765b1c_14828.png\" alt=\"three.js下载与开发指南\" title=\"three.js下载与开发指南\" /></p>\n<p>我们解压它:</p>\n<p><img src=\"../o/uploads/image/articleimg/2c0d6d71c387a3ef3cc472e2cfbed68f_45494.png\" alt=\"three.js下载与开发指南\" title=\"three.js下载与开发指南\" /></p>\n<h5>目录结构：</h5>\n<p>    .github目录：没什么用。  </p>\n<p>    Build目录：这个目录里边有两个文件，three.js 和three.min.js 。一个是没有压缩的three.js，一个已经压缩的。这两个js左右引用一个就OK。</p>\n<p>    Docs目录：这里是three.js的帮助文档，我们可以双击目录里的Index.html打开这个帮助文档，里边介绍了three.js的各个API，不过解释的不是特别详细。</p>\n<p>    Editor目录：这是一个网页版的3D编辑程序，你可以用它来构建three.js的场景。你可以直接通过访问<a href=%5C%22http://threejs.org/editor/%E9%8F%89%E3%83%A6%E7%85%A1%E9%90%AA%E5%AC%AB%E6%99%A5%E9%8F%8B%E6%BB%90%E7%B4%9D%E9%8D%9A%E5%B1%BE%E7%89%B1%E6%B6%94%E7%86%B7%E5%BD%B2%E6%B5%A0%E3%83%A9%E2%82%AC%E6%B0%B3%E7%B9%83index.html%E9%8F%89%E3%83%A6%E5%A2%A6%E5%AF%AE%E2%82%AC%E7%80%B9%E5%86%A6%E2%82%AC%E4%BF%93%22\">http://threejs.org/editor/来查看效果，同样也可以通过index.html来打开它。</a></p>\n<p>    Examples目录：这个目录里边有很多的示例代码，你可以直接通过访问<a href=%5C%22http://threejs.org/examples/%E9%8F%89%E3%83%A6%E7%85%A1%E9%90%AA%E5%AC%AA%E7%95%A0%E9%8A%86%E4%BF%93%22\">http://threejs.org/examples/来查看它。</a></p>\n<p>    Src目录：这个是three.js的源代码的目录，里面是所有源代码。</p>\n<p>    Test目录：一些测试代码，基本没用。</p>\n<p>    Utils目录：存放了一些three.js开发过程中一些需要用到的工具。例如将3D-Max格式的模型转换为three.js特有的json模型。还有用得最常见的convert_obj_three.py，这个可以将obj格式的模型，转换成three.js的js格式的模型。</p>\n<p>    .gitignore文件，license文件等：对我们来说没有用。</p>\n<p>    bower.json是包管理工具bower用的文件。  </p>\n<p>    readme.md文件：这个是github项目中必备的文件，用来介绍three.js，markdown格式。</p>\n<p>我们把它拷贝到我们本地的服务器的www目录下，用一个wampserver,xampp等等你都可以建立一个本地的服务器环境，这样避免在访问网页的时候用的是file:///协议。file:///协议会使three.js加载模型时会发生类似下面的异常：</p>\n<pre><code class=\"language-bash\">    XMLHttpRequest cannot load file:///E:/sortware%20lib/three.js-master/examples/models/collada/monster/monster.dae. Cross origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension, https, chrome-extension-resource.load @ ColladaLoader.js:125\n\n    ColladaLoader.js:86 ColladaLoader: Empty or non-existing file (./models/collada/monster/monster.dae)request.onreadystatechange @ ColladaLoader.js:86\n\n    ColladaLoader.js:125 Uncaught NetworkError: Failed to execute &#39;send&#39; on &#39;XMLHttpRequest&#39;: Failed to load &#39;file:///E:/sortware%20lib/three.js-master/examples/models/collada/monster/monster.dae&#39;.\n</code></pre>\n<p><img src=\"../o/uploads/image/articleimg/02f46cd212db8924a3174587754d64f5_21037.png\" alt=\"three.js下载与开发指南\" title=\"three.js下载与开发指南\" /></p>\n<p>上面这个异常，直接双击打开examples目录下的webgl_loader_collada.html时产生的。</p>\n<p>如果访问这个例子代码的时候用本地服务器的方式就会正常<img src=\"../o/uploads/image/articleimg/78bab8c369f5fd44119af094c5707d78_191099.png\" alt=\"three.js下载与开发指南\" title=\"three.js下载与开发指南\" /></p>\n<p>学习的时候，可以拷贝官网的例子进行修改来学习，这样可以很快速的学习到three.js的干货，同时避免了很多的弯路。新手写three.js代码的时候常会遇到很多的错误，而且不知道怎么去解，这样的学习是很危险的，会消磨人的学习意志。所以我建议学习的时候直接拷贝官网的源码，然后一行行代码的调整，去学习各个函数和接口的作用。因为我也是这么走过来的0.0</p>\n","createTime":1463535060000,"updatedTime":1785053443249},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

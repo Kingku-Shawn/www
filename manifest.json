@@ -1,0 +1,33 @@
+{
+  "name": "清逸的博客",
+  "short_name": "清逸博客",
+  "description": "前端、音频合成、机器学习与硬件折腾的技术笔记，含在线钢琴、调音器、节拍器等在线工具。",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f8fb",
+  "theme_color": "#2563eb",
+  "categories": ["blog", "technology", "music"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "全部文章", "url": "/article/index.html" },
+    { "name": "站内搜索", "url": "/search/index.html" },
+    { "name": "关于我", "url": "/aboutme/index.html" }
+  ]
+}

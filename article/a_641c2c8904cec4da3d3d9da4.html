@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>PID控制器的C语言示例代码，Kp,Ki,Kd参数的调参建议</title><meta name="keywords" content="PID,PID控制器"><meta name="description" content="PID控制器的示例代码如下：// PID控制器参数\nfloat Kp = 0.5;   // 比例增益\nfloat Ki = 0.2;   // 积分增益\nfloat Kd = 0.1;   // 微分增益\n\n// PID控制器变量\nfloat last_error = 0;   // 上一个时间步">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">PID控制器的C语言示例代码，Kp,Ki,Kd参数的调参建议</h1></header><section class="detail-section"><!----><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2023-3-23 18:40:09">2023-3-23 18:40:09</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>PID控制器的示例代码如下：  </p>
+<pre><code class="language-c">// PID控制器参数
+float Kp = 0.5;   // 比例增益
+float Ki = 0.2;   // 积分增益
+float Kd = 0.1;   // 微分增益
+
+// PID控制器变量
+float last_error = 0;   // 上一个时间步的误差
+float integral = 0;     // 误差积分
+
+// 控制函数，输入当前误差和采样时间
+float control(float error, float dt) {
+    // 计算误差积分
+    integral += error * dt;
+    
+    // 计算误差微分
+    float derivative = (error - last_error) / dt;
+    last_error = error;
+    
+    // 计算PID输出
+    float output = Kp * error + Ki * integral + Kd * derivative;
+    
+    return output;
+}
+</code></pre>
+<p>在这个示例中，control()函数接收当前误差值和采样时间（两次调用control()之间的时间间隔），并返回基于PID算法计算出的控制信号。PID控制器的三个参数 Kp、Ki 和 Kd，以及上一个时间步的误差 last_error 和误差积分 integral 都是全局变量。首先计算误差积分，然后计算误差微分，并使用这些值来计算PID控制器的输出。</p>
+<p>PID控制器Kp,Ki,Kd参数的调参建议</p>
+<p>PID控制器的参数Kp、Ki、Kd的选择通常需要经过试验和调整，以下是一些常见的建议：</p>
+<ol>
+<li>首先设置Kp，使得系统能够响应期望值，并保持稳定。可以逐步增加Kp的值，直到出现系统震荡或不稳定的情况。</li>
+<li>设置Ki，以减小稳态误差。较小的Ki值可能会导致系统响应较慢，而较大的Ki值可能会引起系统的不稳定性。</li>
+<li>设置Kd，以减小系统的超调或振荡。较小的Kd值可能无法有效地减少超调或振荡，而较大的Kd值可能会引起系统的震荡或不稳定性。</li>
+<li>使用试错法进行调参，逐步调整每个参数，观察系统响应并测量其性能指标，如超调量、上升时间、调节时间和稳态误差等。</li>
+<li>在实际工程应用中，可能需要根据具体要求和系统特性来选择PID控制器的参数。因此，建议在掌握基本调参方法的基础上，结合具体情况进行优化和调整。</li>
+</ol>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"641c2c8904cec4da3d3d9da4","article":{"id":"641c2c8904cec4da3d3d9da4","title":"PID控制器的C语言示例代码，Kp,Ki,Kd参数的调参建议","snippet":"PID控制器的示例代码如下：// PID控制器参数\nfloat Kp = 0.5;   // 比例增益\nfloat Ki = 0.2;   // 积分增益\nfloat Kd = 0.1;   // 微分增益\n\n// PID控制器变量\nfloat last_error = 0;   // 上一个时间步","tags":["PID控制器","示例代码"],"category":["编程"],"keywords":["PID","PID控制器"],"content":"<p>PID控制器的示例代码如下：  </p>\n<pre><code class=\"language-c\">// PID控制器参数\nfloat Kp = 0.5;   // 比例增益\nfloat Ki = 0.2;   // 积分增益\nfloat Kd = 0.1;   // 微分增益\n\n// PID控制器变量\nfloat last_error = 0;   // 上一个时间步的误差\nfloat integral = 0;     // 误差积分\n\n// 控制函数，输入当前误差和采样时间\nfloat control(float error, float dt) {\n    // 计算误差积分\n    integral += error * dt;\n    \n    // 计算误差微分\n    float derivative = (error - last_error) / dt;\n    last_error = error;\n    \n    // 计算PID输出\n    float output = Kp * error + Ki * integral + Kd * derivative;\n    \n    return output;\n}\n</code></pre>\n<p>在这个示例中，control()函数接收当前误差值和采样时间（两次调用control()之间的时间间隔），并返回基于PID算法计算出的控制信号。PID控制器的三个参数 Kp、Ki 和 Kd，以及上一个时间步的误差 last_error 和误差积分 integral 都是全局变量。首先计算误差积分，然后计算误差微分，并使用这些值来计算PID控制器的输出。</p>\n<p>PID控制器Kp,Ki,Kd参数的调参建议</p>\n<p>PID控制器的参数Kp、Ki、Kd的选择通常需要经过试验和调整，以下是一些常见的建议：</p>\n<ol>\n<li>首先设置Kp，使得系统能够响应期望值，并保持稳定。可以逐步增加Kp的值，直到出现系统震荡或不稳定的情况。</li>\n<li>设置Ki，以减小稳态误差。较小的Ki值可能会导致系统响应较慢，而较大的Ki值可能会引起系统的不稳定性。</li>\n<li>设置Kd，以减小系统的超调或振荡。较小的Kd值可能无法有效地减少超调或振荡，而较大的Kd值可能会引起系统的震荡或不稳定性。</li>\n<li>使用试错法进行调参，逐步调整每个参数，观察系统响应并测量其性能指标，如超调量、上升时间、调节时间和稳态误差等。</li>\n<li>在实际工程应用中，可能需要根据具体要求和系统特性来选择PID控制器的参数。因此，建议在掌握基本调参方法的基础上，结合具体情况进行优化和调整。</li>\n</ol>\n","createTime":1679568009683,"updatedTime":1785058547857},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>Bootstrap网格系统快速入门</title><meta name="keywords" content="Bootstrap grid,Bootstrap col,Bootstrap offset,Bootstrap .col-xs .col-sm .col-md .col-lg,Bootstrap网格系统教程"><meta name="description" content="Bootstrap是现在使用最广泛的前端框架。当涉及到构建响应网站和应用程序时,这是专业人士和业余爱好者的第一选择,因为它使用起来非常简单。任何人只要会一点HTML、CSS和JavaScript就可以学习Bootstrap。在这个快速教程里边，我们要讲网格系统的一个基本概念，任何Bootstrap开">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">Bootstrap网格系统快速入门</h1></header><section class="detail-section"><!----><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2016-3-18 14:29:37">2016-3-18 14:29:37</time></div><div class="tags"><!--[--><span> # 编程</span><!--]--></div></div></section><div class="detail-content"><p>Bootstrap是现在使用最广泛的前端框架。当涉及到构建响应网站和应用程序时,这是专业人士和业余爱好者的第一选择,因为它使用起来非常简单。任何人只要会一点HTML、CSS和JavaScript就可以学习Bootstrap。</p>
+<p>在这个快速教程里边，我们要讲网格系统的一个基本概念，任何Bootstrap开发人员都需要掌握。它允许我们创建响应页面布局,通过用户设备的屏幕大小可以改变和适应。</p>
+<h3>1.行和栏（Rows &amp; Columns）</h3>
+<p>网格由行和列组成。这允许我们自由的定位垂直和水平位置的元素。</p>
+<p>rows是一个块级别的。这意味着,当我们创建一个行,它占据了整个元素的宽度。你可以认为在你的布局中，rows是一个新行。</p>
+<p>水平对齐网格是通过列。列是所有行的子节点,所有的列内容都应该被包括进在里边。把内容直接在一行将打破布局。</p>
+<p>注:行和列有一种特殊的关系。列有15 px左和右的padding,这样他们的内容正确地间隔开来。然而,这把第一列和最后一列的内容设置距离父节点15 px。为补偿他,行的左右两侧有-15px的margin。这就是为什么你应该把列放在行中的原因。</p>
+<h3>2. 行被拆分为12格</h3>
+<p>行横向划分为12个相等的部分。当我们将列放在一个行中时,我们必须指定具体会占用多少个数量。</p>
+<p>这可以通过一个具体的类.col-md-NUMBER,那个NUMBER可以是整数从1到12。根据数量,列会占据一定比例的完整行宽度:6将占50%(12/6),3将占25%(12/3)等等。下面的示例表示得更清晰:</p>
+<h3>3. Column列</h3>
+<p>我们必须始终考虑,只有12个宽度的可用空间。如果我们通过计算几个相邻的列,他们所需的空间的结果超过12,在那一组的最后一列将不得不移到下一行。让我们看一个实际的例子:</p>
+<p>前两列的大小分别为8和4(8 + 4 = 12),这使得第一行。第三单元没有足够的空间,所以它必须包装到下一行。</p>
+<h3>4. 不同屏幕大小的类别</h3>
+<p>还记得在步骤2中，我们写到  <code>.col-md-NUMBER</code>吗?这里的<code>-md-</code>代表媒体类别。Bootstrap有许多类不同的屏幕尺寸:</p>
+<ul>
+<li><p>xs – 代表的小屏幕，比如智能手机。 可以这样使用它 <code>.col-xs-NUMBER</code></p>
+</li>
+<li><p>sm – 小屏幕平板电脑等设备。 <code>.col-sm-NUMBER</code></p>
+</li>
+<li><p>md – 中等大小的屏幕,如低dpi台式机和笔记本电脑。  <code>.col-md-NUMBER</code></p>
+</li>
+<li><p>lg – 大而且高分辨率的屏幕。 <code>.col-lg-NUMBER</code></p>
+</li>
+</ul>
+<p>Bootstrap需要通过屏幕分辨率和dpi决定使哪些classes处于活动状态。这是一个如何控制布局呈现在不同的设备上的强大的方法。</p>
+<p>当我们为任何设备大小定义一个规则,这个规则将继承和适用于所有大的尺寸,除非我们通过提供一个新的覆盖它。</p>
+<h3>5. Clearfix清楚浮动</h3>
+<p>在某些情况下,当一个列有更多的内容和更大的高度之后的,布局将打破。列都堆积在彼此的上面,而没有移动到下一行。</p>
+<p>为了防止这一点,我们添加一个div并加上clearfix的类名。它将迫使所有所有在它之后的列,搬到一个新行,来解决这个问题。</p>
+<p>您可以使用Bootstrap的响应实用工具类来控制当前clearfix类的活跃状态。</p>
+<h3>6. Offsets 偏移也是很重要的</h3>
+<p>默认情况下,列坚持彼此没有留下任何空间的向左浮动。任何留在这行的多余的空间将保持在空的右边。</p>
+<p>在列的左边去创造margins我们可以使用offset类。应用.col-md-offset-2类在任何列中将会使他向右移动,仿佛有一个无形的.col-md-2 列。你可以为不同的屏幕尺寸添加不同的offsets,通过xs,sm、md和lg前缀。</p>
+<h3>7. Push 和 Pull</h3>
+<p>“push”和“pull”类允许我们根据屏幕大小重新排序列。push 可以把列向右移动,同时pull可以拉到左边。这不同于offset,push和pull使用<code>position:relative</code>,不会使其他列发生移动。</p>
+<p>push和pull类遵循后面这种格式: <code>.col-SIZE-push-NUMBER</code>, 和 <code>.col-SIZE-pull-NUMBER</code>. SIZE取后面这几个值(sm, xs, md 和 lg). 这代表在这4种不同屏幕大小的场景下，我们具体希望交换发生在哪种情况。NUMBER告诉Bootstrap我们想移动多少个位置。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5a0bf49035583c99c0b28d71","article":{"id":"5a0bf49035583c99c0b28d71","title":"Bootstrap网格系统快速入门","snippet":"Bootstrap是现在使用最广泛的前端框架。当涉及到构建响应网站和应用程序时,这是专业人士和业余爱好者的第一选择,因为它使用起来非常简单。任何人只要会一点HTML、CSS和JavaScript就可以学习Bootstrap。在这个快速教程里边，我们要讲网格系统的一个基本概念，任何Bootstrap开","image":null,"tags":["html"],"category":["编程"],"keywords":["Bootstrap grid","Bootstrap col","Bootstrap offset","Bootstrap .col-xs .col-sm .col-md .col-lg","Bootstrap网格系统教程"],"content":"<p>Bootstrap是现在使用最广泛的前端框架。当涉及到构建响应网站和应用程序时,这是专业人士和业余爱好者的第一选择,因为它使用起来非常简单。任何人只要会一点HTML、CSS和JavaScript就可以学习Bootstrap。</p>\n<p>在这个快速教程里边，我们要讲网格系统的一个基本概念，任何Bootstrap开发人员都需要掌握。它允许我们创建响应页面布局,通过用户设备的屏幕大小可以改变和适应。</p>\n<h3>1.行和栏（Rows &amp; Columns）</h3>\n<p>网格由行和列组成。这允许我们自由的定位垂直和水平位置的元素。</p>\n<p>rows是一个块级别的。这意味着,当我们创建一个行,它占据了整个元素的宽度。你可以认为在你的布局中，rows是一个新行。</p>\n<p>水平对齐网格是通过列。列是所有行的子节点,所有的列内容都应该被包括进在里边。把内容直接在一行将打破布局。</p>\n<p>注:行和列有一种特殊的关系。列有15 px左和右的padding,这样他们的内容正确地间隔开来。然而,这把第一列和最后一列的内容设置距离父节点15 px。为补偿他,行的左右两侧有-15px的margin。这就是为什么你应该把列放在行中的原因。</p>\n<h3>2. 行被拆分为12格</h3>\n<p>行横向划分为12个相等的部分。当我们将列放在一个行中时,我们必须指定具体会占用多少个数量。</p>\n<p>这可以通过一个具体的类.col-md-NUMBER,那个NUMBER可以是整数从1到12。根据数量,列会占据一定比例的完整行宽度:6将占50%(12/6),3将占25%(12/3)等等。下面的示例表示得更清晰:</p>\n<h3>3. Column列</h3>\n<p>我们必须始终考虑,只有12个宽度的可用空间。如果我们通过计算几个相邻的列,他们所需的空间的结果超过12,在那一组的最后一列将不得不移到下一行。让我们看一个实际的例子:</p>\n<p>前两列的大小分别为8和4(8 + 4 = 12),这使得第一行。第三单元没有足够的空间,所以它必须包装到下一行。</p>\n<h3>4. 不同屏幕大小的类别</h3>\n<p>还记得在步骤2中，我们写到  <code>.col-md-NUMBER</code>吗?这里的<code>-md-</code>代表媒体类别。Bootstrap有许多类不同的屏幕尺寸:</p>\n<ul>\n<li><p>xs – 代表的小屏幕，比如智能手机。 可以这样使用它 <code>.col-xs-NUMBER</code></p>\n</li>\n<li><p>sm – 小屏幕平板电脑等设备。 <code>.col-sm-NUMBER</code></p>\n</li>\n<li><p>md – 中等大小的屏幕,如低dpi台式机和笔记本电脑。  <code>.col-md-NUMBER</code></p>\n</li>\n<li><p>lg – 大而且高分辨率的屏幕。 <code>.col-lg-NUMBER</code></p>\n</li>\n</ul>\n<p>Bootstrap需要通过屏幕分辨率和dpi决定使哪些classes处于活动状态。这是一个如何控制布局呈现在不同的设备上的强大的方法。</p>\n<p>当我们为任何设备大小定义一个规则,这个规则将继承和适用于所有大的尺寸,除非我们通过提供一个新的覆盖它。</p>\n<h3>5. Clearfix清楚浮动</h3>\n<p>在某些情况下,当一个列有更多的内容和更大的高度之后的,布局将打破。列都堆积在彼此的上面,而没有移动到下一行。</p>\n<p>为了防止这一点,我们添加一个div并加上clearfix的类名。它将迫使所有所有在它之后的列,搬到一个新行,来解决这个问题。</p>\n<p>您可以使用Bootstrap的响应实用工具类来控制当前clearfix类的活跃状态。</p>\n<h3>6. Offsets 偏移也是很重要的</h3>\n<p>默认情况下,列坚持彼此没有留下任何空间的向左浮动。任何留在这行的多余的空间将保持在空的右边。</p>\n<p>在列的左边去创造margins我们可以使用offset类。应用.col-md-offset-2类在任何列中将会使他向右移动,仿佛有一个无形的.col-md-2 列。你可以为不同的屏幕尺寸添加不同的offsets,通过xs,sm、md和lg前缀。</p>\n<h3>7. Push 和 Pull</h3>\n<p>“push”和“pull”类允许我们根据屏幕大小重新排序列。push 可以把列向右移动,同时pull可以拉到左边。这不同于offset,push和pull使用<code>position:relative</code>,不会使其他列发生移动。</p>\n<p>push和pull类遵循后面这种格式: <code>.col-SIZE-push-NUMBER</code>, 和 <code>.col-SIZE-pull-NUMBER</code>. SIZE取后面这几个值(sm, xs, md 和 lg). 这代表在这4种不同屏幕大小的场景下，我们具体希望交换发生在哪种情况。NUMBER告诉Bootstrap我们想移动多少个位置。</p>\n","createTime":1458282577000,"updatedTime":1785055448433},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

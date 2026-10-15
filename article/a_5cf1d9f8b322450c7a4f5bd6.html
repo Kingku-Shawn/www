@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="shawn" />
+    <meta name="copyright" content="shawn.com" />
+    <title>简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分</title><meta name="description" content="网上找了一个音频软件的键编辑器的图，作为这次的的录制的编辑器的参考图。分析，需要左右两个模块，左边是一排垂直的键盘，右边则是可以左右滚动的音轨区，右侧的背景也需要处理一下。上方的选区和播放的待这部分基础功能开发完再开发。上代码上图先初始化我的页面&lt;template&gt;\n&nbsp;&nbs">
+    <link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-legacy-DJaxbefF.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-header.vue_vue_type_style_index_0_lang-CR2v6PXR.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-header-BXdGjo_y.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-legacy-BpQc-u0o.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/index-Cadi4-tq.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/index-2jKBlGJ6.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-legacy-Cl6Jcxk5.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/xw-footer-BYEp7rSw.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/xw-footer-BoP9TnCk.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-legacy-Ds4aFJ99.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/inline-panel-O43zqOBs.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/inline-panel-CnFof7zP.css"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-legacy-BCSeIeIH.js"><link rel="modulepreload" crossorigin href="../o/cdn-2607/a/0/use-pinlun-list-CeZnsGle.js"><link rel="stylesheet" href="../o/cdn-2607/a/0/use-pinlun-list-CpRPk2xq.css">
+    <script type="module" crossorigin src="../o/cdn-2607/a/0/index-D-3VvwBs.js"></script>
+    <link rel="stylesheet" crossorigin href="../o/cdn-2607/a/0/index-RvnZBxNx.css">
+<link rel="stylesheet" href="/soulsoft-tools.css">
+    <script type="module">import.meta.url;import("_").catch(()=>1);(async function* g(){})();window.__vite_is_modern_browser=true</script>
+    <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+  <style id="nav-pad">body{padding-top:58px}</style></head>
+  <body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html">清逸的博客</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="../index.html">首页</a>
+      <a href="../piano/index.html" data-tool="piano">在线钢琴</a>
+      <a href="../music/index.html" data-tool="music">在线乐器</a>      <a href="../tiaoyin/index.html" data-tool="tiaoyin">调音器</a>
+      <a href="../metronome/index.html" data-tool="metronome">节拍器</a>
+      <a href="../article/index.html">文章</a>
+      <a href="../aboutme/index.html">关于我</a>
+    </nav>
+    <div class="nav-user" id="navUser"><a href="../user/login.html">登录</a></div>
+  </div>
+</header>
+
+    <div id="main"><!--[--><!--[--><div id="app"><div class="page-container"><div class="content-container"><div class="detail-wrapper"><header class="detail-header"><h1 class="detail-title">简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分</h1></header><section class="detail-section"><div class="detail-headimg"><img src="../o/uploads/dft_2019/990c3a44a066cc4465592e47b2ed1f10_211621.png" title="简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分" alt="简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分"></div><div class="detail-headinfo"><div> 发布于 <time class="detail-date" datetime="2019-6-1 09:50:00">2019-6-1 09:50:00</time></div><div class="tags"><!--[--><span> # 简单钢琴开发</span><!--]--></div></div></section><div class="detail-content"><p>网上找了一个音频软件的键编辑器的图，作为这次的的录制的编辑器的参考图。  </p>
+<p>分析，需要左右两个模块，左边是一排垂直的键盘，右边则是可以左右滚动的音轨区，右侧的背景也需要处理一下。上方的选区和播放的待这部分基础功能开发完再开发。</p>
+<p>上代码上图</p>
+<p><img src="../o/uploads/dft_2019/990c3a44a066cc4465592e47b2ed1f10_211621.png" alt="简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分" title="简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分" /></p>
+<p>先初始化我的页面</p>
+<pre><code class="language-html">&lt;template&gt;
+    &lt;div class=&quot;yingui&quot;&gt;
+        &lt;div class=&quot;yg-main&quot;&gt;
+            &lt;div class=&quot;left&quot;&gt;
+            234
+            &lt;/div&gt;
+            &lt;div class=&quot;right&quot;&gt;
+            123
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+    data () {
+        return {};
+    },
+};
+&lt;/script&gt;
+
+&lt;style lang=&quot;stylus&quot;&gt;
+.yingui{
+    &gt;.yg-main{
+        position relative;
+        &gt;.left {
+            position relative;
+            width 100px;
+            height 600px;
+            background #aaa;
+            padding 0 0 30px 0;
+        }
+        &gt;.right {
+            position absolute;
+            top 0
+            left 100px;
+            right 0;
+            height 100%;
+            background #d2d2d2;
+            overflow-x hidden;
+        }
+    }
+}
+&lt;/style&gt;
+</code></pre>
+<p>页面初始化后效果如下</p>
+<p><img src="../o/uploads/dft_2019/fefb31c74a6ffefb44b5a5ea1851f31c_86268.png" alt="简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分" title="简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分" /></p>
+<p>现在来写代码，把左边的键盘加上。考虑到键的dom会比较多，所以我考虑不使用vue进行控制dom，直接在.left的div里边append原生的dom，这样可以让vue在render的时候不用处理这一块，而且这一块是不怎么需要变化的，所以完全满足可以优化的条件。</p>
+<p>现在把左边的钢琴键列表填充一下</p>
+<pre><code class="language-html">&lt;template&gt;
+    &lt;div class=&quot;yingui&quot;&gt;
+        &lt;div class=&quot;yg-main&quot;&gt;
+            &lt;div class=&quot;left&quot;&gt;
+                &lt;div
+                    ref=&quot;keyList&quot;
+                    class=&quot;left-keylist&quot;
+                /&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;right&quot;&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import { heiKeyArray } from &#39;../../keyboard.js&#39;;
+
+export default {
+    data () {
+        return {};
+    },
+    mounted () {
+        let keyDomList = &#39;&#39;;
+        heiKeyArray.forEach((element) =&gt; {
+            keyDomList = &#39;&lt;div&gt;&lt;/div&gt;&#39; + keyDomList; // 白键
+            if (element &gt; 0) {
+                keyDomList = &#39;&lt;div&gt;&lt;/div&gt;&#39; + keyDomList; // 黑键
+            }
+        });
+        this.$refs.keyList.innerHTML = keyDomList;
+    },
+};
+&lt;/script&gt;
+
+&lt;style lang=&quot;stylus&quot;&gt;
+.yingui{
+    &gt;.yg-main{
+        position relative;
+        &gt;.left {
+            position relative;
+            width 80px;
+            padding 0 0 30px 0;
+        }
+        &gt;.right {
+            position absolute;
+            top 0
+            left 80px;
+            right 0;
+            height 100%;
+            background #999;
+            overflow-x hidden;
+        }
+    }
+    .left-keylist {
+        background #333;
+        padding 2px 0;
+        margin 0px 0;
+        &gt;div {
+            height 20px;
+            margin 1px 0;
+        }
+        &gt;.w {
+            background #fff;
+        }
+        &gt;.h {
+            background #666;
+        }
+    }
+}
+&lt;/style&gt;
+</code></pre>
+<p>效果如下图</p>
+<p><img src="../o/uploads/dft_2019/c8754b9d29b9523b0ee02d99f9b2f7e2_24150.png" alt="简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分" title="简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分" /></p>
+<p>左侧的钢琴键位参考已经画出来了</p>
+<p>这里为什么黑键和白键一样长，一样宽，主要是为了音轨在上面也等宽。</p>
+<p>接下来开发右侧音轨区域的背景部分。</p>
+</div></div><div class="xw-pinlun2 article-pinlun" data-v-92f3e67c><div class="pl2-inline" data-v-92f3e67c data-v-ce700fd0><div class="pl2-inline-head" data-v-ce700fd0><span class="pl2-inline-title" data-v-ce700fd0>评论</span><!----></div><!----><div class="pl2-inline-list" data-v-ce700fd0><div class="pl2-spin" data-v-ce700fd0></div><!----><!--[--><!--]--><!----></div><!----><div class="pl2-input" data-v-ce700fd0 data-v-4d4a99fa><!----><div class="pl2-ipt-row" data-v-4d4a99fa><textarea placeholder="发表一下看法" maxlength="600" rows="1" class="" data-v-4d4a99fa></textarea><button type="button" class="pl2-send" title="发送" data-v-4d4a99fa><svg class="pl2-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-v-4d4a99fa data-v-101ca45d><!--[--><path d="M22 2L11 13" data-v-101ca45d></path><path d="M22 2l-7 20-4-9-9-4z" data-v-101ca45d></path><!--]--></svg></button></div><!----><div class="pl2-user-row" data-v-4d4a99fa><div class="mini-user-block" data-v-4d4a99fa><div class="no-login"><!--[--><button type="button" data-v-4d4a99fa> 登录 </button><span data-v-4d4a99fa> 或 匿名发表评论</span><!--]--></div></div></div></div></div></div></div></div></div><!--]--><div><!----></div><!--]--></div>
+    <script>window.__INITIAL_STATE__=null;
+        window.__PINIA_STATE__={"id":"5cf1d9f8b322450c7a4f5bd6","article":{"id":"5cf1d9f8b322450c7a4f5bd6","title":"简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分","snippet":"网上找了一个音频软件的键编辑器的图，作为这次的的录制的编辑器的参考图。分析，需要左右两个模块，左边是一排垂直的键盘，右边则是可以左右滚动的音轨区，右侧的背景也需要处理一下。上方的选区和播放的待这部分基础功能开发完再开发。上代码上图先初始化我的页面&lt;template&gt;\n&nbsp;&nbs","image":"../o/uploads/dft_2019/990c3a44a066cc4465592e47b2ed1f10_211621.png","tags":["js"],"category":["简单钢琴开发"],"keywords":[],"content":"<p>网上找了一个音频软件的键编辑器的图，作为这次的的录制的编辑器的参考图。  </p>\n<p>分析，需要左右两个模块，左边是一排垂直的键盘，右边则是可以左右滚动的音轨区，右侧的背景也需要处理一下。上方的选区和播放的待这部分基础功能开发完再开发。</p>\n<p>上代码上图</p>\n<p><img src=\"../o/uploads/dft_2019/990c3a44a066cc4465592e47b2ed1f10_211621.png\" alt=\"简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分\" title=\"简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分\" /></p>\n<p>先初始化我的页面</p>\n<pre><code class=\"language-html\">&lt;template&gt;\n    &lt;div class=&quot;yingui&quot;&gt;\n        &lt;div class=&quot;yg-main&quot;&gt;\n            &lt;div class=&quot;left&quot;&gt;\n            234\n            &lt;/div&gt;\n            &lt;div class=&quot;right&quot;&gt;\n            123\n            &lt;/div&gt;\n        &lt;/div&gt;\n    &lt;/div&gt;\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data () {\n        return {};\n    },\n};\n&lt;/script&gt;\n\n&lt;style lang=&quot;stylus&quot;&gt;\n.yingui{\n    &gt;.yg-main{\n        position relative;\n        &gt;.left {\n            position relative;\n            width 100px;\n            height 600px;\n            background #aaa;\n            padding 0 0 30px 0;\n        }\n        &gt;.right {\n            position absolute;\n            top 0\n            left 100px;\n            right 0;\n            height 100%;\n            background #d2d2d2;\n            overflow-x hidden;\n        }\n    }\n}\n&lt;/style&gt;\n</code></pre>\n<p>页面初始化后效果如下</p>\n<p><img src=\"../o/uploads/dft_2019/fefb31c74a6ffefb44b5a5ea1851f31c_86268.png\" alt=\"简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分\" title=\"简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分\" /></p>\n<p>现在来写代码，把左边的键盘加上。考虑到键的dom会比较多，所以我考虑不使用vue进行控制dom，直接在.left的div里边append原生的dom，这样可以让vue在render的时候不用处理这一块，而且这一块是不怎么需要变化的，所以完全满足可以优化的条件。</p>\n<p>现在把左边的钢琴键列表填充一下</p>\n<pre><code class=\"language-html\">&lt;template&gt;\n    &lt;div class=&quot;yingui&quot;&gt;\n        &lt;div class=&quot;yg-main&quot;&gt;\n            &lt;div class=&quot;left&quot;&gt;\n                &lt;div\n                    ref=&quot;keyList&quot;\n                    class=&quot;left-keylist&quot;\n                /&gt;\n            &lt;/div&gt;\n            &lt;div class=&quot;right&quot;&gt;\n            &lt;/div&gt;\n        &lt;/div&gt;\n    &lt;/div&gt;\n&lt;/template&gt;\n\n&lt;script&gt;\nimport { heiKeyArray } from &#39;../../keyboard.js&#39;;\n\nexport default {\n    data () {\n        return {};\n    },\n    mounted () {\n        let keyDomList = &#39;&#39;;\n        heiKeyArray.forEach((element) =&gt; {\n            keyDomList = &#39;&lt;div&gt;&lt;/div&gt;&#39; + keyDomList; // 白键\n            if (element &gt; 0) {\n                keyDomList = &#39;&lt;div&gt;&lt;/div&gt;&#39; + keyDomList; // 黑键\n            }\n        });\n        this.$refs.keyList.innerHTML = keyDomList;\n    },\n};\n&lt;/script&gt;\n\n&lt;style lang=&quot;stylus&quot;&gt;\n.yingui{\n    &gt;.yg-main{\n        position relative;\n        &gt;.left {\n            position relative;\n            width 80px;\n            padding 0 0 30px 0;\n        }\n        &gt;.right {\n            position absolute;\n            top 0\n            left 80px;\n            right 0;\n            height 100%;\n            background #999;\n            overflow-x hidden;\n        }\n    }\n    .left-keylist {\n        background #333;\n        padding 2px 0;\n        margin 0px 0;\n        &gt;div {\n            height 20px;\n            margin 1px 0;\n        }\n        &gt;.w {\n            background #fff;\n        }\n        &gt;.h {\n            background #666;\n        }\n    }\n}\n&lt;/style&gt;\n</code></pre>\n<p>效果如下图</p>\n<p><img src=\"../o/uploads/dft_2019/c8754b9d29b9523b0ee02d99f9b2f7e2_24150.png\" alt=\"简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分\" title=\"简单钢琴-音轨录制功能开发(一) - 左侧键盘位置参考部分\" /></p>\n<p>左侧的钢琴键位参考已经画出来了</p>\n<p>这里为什么黑键和白键一样长，一样宽，主要是为了音轨在上面也等宽。</p>\n<p>接下来开发右侧音轨区域的背景部分。</p>\n","createTime":1559353800000,"updatedTime":1785057075742},"categorys":["H5开发","OpenCV","PyTorch","docker","naive-ui","netplan","nodejs","three.js","ubuntu","vue3","其它","前端","在线钢琴","微信跳一跳小游戏","机器学习","树莓派","清逸折腾硬件","简单钢琴开发","编程","音频技术"]};
+        window._SSR_PAGE_="/article/detail"</script>
+    <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+    <script nomodule crossorigin id="vite-legacy-polyfill" src="../o/cdn-2607/a/0/polyfills-legacy-DT5YKNL2.js"></script>
+    <script nomodule crossorigin id="vite-legacy-entry" data-src="../o/cdn-2607/a/0/index-legacy-Buv7pcdw.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  
+<script>
+/* 清逸的博客 · 页脚品牌统一 */
+(function () {
+  function setBrand() {
+    document.querySelectorAll('footer.xw-footer span').forEach(function (s) {
+      if (s.textContent.indexOf('WWW.SHAWN.COM') >= 0) { s.textContent = '\u00a9 清逸的博客'; }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setBrand(); });
+  } else { setBrand(); }
+  var t = setInterval(function () { setBrand(); }, 1500);
+})();
+
+</script>
+<script src="../js/header-fix.js"></script>
+<script src="../js/article-detail-enhance.js"></script>
+</body>
+</html>

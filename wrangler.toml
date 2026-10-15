@@ -1,0 +1,55 @@
+# 清逸的博客 · Cloudflare Workers 配置
+# 拓扑：
+#   静态站 = GitHub Pages（已设自定义域名 blog.qingyi.dpdns.org，经 Cloudflare 代理直出）
+#   Worker 只接管 /api 与 /api-v1 的动态端点，提供阅读量 + 评论。
+#
+# ⚠ 重要：D1 绑定与路由请在 Cloudflare 控制台手动配置（你已在控制台部署过 blog-server）。
+#   本文件只负责把 Worker 代码部署上去，不覆盖控制台已有的绑定与路由。
+#   这样可避免：database_id 占位符报错、zone_name 校验失败、路由被意外覆盖。
+
+name = "blog-server"
+main = "worker/src/index.js"
+compatibility_date = "2024-11-01"
+
+# ---- D1 数据库（阅读量 + 评论）----
+# 库已创建：t_blog_qingyi（database_id 见下）。表尚未建立，部署后需执行建表 SQL。
+# 建表：npx wrangler d1 execute t_blog_qingyi --remote --file=migrations/0001_init.sql
+[[d1_databases]]
+binding = "DB"
+database_name = "t_blog_qingyi"
+database_id = "add76dbc-1118-4ec8-9edd-e380b66cbbac"
+
+# ---- 邮件发送 ----
+# 发信优先级（sendMail 内自动降级）：
+#   ① Cloudflare 原生 Email Service（需在控制台配 send_email binding，当前未启用）
+#   ② Resend 第三方邮件（推荐方案 B：`npx wrangler secret put RESEND_API_KEY` + `MAIL_FROM`）
+#   ③ MAIL_WEBHOOK_URL（自定义转发端点，可选）
+#   ④ 都没有 → 骨架分支（接口照常返回，mailConfigured:false）
+# 方案 B 只需配置 ②；send_email binding 留空（不配 Email Service 就不生效，也不占用配置）。
+
+
+# ---- 环境变量 ----
+# POSTS_URL = 静态文章列表 posts.json 的 raw 地址（阅读量的“真源”元数据）。
+#   raw 地址格式：https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>
+#   ⚠ 路径取决于 api/ 目录在仓库里的位置：
+#     · 未重构（api/ 在根目录）     → .../main/api/public/posts.json
+#     · 已重构（api/ 移到 site/）   → .../main/site/api/public/posts.json
+#   当前按“未重构”填写。若你运行过 scripts/restructure.mjs，把 /api 改成 /site/api。
+#
+# RAW_API_BASE = 静态 JSON 的 raw 目录基地址（兜底读取用）。
+#   /api/tools.json、/api/about.json、/api/layout.json、
+#   /api/public/columns.json、/api/public/tags.json 等，均从该目录下同名文件读取。
+#   raw 不经过 GitHub Pages、无自定义域名 301，杜绝回源死循环。
+[vars]
+POSTS_URL = "https://raw.githubusercontent.com/Kingku-Shawn/blog/main/api/public/posts.json"
+RAW_API_BASE = "https://raw.githubusercontent.com/Kingku-Shawn/blog/main/api"
+# 文章 HTML 源目录（补抓正文用）：文章详情页在仓库 article/ 目录下
+RAW_ARTICLE_BASE = "https://raw.githubusercontent.com/Kingku-Shawn/blog/main/article"
+# admin 后台静态文件源（管理员访问 /admin/* 时由 Worker 从这里拉取，Pages 上不部署 admin）
+RAW_ADMIN_BASE = "https://raw.githubusercontent.com/Kingku-Shawn/blog/main/admin"
+# 静态源（文章详情页 D1 无数据时回退 + 静态资源反向代理）：项目 Pages 裸源
+STATIC_ORIGIN = "https://kingku-shawn.github.io/blog"
+# 自定义域名（静态代理 301 改写用）
+CUSTOM_HOST = "blog.qingyi.dpdns.org"
+# 预设管理员用户名（公开无妨）。该用户名注册时自动成为管理员。
+ADMIN_USER = "kingkushawn"

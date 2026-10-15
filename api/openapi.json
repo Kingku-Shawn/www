@@ -1,0 +1,2450 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "清逸的博客 API",
+    "version": "1.0.0",
+    "description": "清逸的博客（blog.qingyi.dpdns.org）Cloudflare Worker 动态后端接口。本文档按 worker/src/index.js 的路由分发（handleFetch / handleAdmin）与 worker/src/features/*.js 各 handler 的入参、返回逐个核对生成；页面类路径（/、/index.html、/piano/ 等）由 Worker 反代 GitHub Pages，不属于本 API。\n\n【两套响应契约并存】\n1) 前台公开接口与后台管理接口：{ ok: true|false, data?, msg? }；\n2) 评论 /api/pinlun/* 与 Cookie 会话 /api/user/*：{ success: true|false, data?, msg? }；\n3) /api/login、/api/logout 与 /api/me 同时返回 ok 与 success 两个字段，两种判断都能通过；\n4) GET /api/csrf 的响应体是纯 JSON 字符串 \"qingyi-blog-worker-csrf\"（不是对象）。\n⚠ 关键：多数参数校验失败返回 HTTP 200 + ok:false / success:false（各接口 description 已注明），不要只按 HTTP 状态码判断成败；只有后台鉴权失败与显式错误分支才用 401/403/404。\n\n【双前缀 /api 与 /api-v1 的覆盖范围】\n前端 axios 拦截器会把 /api/* 改写成 /api-v1/*，因此部分接口两前缀等价、部分只支持 /api/*：\n- 两前缀都支持：/ping、/health、/pinlun/*、/csrf、/user/{login,info,logout}、/login（另有 /api/v1/login 别名）、/me、/logout、/auth/password/*、/auth/email/verify/*、/public/stats、/admin/stats；\n- 仅 /api/*：/register（别名 /api/user/register）、全部公开 JSON（posts/columns/tags/tools/about/layout）、/view、/columns/{名}/articles、/uploads/{id}、公开扩展接口（search/stats/subscribe/report/article/like|bookmark/my/*）、以及全部后台管理接口（/api-v1/posts 等会落到静态 JSON 兜底 → 404）。\n每个 operation 的 description 里标注了该接口的等价别名。\n\n【鉴权：X-Token 头 vs session Cookie 是两套机制】\n- XToken（请求头 X-Token: <token>）：管理员登录 POST /api/login 返回的 token（48 位 hex），有效期 8 小时。**后台管理接口只认 X-Token，不认 Cookie**；/api/me、/api/my/*、/api/auth/email/verify/request 也只认 X-Token。\n- SessionCookie（Cookie session=<token>，HttpOnly + SameSite=Lax + Max-Age=28800，无 Secure）：由 POST /api/user/login 或 /api/login 下发（两者都 Set-Cookie），供旧 Vue 组件与 /api/user/info 使用。\n- /api/article/bookmark 接受 X-Token 或 session Cookie 任一。\n- 后台鉴权失败文案：401「未登录或会话已过期」/「会话已过期」，403「账号已被禁用」或「权限不足」/「仅超级管理员可管理用户」。\n- /api/me 与 /api/user/info 的会话失效是 HTTP 200 + ok:false,success:false（前端据此渲染登录态）。\n\n【限流与 429】\n固定窗口限流（worker/src/features/security.js，表 rate_limits）已接线于：view(60/分)、report(10/时)、login(10/5 分)、register(3/时)、search(30/分)、publish 评论(5/分)、subscribe、upload(20/时，按用户维度)、pwreset。触发时返回 429 与响应头 Retry-After、X-RateLimit-Limit、X-RateLimit-Remaining、X-RateLimit-Reset，并用 access-control-expose-headers 暴露这四个头；响应体 { ok:false, msg:\"请求过于频繁，请稍后再试\", code:\"RATE_LIMITED\" }。规则可用 settings.rate_limits（后台 /api/admin/rate-limits）覆盖；限流表故障时**一律放行**并在响应体带 degraded:true。\n\n【X-Request-Id】\n由 Worker 的 fetch 包装层给**所有**响应统一补 X-Request-Id（含静态回源、上传文件、错误页与纯文本 404）。这是服务端生成的响应头，不接受客户端指定；排障时把它与 cf-ray 一起记录。\n\n【其它通用响应头】\njson() 统一带 Content-Type: application/json; charset=utf-8、Cache-Control: no-store、Access-Control-Allow-Origin: *、Access-Control-Allow-Methods: GET, POST, OPTIONS、Access-Control-Allow-Headers: Content-Type, X-Token，以及 6 个安全响应头（含 CSP）。例外：/api/uploads/{id} 与文章详情页 HTML 不带 CORS 头；静态回源响应只补 5 个非 CSP 安全头；proxyStaticJson 兜底为 Cache-Control: public, max-age=120。\n\n【未捕获异常兜底】\nWorker 顶层 catch 统一返回 HTTP 500 { success:false, ok:false, msg:\"服务器开小差了\", error:<堆栈前 600 字符> }（非 /api 路径返回 HTML 错误页）。因此任何接口都可能出现 500，本文档只在 handler 显式返回 500 的接口上标注。\n\n【未收录说明】\n以下路径在文档《前后端接口指南.md》中标注为 ⏳ 规划，代码中确认无路由，故**未收录**：/api/public/post、/api/public/related、/api/public/archive、/api/public/tags/{tag}/posts、/api/public/categories/{cat}/posts、/api/public/author/{username}、/api/public/links、/api/public/announcements、/api/article/vote、/api/contact、/api/links、/api/err、/api/visit、/api/stats、/api/admin/seo、/api/admin/announcements、/api/admin/links、/api/admin/backups、/api/admin/settings/seo、/api/admin/settings/security、/api/admin/settings/analytics、/api/admin/users/avatar。\n\n【兜底行为】\n未被显式命中的 /api/<x>.json 会走 proxyStaticJson：从 RAW_API_BASE（https://raw.githubusercontent.com/Kingku-Shawn/blog/main/api）读取同名文件返回（120 秒边缘缓存）；仅允许 ^[a-zA-Z0-9_\\-/]+\\.json$ 且不含 ..，否则 404 { ok:false, msg:\"未实现的接口：<path>\" }。/api-v1/* 的兜底实际不可用（路径解析只去掉开头 /api/，会拼成 api-v1/... 而必然 404）。"
+  },
+  "servers": [
+    { "url": "https://blog.qingyi.dpdns.org", "description": "生产环境（Cloudflare Worker + D1；静态页面回源 GitHub Pages）" }
+  ],
+  "tags": [
+    { "name": "public", "description": "公开 JSON 接口：无需鉴权（健康检查、文章列表、侧栏数据、搜索、统计、阅读量、上传读取、csrf）" },
+    { "name": "article", "description": "文章详情（HTML 动态渲染）" },
+    { "name": "comments", "description": "评论系统 /api/pinlun/*，使用旧契约 { success, data, msg }" },
+    { "name": "auth", "description": "登录注册 / 会话 / 密码重置 / 邮箱验证 / 第三方登录骨架" },
+    { "name": "user", "description": "我的资料 / 我的会话 / 两步验证 / 我的站内信（需 X-Token）" },
+    { "name": "interact", "description": "点赞收藏 / 举报 / 邮件订阅退订" },
+    { "name": "seo", "description": "robots.txt / sitemap.xml / RSS / Atom / JSON Feed（由 D1 posts 动态生成）" },
+    { "name": "admin", "description": "管理后台接口，统一 X-Token 鉴权；GET 类资源要求已登录，写操作要求 admin/super_admin，用户管理与安全类要求 super_admin" }
+  ],
+  "paths": {
+    "/api/ping": {
+      "get": {
+        "tags": ["public"],
+        "summary": "健康检查（D1 绑定 / 表清单 / 正文脏数据诊断）",
+        "description": "等价别名：GET /api/health、GET /api-v1/ping、GET /api-v1/health。无论 D1 是否绑定都返回 HTTP 200 与 ok:true；d1=false 或建表失败时另有 hint / schema_err 字段。",
+        "operationId": "health",
+        "security": [],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Health" }
+        }
+      }
+    },
+    "/api/public/posts.json": {
+      "get": {
+        "tags": ["public"],
+        "summary": "文章列表（D1 优先，空则回退 raw 静态 posts.json）",
+        "description": "响应 { ok:true, data:{ list:[…], source:\"d1\"|\"raw\" } }。排序为 is_top DESC, id DESC；列表项不含 content/status/category_id/is_top。D1 抛错时 list 为空并降级 raw。进程内 3 秒缓存（响应头仍是 Cache-Control: no-store）。不支持 search/sort/分页参数（关键词过滤在前端做）。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/public/columns.json": {
+      "get": {
+        "tags": ["public"],
+        "summary": "分栏（专栏）列表，含每栏文章数 cnt",
+        "description": "响应 data 为 [{ name, cnt }]；查询失败回退 raw api/public/columns.json，再失败返回 { ok:true, data:[] }。cnt 不区分 posts.status。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/public/tags.json": {
+      "get": {
+        "tags": ["public"],
+        "summary": "标签列表，含文章数 cnt",
+        "description": "响应 data 为 [{ name, color, cnt }]，按 cnt DESC, id 排序；失败回退 raw，再失败 { ok:true, data:[] }。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/tools.json": {
+      "get": {
+        "tags": ["public"],
+        "summary": "工具开关列表（只返回启用的工具）",
+        "description": "D1 命中 settings.tools 时用 enabled !== false 过滤（可能返回空数组）；D1 未命中则原样回退 raw api/tools.json（含 enabled:false 的项，**不过滤**）。两者都失败返回 { ok:true, data:[] }。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/about.json": {
+      "get": {
+        "tags": ["public"],
+        "summary": "关于我（取 about_versions 最新一条）",
+        "description": "响应 data 为 { content, created_at }；未命中回退 raw api/about.json，再失败 { content:\"\", created_at:\"\" }。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/layout.json": {
+      "get": {
+        "tags": ["public"],
+        "summary": "前台装修布局（settings.key='layout'）",
+        "description": "响应 data 形如 { custom, pages }；未命中回退 raw api/layout.json，再失败 { custom:false, pages:{} }。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/columns/{name}/articles": {
+      "get": {
+        "tags": ["public"],
+        "summary": "某专栏下的文章列表（可附带专栏内上/下篇）",
+        "description": "{name} 为专栏名（需 URL 编码，服务端 decodeURIComponent 后按 columns.name 精确匹配）。无 cur 时 data 为 [{ title, source_file }]；传 cur=<source_file> 且该文存在时追加 prev/next（可为 null）；专栏不存在或查询异常返回 { ok:true, data:[] }（不报错）；env.DB 未绑定返回 { ok:false, data:[] }（HTTP 200）。排序：created_at DESC, id DESC；上/下篇口径：created_at 更大的最近一篇为 prev，更小的最近一篇为 next，且限定在本专栏内。",
+        "security": [],
+        "parameters": [
+          { "name": "name", "in": "path", "required": true, "description": "专栏名（URL 编码）", "schema": { "type": "string" } },
+          { "name": "cur", "in": "query", "required": false, "description": "当前文章的 source_file，用于返回本专栏内的上/下篇", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/public/stats": {
+      "get": {
+        "tags": ["public"],
+        "summary": "公开统计（文章数 / 评论数 / 总阅读 / 点赞 / 今日与近 7 日 PV·UV）",
+        "description": "别名 GET /api-v1/public/stats。响应 data:{ posts, comments, totalViews, likes, today:{pv,uv}, last7:[{date,pv,uv}] }；任何子查询失败都降级为 0/空数组，永远 HTTP 200。请求会触发懒聚合（补算昨天，打开后台时顺带刷新今天）。响应头 Cache-Control: public, max-age=120。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/public/search": {
+      "get": {
+        "tags": ["public"],
+        "summary": "全文搜索（FTS5 优先，LIKE 兜底）",
+        "description": "查询参数 q（清洗后）、page（默认 1，有上限）、pageSize（默认 10，上限 50）。响应 { ok:true, data:{…}, engine:\"fts5\"|\"like\" }，data 含 list/total/has_more 等分页字段；q 为空直接返回空结果。搜索服务不可用时返回 **HTTP 200 + ok:false, msg:\"搜索服务暂时不可用\"**（不是 500）。触发 search 限流（默认 30/分）时返回 429。",
+        "security": [],
+        "parameters": [
+          { "name": "q", "in": "query", "required": false, "description": "搜索关键词", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "required": false, "description": "页码，默认 1", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+          { "name": "pageSize", "in": "query", "required": false, "description": "每页条数，默认 10，上限 50", "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10 } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "429": { "$ref": "#/components/responses/Err429" }
+        }
+      }
+    },
+    "/api/public/search/suggest": {
+      "get": {
+        "tags": ["public"],
+        "summary": "搜索建议（标题命中 + 历史热门词，各最多 5 条）",
+        "description": "查询参数 q。响应 { ok:true, data:{ q, list:[{ text, type:\"title\"|\"history\" }] } }；q 为空或 DB 不可用时返回空 list（HTTP 200）。text 是原始文本，前端必须用 textContent 渲染。",
+        "security": [],
+        "parameters": [
+          { "name": "q", "in": "query", "required": false, "description": "输入联想关键词", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/view": {
+      "post": {
+        "tags": ["public"],
+        "summary": "阅读量打点（views 表 +1 并同步 posts.views）",
+        "description": "请求体 { source_file, file?, id? }：source_file 优先（file 为别名，id 为兜底标识），服务端用 normSourceFile() 归一（去空白→取最后一段→已是 a_*.html 直接用→.html 结尾去后缀→其余补 a_ 前缀与 .html）。响应 { ok:true, data:{ source_file, views } }，views 为累加后的值。服务端**不做幂等**，每次调用都会 +1（幂等靠详情页内的 sessionStorage 标记）。",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ViewRequest" } } }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "429": { "$ref": "#/components/responses/Err429" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/uploads/{id}": {
+      "get": {
+        "tags": ["public"],
+        "summary": "读取上传文件（base64 存 D1，公开免鉴权）",
+        "description": "{id} 用 parseInt(…,10) 解析，所以 /api/uploads/12 与 /api/uploads/12.png 等价。响应原 MIME（uploads.mime）+ Cache-Control: public, max-age=31536000，**不带 CORS 头**（跨域 fetch 读不到，<img src> 不受影响）。记录不存在返回纯文本 404 Not Found；base64 解码失败返回纯文本 500 Decode error。**仅 GET 免鉴权**：其它方法会落到 handleAdmin 的鉴权分支，匿名得到 401 { ok:false, msg:\"未登录或会话已过期\" }。",
+        "security": [],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "uploads.id（可带扩展名，按 parseInt 解析）", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/UploadBinary" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "404": { "$ref": "#/components/responses/Plain404" },
+          "500": { "$ref": "#/components/responses/Plain500" }
+        }
+      }
+    },
+    "/api/csrf": {
+      "get": {
+        "tags": ["public"],
+        "summary": "CSRF 占位 token（响应体是纯 JSON 字符串，不是对象）",
+        "description": "等价别名 GET /api-v1/csrf。响应体恒为字符串 \"qingyi-blog-worker-csrf\"，前端作为 _csrf 使用。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/CsrfToken" } }
+      }
+    },
+    "/api/article/{any}": {
+      "get": {
+        "tags": ["public"],
+        "summary": "旧 Vue 契约降级：恒返回 success:false（内容已预渲染）",
+        "description": "**通配降级分支**：/api/article/* 与 /api-v1/article/* 命中同一处理（/api-v1/article/{any} 为等价路径），对路径不做任何区分，一律 HTTP 200 + { success:false, msg:\"内容已预渲染，无需刷新\" }。设计意图是让旧前端的 fetchItem 抛错后保留预渲染正文（若返回 success:true + article:null 会导致标题/正文/日期被清空）。注意：精确的 /api/article/like、/api/article/bookmark 已在该分支之前被拦截，不走这里。",
+        "security": [],
+        "parameters": [
+          { "name": "any", "in": "path", "required": true, "description": "任意子路径（如 detail、categorys/list）", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "$ref": "#/components/responses/LegacyArticleMock" } }
+      }
+    },
+    "/api-v1/article/{any}": {
+      "get": {
+        "tags": ["public"],
+        "summary": "旧 Vue 契约降级（/api-v1 前缀，行为同 /api/article/{any}）",
+        "description": "与 GET /api/article/{any} 完全等价：HTTP 200 + { success:false, msg:\"内容已预渲染，无需刷新\" }。必须保持失败态，否则详情页会丢标题/正文/日期。",
+        "security": [],
+        "parameters": [
+          { "name": "any", "in": "path", "required": true, "description": "任意子路径", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "$ref": "#/components/responses/LegacyArticleMock" } }
+      }
+    },
+    "/article/a_{id}.html": {
+      "get": {
+        "tags": ["article"],
+        "summary": "文章详情页（Worker 从 D1 读正文动态渲染 HTML）",
+        "description": "匹配 /^\\/article\\/a_[a-zA-Z0-9]+\\.html$/。D1 按 posts.source_file 精确匹配（**无 status 过滤，草稿可被直链访问**），用内置模板渲染整页 HTML（导航 + 正文 + 评论区 + 点赞/收藏按钮 + 右侧目录/专栏，<head> 注入 canonical/description/OG/Twitter/JSON-LD）。可选查询参数 col=<专栏名>（URL 编码）触发「专栏文章展示态」直出，并把上/下篇限定在该专栏内。D1 查不到（含 env.DB 未绑定、查询抛错）则回退反代 GitHub Pages 的静态 HTML，此时正文是仓库里的旧版本。响应 text/html; charset=utf-8 + Cache-Control: public, max-age=60，**不带 CORS 头**；页面打开即打点阅读量（sessionStorage 幂等）。",
+        "security": [],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "文章文件标识（不含 a_ 前缀与 .html，如 6a65e04d207e69fec45c0a88）", "schema": { "type": "string", "pattern": "^[a-zA-Z0-9]+$" } },
+          { "name": "col", "in": "query", "required": false, "description": "专栏名（URL 编码），进入专栏文章展示态", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/ArticleHtml" },
+          "404": { "$ref": "#/components/responses/Html404" }
+        }
+      }
+    },
+    "/api/pinlun/list": {
+      "post": {
+        "tags": ["comments"],
+        "summary": "评论列表（仅顶层评论，每页固定 20 条）",
+        "description": "等价路径 POST /api-v1/pinlun/list。请求体 { id|pageId, pageIndex, q }：id 默认 \"site\"（文章页传 source_file），截断 120；pageIndex 最小 1；q 为评论内容关键词（LIKE，截断 100）。响应 { success:true, data:{ list:[Comment], total, pageIndex } }；只返回 root_id=0 且 status=1，按 id DESC。pageSize 服务端写死 20，不可传。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunListRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/PinlunOk" },
+          "404": { "$ref": "#/components/responses/PinlunUnknownAction" },
+          "500": { "$ref": "#/components/responses/PinlunServerErr" }
+        }
+      }
+    },
+    "/api/pinlun/replies": {
+      "post": {
+        "tags": ["comments"],
+        "summary": "某顶层评论下的全部回复（忽略分页）",
+        "description": "等价路径 POST /api-v1/pinlun/replies。请求体 { rootId, pageIndex }——服务端**忽略 pageIndex**，一次返回该 rootId 下 status=1 的全部回复（ORDER BY id ASC），响应 { success:true, data:{ list:[Comment], total, pageIndex:1 } }。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunRepliesRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/PinlunOk" },
+          "404": { "$ref": "#/components/responses/PinlunUnknownAction" },
+          "500": { "$ref": "#/components/responses/PinlunServerErr" }
+        }
+      }
+    },
+    "/api/pinlun/publish": {
+      "post": {
+        "tags": ["comments"],
+        "summary": "发表评论 / 回复",
+        "description": "等价路径 POST /api-v1/pinlun/publish。请求体 { id, text|content, rootId, replyToName, author|name }——**内容字段是 text**（content 为兼容别名），trim 后截断 600；author/name 截断 40，默认「匿名用户」；replyToName 当前读取但**未落库**；parent_id 直接存 rootId（不追踪楼中楼）。响应 { success:true, data:{ item:Comment }, msg }：顶层为「已发表，站长确认后会展示」，回复为「回复已发表」；若命中敏感词或开启先审后发则 status=0 且 msg 为「已提交，待站长审核后展示」。内容为空返回 **HTTP 200 + success:false, msg:\"评论内容不能为空\"**；命中黑名单返回 200 + success:false + 拒绝原因。触发 publish 限流（默认 5/分）返回 429。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunPublishRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/PinlunOk" },
+          "404": { "$ref": "#/components/responses/PinlunUnknownAction" },
+          "429": { "$ref": "#/components/responses/Err429" },
+          "500": { "$ref": "#/components/responses/PinlunServerErr" }
+        }
+      }
+    },
+    "/api/pinlun/vote": {
+      "post": {
+        "tags": ["comments"],
+        "summary": "评论点赞 / 踩（三态切换）",
+        "description": "等价路径 POST /api-v1/pinlun/vote。请求体 { id, type }，type 为 \"cai\" 时是踩，其余按赞。三态语义：未投过→新增；已投同向→取消；已投反向→改票。赞/踩数从 votes 表实时聚合并回写 comments.zan/cai。响应 { success:true, data:{ zan, cai, myVote } }，myVote 为 1/-1/0。客户端指纹 = cf-connecting-ip|x-forwarded-for 与 user-agent 拼接（截断 180），不要求登录。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunVoteRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/PinlunOk" },
+          "404": { "$ref": "#/components/responses/PinlunUnknownAction" },
+          "500": { "$ref": "#/components/responses/PinlunServerErr" }
+        }
+      }
+    },
+    "/api/pinlun/del": {
+      "post": {
+        "tags": ["comments"],
+        "summary": "删除评论（软删除 status=0）",
+        "description": "等价路径 POST /api-v1/pinlun/del。请求体 { id }。响应 { success:true, msg:\"已删除\" }。⚠ 当前实现**无鉴权、无归属校验**（公开可调），属于已知安全边界；与后台 POST /api/comments/delete 的物理删除语义不同。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "id": { "type": "integer", "description": "评论 ID" } }, "required": ["id"] } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/PinlunOk" },
+          "404": { "$ref": "#/components/responses/PinlunUnknownAction" },
+          "500": { "$ref": "#/components/responses/PinlunServerErr" }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "登录（X-Token 会话，同时下发 session Cookie）",
+        "description": "等价别名 POST /api/v1/login。请求体 { username, password }。响应同时满足三种前端契约：{ ok:true, success:true, token:<48 位 hex>, user:{ username, nickname, email, role, role_name }, data:{…, _id, avatar, email, profile:{name} } }，并 Set-Cookie: session=<token>; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800（无 Secure）。凭据错误返回 **HTTP 200 + ok:false, msg:\"用户名或密码错误\"**。同理 /api/login 也位于后台白名单，但经 handleAdmin 转发的 adminLogin() 凭据错误是 **HTTP 401**（两条路径状态码不同）。触发 login 限流（默认 10/5 分）返回 429。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/LoginOk" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "429": { "$ref": "#/components/responses/Err429" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/user/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "登录（Cookie 会话，旧 Vue 契约）",
+        "description": "等价路径 POST /api-v1/user/login。请求体 { username, password }。响应 { success:true, data:VueUser } 并 Set-Cookie: session=…（HttpOnly、SameSite=Lax、Max-Age=28800、无 Secure）。VueUser 中 token 字段恒为空串（Cookie 会话不把 token 交给前端）；email 为空时回退 username；isc 仅在 super_admin 时为 true。凭据错误返回 HTTP 200 + { success:false, msg:\"用户名或密码错误\" }。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/VueOk" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "注册（首个账号或 ADMIN_USER 指定用户名自动成为管理员）",
+        "description": "等价路径 POST /api/user/register。⚠ /api-v1/register **没有**分支（会落到静态 JSON 兜底 → 404），需要双前缀请用 /api/user/register。请求体 { username, password, nickname }：用户名需匹配 ^[A-Za-z0-9_\\-\\.]{3,32}$，密码 ≥6 位。响应 { ok:true, msg:\"注册成功\" 或 \"注册成功（管理员）\", role }。校验失败全部为 **HTTP 200 + ok:false**：用户名规则、密码长度、用户名已存在；env.DB 为空返回 500。触发 register 限流（默认 3/时）返回 429。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "429": { "$ref": "#/components/responses/Err429" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "当前用户（X-Token）",
+        "description": "等价别名 GET /api-v1/me。请求头 X-Token。响应 { ok:true, success:true, user:{ username, nickname, email, role, role_name }, perms:[…], data:{…, _id, is_admin} }。未登录/会话失效返回 **HTTP 200** + { ok:false, success:false, msg:\"未登录\"|\"会话已过期\" }；该接口的 SQL 不校验 users.status，因此被禁用账号的旧 token 仍能读到信息。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/MeOk" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/user/info": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "当前用户（Cookie 会话）",
+        "description": "等价路径 GET /api-v1/user/info。凭据为浏览器自动携带的 session Cookie。响应 { success:true, data:VueUser }；未登录 → 200 + { success:false, msg:\"未登录\" }；过期 → 200 + \"会话已过期\"；status !== 1 → 200 + \"账号已被禁用\"（比 /api/me 多校验 status）。",
+        "security": [{ "SessionCookie": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/VueOk" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "登出（X-Token，删除 sessions 记录）",
+        "description": "等价别名 POST /api-v1/logout。请求头 X-Token。响应 { ok:true, success:true, data:null }。幂等：**不要求 token 有效**，无 token 也返回成功。",
+        "security": [{ "XToken": [] }],
+        "responses": { "200": { "$ref": "#/components/responses/Ok" } }
+      }
+    },
+    "/api/user/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "登出（Cookie 会话，额外清空 Cookie）",
+        "description": "等价路径 POST /api-v1/user/logout。删除 session 记录并 Set-Cookie: session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0；响应 { success:true, data:null }。即使 env.DB 为空也照样清 Cookie（幂等）。",
+        "security": [{ "SessionCookie": [] }],
+        "responses": { "200": { "$ref": "#/components/responses/VueOk" } }
+      }
+    },
+    "/api/auth/password/request": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "申请密码重置（生成令牌，配置 MAIL_WEBHOOK_URL 时才真正发信）",
+        "description": "等价路径 POST /api-v1/auth/password/request。请求体 { email, username }（至少填一个，否则 400「请填写邮箱或用户名」）。骨架行为：未配置 MAIL_WEBHOOK_URL 时只生成令牌不发信。触发 pwreset 限流返回 429。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "email": { "type": "string" }, "username": { "type": "string" } } } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "429": { "$ref": "#/components/responses/Err429" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/auth/password/confirm": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "确认密码重置（用令牌设置新密码）",
+        "description": "等价路径 POST /api-v1/auth/password/confirm。请求体 { token, password }：token 缺失或无效返回 400「重置链接无效或已过期」，密码 <6 位返回 400「密码至少 6 位」。成功响应 { ok:true, msg:\"密码已重置，请用新密码登录\" }。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "token": { "type": "string" }, "password": { "type": "string", "minLength": 6 } }, "required": ["token", "password"] } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/auth/email/verify/request": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "申请邮箱验证令牌（需登录，只认 X-Token）",
+        "description": "等价路径 POST/GET /api-v1/auth/email/verify/request（路由不校验方法）。鉴权用 resolveMe：**只读 X-Token**，与 /api/me 同口径。未登录 401「请先登录」；个人资料未填邮箱 400；已验证返回 200「邮箱已验证」；扩展表未创建 500。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/auth/email/verify/confirm": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "确认邮箱验证（令牌来自 body 或 ?token=）",
+        "description": "等价路径 GET/POST /api-v1/auth/email/verify/confirm。令牌来源：请求体 { token } 或查询参数 ?token=。缺失或无效返回 400「验证链接无效或已过期」；扩展列未创建返回 500。成功 { ok:true, msg:\"邮箱验证成功\" }。",
+        "security": [],
+        "parameters": [
+          { "name": "token", "in": "query", "required": false, "description": "验证令牌（也可放请求体 token）", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/oauth/{provider}/start": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "第三方登录跳转（骨架：未配置 GITHUB_CLIENT_ID 时返回 501）",
+        "description": "路径需匹配 ^/(?:api|api-v1)/oauth/[a-zA-Z0-9_-]+/(start|callback)$（/api-v1/oauth/* 为等价别名）。provider 目前仅支持 github，其它值返回 400「暂不支持该第三方登录」。**骨架**：未配置 env.GITHUB_CLIENT_ID 时返回 HTTP 501 { ok:false, msg:\"未配置 GITHUB_CLIENT_ID，第三方登录暂不可用（骨架）\" }；已配置时 302 跳转 GitHub authorize（scope=read:user user:email）。生成的 state **不落库、回调时不校验**（接真实登录前必须补 CSRF 校验）。",
+        "security": [],
+        "parameters": [
+          { "name": "provider", "in": "path", "required": true, "description": "第三方提供方，当前仅 github", "schema": { "type": "string", "enum": ["github"] } }
+        ],
+        "responses": {
+          "302": { "$ref": "#/components/responses/Redirect302" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "501": { "$ref": "#/components/responses/Err501" }
+        }
+      }
+    },
+    "/api/oauth/{provider}/callback": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "第三方登录回调（骨架：未配置 client id/secret 时返回 501）",
+        "description": "**骨架**：未配置 GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET 时返回 HTTP 501。授权被拒 400「GitHub 授权被拒绝」；缺 code 400「缺少 code 参数」；换 token 或取用户信息失败 502；账号未绑定 oauth_accounts 时不自动建号（提示先用账号密码登录后在资料页绑定）；账号被禁用 403。成功时创建 8 小时会话并 Set-Cookie（HttpOnly + SameSite=Lax + Max-Age=28800）。**不校验 state**（骨架边界）。",
+        "security": [],
+        "parameters": [
+          { "name": "provider", "in": "path", "required": true, "description": "第三方提供方，当前仅 github", "schema": { "type": "string", "enum": ["github"] } },
+          { "name": "code", "in": "query", "required": false, "description": "GitHub 授权码", "schema": { "type": "string" } },
+          { "name": "error", "in": "query", "required": false, "description": "GitHub 返回的拒绝原因", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" },
+          "501": { "$ref": "#/components/responses/Err501" },
+          "502": { "$ref": "#/components/responses/Err502" }
+        }
+      }
+    },
+    "/api/my/profile": {
+      "get": {
+        "tags": ["user"],
+        "summary": "我的资料",
+        "description": "需登录（resolveMe：只认 X-Token，未登录 401「请先登录」）。响应 { ok:true, data:<资料对象> }，由 users 与 user_profiles 合并（user_profiles 优先），字段以代码为准（含 nickname/email/avatar/bio/website/location/social 等）。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["user"],
+        "summary": "更新我的资料（部分字段，传了才更新）",
+        "description": "请求体（均为可选，传了才校验与更新）：nickname（≤40）、email（需合法且 ≤120）、avatar（站内 /api/uploads/ 前缀或 https:// 外链，≤300）、bio（≤300）、website（必须 http(s):// 开头，≤200）、location（≤60）、social（JSON 对象或可解析字符串，序列化后 ≤1000）。校验失败 400 并给出中文原因；users 表字段不兼容时 500。全部字段都未传时返回 200 + msg「没有需要更新的字段」。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProfileUpdateRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/my/sessions": {
+      "get": {
+        "tags": ["user"],
+        "summary": "我的登录会话列表",
+        "description": "需登录（X-Token）。响应 { ok:true, data:{ list:[…], total } }，列表项含 token 前缀与创建/过期时间（具体键以代码为准）。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "delete": {
+        "tags": ["user"],
+        "summary": "退出会话（all:true 退全部，或按 token_prefix 退指定）",
+        "description": "请求体 { all:true } 或 { token_prefix | prefix }：两者都不给返回 400「缺少 token_prefix（或传 all:true）」；prefix 不合法返回 400。响应 { ok:true, data:{ deleted }, msg:\"已退出 N 个会话\" }。也接受 POST（与 DELETE 等价）。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "all": { "type": "boolean" }, "token_prefix": { "type": "string" }, "prefix": { "type": "string" } } } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/my/2fa": {
+      "get": {
+        "tags": ["user"],
+        "summary": "我的两步验证状态",
+        "description": "需登录（X-Token）。响应 { ok:true, data:{…} }，字段以代码为准（是否已绑定等）。**骨架说明**：登录流程尚未校验 2FA。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["user"],
+        "summary": "两步验证绑定 / 启用 / 关闭（action=setup|enable|disable）",
+        "description": "请求体 { action, code? }：action 只支持 \"setup\" / \"enable\" / \"disable\"，其它值 400。enable 前必须已 setup，否则 400「请先调用 action=setup 生成密钥」。响应 { ok:true, data:{ enabled }, msg }。⚠ 骨架：登录流程尚未校验 2FA。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "action": { "type": "string", "enum": ["setup", "enable", "disable"] }, "code": { "type": "string" } }, "required": ["action"] } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/my/notifications": {
+      "get": {
+        "tags": ["user"],
+        "summary": "我的站内信（最近 50 条 + 未读数）",
+        "description": "需登录（resolveMe：只认 X-Token，未登录 401「请先登录」）。响应 { ok:true, data:{ list:[Notification], unread, total } }；notifications 表不存在时 list 为空、unread 为 0（仍 200）。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["user"],
+        "summary": "标记站内信已读（单条或全部）",
+        "description": "请求体 { all:true } 或 { id }：都不是时返回 400「缺少 id 或 all」；写库失败 500「操作失败」。响应 { ok:true, msg:\"已标记已读\", data:{ updated } }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "all": { "type": "boolean" }, "id": { "type": "integer" } } } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/article/like": {
+      "post": {
+        "tags": ["interact"],
+        "summary": "文章点赞 / 取消点赞（免登录，按客户端指纹去重）",
+        "description": "请求体 { source_file, action? }：source_file 缺失返回 400「缺少参数 source_file」；文章不存在返回 404「文章不存在」；action 为 \"like\"/\"unlike\"，缺省或非法值按「切换」处理。响应 { ok:true, data:{ source_file, liked, likes } }，以数据库真实状态为准。去重维度为 post_id + client_key（IP|UA 指纹）。仅接受 POST（其它方法 405「方法不支持」）。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ArticleLikeRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/article/bookmark": {
+      "post": {
+        "tags": ["interact"],
+        "summary": "文章收藏 / 取消收藏（需登录：X-Token 或 session Cookie）",
+        "description": "请求体 { source_file, action? }：action 为 \"bookmark\"/\"unbookmark\"，缺省或非法值按「切换」处理。未登录返回 401「请先登录」；source_file 缺失 400；文章不存在 404。响应 { ok:true, data:{ source_file, bookmarked, bookmarks } }。去重维度为 post_id + user_id。仅接受 POST（其它方法 405）。",
+        "security": [{ "XToken": [] }, { "SessionCookie": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ArticleLikeRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/report": {
+      "post": {
+        "tags": ["interact"],
+        "summary": "举报评论（公开，按业务键幂等）",
+        "description": "仅 POST（其它方法 405「仅支持 POST」）。请求体 { id | comment_id | commentId, reason?, detail? | msg? }：评论 id 缺失 400「缺少评论 id」；reason 默认「其他」（截断 200）；detail 截断 500。评论不存在 404。重复举报（同一业务键）返回 200 + msg「已收到你的举报，我们会尽快处理」（幂等）；首次成功 msg「举报已提交，感谢反馈」。扩展表缺失/写失败 500。触发 report 限流（默认 10/时）返回 429。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ReportRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "429": { "$ref": "#/components/responses/Err429" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/subscribe": {
+      "post": {
+        "tags": ["interact"],
+        "summary": "邮件订阅（双写 newsletter_subscribers 与 subscriptions，重复订阅幂等）",
+        "description": "仅 POST（其它 405）。请求体 { email, source? }：email 格式非法 400「邮箱格式不正确」；source 默认 \"web\"（截断 40）。响应 { ok:true, msg, data:{ mailConfigured, delivered, token? } }——**token 只在邮件服务未配置（MAIL_WEBHOOK_URL 缺失）时回传**，用于前端自行保留退订链接；两张表都写失败返回 500「订阅失败，请稍后重试」。触发 subscribe 限流返回 429。",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SubscribeRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/SubscribeOk" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "429": { "$ref": "#/components/responses/Err429" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/unsubscribe": {
+      "get": {
+        "tags": ["interact"],
+        "summary": "退订（令牌来自 ?token= 或请求体 token）",
+        "description": "接受 GET 与 POST（其它方法 405）。token 优先取查询参数 ?token=，其次取请求体 { token }。token 缺失返回 JSON 404 { ok:false, msg:\"退订链接无效\" }；token 不存在或表异常返回**站点风格 HTML 页面**（HTTP 404，标题「退订链接无效」）；成功则把 subscriptions.status 置 0 并返回 HTML 成功页（HTTP 200，非 JSON）。",
+        "security": [],
+        "parameters": [
+          { "name": "token", "in": "query", "required": false, "description": "退订令牌（邮件链接里携带）", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/UnsubHtml" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["interact"],
+        "summary": "退订（POST，token 放请求体）",
+        "description": "请求体 { token }。行为与 GET /api/unsubscribe 完全一致（先看 query，再看 body）。",
+        "security": [],
+        "requestBody": { "required": false, "content": { "application/json": { "schema": { "type": "object", "properties": { "token": { "type": "string" } } } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/UnsubHtml" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/robots.txt": {
+      "get": {
+        "tags": ["seo"],
+        "summary": "robots.txt（内容由 D1 posts 生成）",
+        "description": "响应 text/plain; charset=utf-8，Cache-Control: public, max-age=86400。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/RobotsTxt" } }
+      }
+    },
+    "/sitemap.xml": {
+      "get": {
+        "tags": ["seo"],
+        "summary": "sitemap.xml（内容由 D1 posts 生成）",
+        "description": "响应 application/xml; charset=utf-8，Cache-Control: public, max-age=3600。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/SitemapXml" } }
+      }
+    },
+    "/rss.xml": {
+      "get": {
+        "tags": ["seo"],
+        "summary": "RSS 2.0 订阅源",
+        "description": "响应 application/rss+xml; charset=utf-8，Cache-Control: public, max-age=3600。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/RssXml" } }
+      }
+    },
+    "/atom.xml": {
+      "get": {
+        "tags": ["seo"],
+        "summary": "Atom 订阅源",
+        "description": "响应 application/atom+xml; charset=utf-8，Cache-Control: public, max-age=3600。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/AtomXml" } }
+      }
+    },
+    "/feed.json": {
+      "get": {
+        "tags": ["seo"],
+        "summary": "JSON Feed 订阅源",
+        "description": "响应 application/feed+json; charset=utf-8，Cache-Control: public, max-age=3600。",
+        "security": [],
+        "responses": { "200": { "$ref": "#/components/responses/FeedJson" } }
+      }
+    },
+    "/api/dashboard": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "后台看板统计",
+        "description": "需登录（user 角色也可读）。**副作用**：会依次触发 seedPostsIfEmpty() 与 backfillPostContent(db, env, 10)（首次调用可能变慢，每次最多补抓 10 篇正文）。响应 data:{ users, posts, pending_posts, categories, comments, pending_comments, recent_posts:[{id,title,status,is_top,views,created_at}], role, role_name, seed, content_backfill }。seed 取值 already | table-missing | source-fail | empty-source | imported:<n>；content_backfill 取值 all-done | <done>/<pending> | fail:<原因>。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/posts": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "文章列表（含 content，不筛 status）",
+        "description": "需登录。返回全部文章（草稿也在内），ORDER BY is_top DESC, id DESC，并聚合 tags/columns。字段比前台 posts.json 多 content、category（分类名）、status、is_top。无分页参数（全量返回）。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/posts/create": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "新增文章（admin+）",
+        "description": "请求体字段以代码为准：title（必填，trim 后截断 200，空 → 200 + ok:false「请输入标题」）、summary（截断 500）、content（HTML 富文本，不截断）、category_id（缺省写 NULL）、status（truthy→1，否则 0）、is_top（truthy→1）、tags（名称字符串数组，自动创建标签；也支持数字 id）、columns（分栏 **id** 数组，parseInt 解析，非数字忽略）、source_file（可选，缺省自动生成 a_<24 位随机 hex>.html）。响应 { ok:true, msg:\"文章《标题》已创建\", id, source_file }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PostWriteRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/posts/update": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "更新文章（admin+，会先存历史快照）",
+        "description": "字段同 create，另需 id。更新前会调用 snapshotRevision 存一份历史快照（每篇保留最近 20 版，快照失败不影响更新），可用 body.note 作为快照备注（截断 200）。views **不会被覆盖**。⚠ status/is_top 是「truthy 即 1」，把已发布文章改为草稿必须显式传 status:0 或省略该字段。setPostLinks 会先清空再重建关联，因此每次保存都要传完整 tags/columns（漏传等于清空）。响应 { ok:true, msg:\"文章已更新\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PostWriteRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/posts/delete": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "删除文章（admin+，级联删关联但保留阅读量与评论）",
+        "description": "请求体 { id }。删除 posts 记录并级联删除 post_tags / post_columns（**不删** views 记录，也不删评论）。响应 { ok:true, msg:\"文章已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "id": { "type": "integer" } }, "required": ["id"] } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/posts/import_content": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "补抓文章正文（admin+，仅 POST）",
+        "description": "请求体可为空 {}。全量扫描 content LIKE '[a_%' 或空或 NULL 或含 xw-pinlun2 的文章，从 RAW_ARTICLE_BASE 拉 HTML 提取正文后 UPDATE。响应 { ok:true, msg:\"正文补抓结果：<done>/<pending>\" }（无待处理为 all-done，异常为 fail:<原因>）。⚠ GET /api/posts/import_content 会返回 404「未知管理接口」。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/posts/schedule": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "设置 / 取消定时发布（admin+，仅 POST）",
+        "description": "请求体 { id, publish_at | publishAt }：publish_at 为毫秒时间戳；0（或省略）表示取消定时并把文章转为草稿，大于 0 时置 status=0 且写 published_at=毫秒，到期由 dashboard 的 applyScheduledPosts 转正。id 解析为 0 或 env.DB 缺失时返回 200 + ok:false「参数不合法」；published_at 扩展列未部署时返回 200 + ok:false「定时设置失败：…」。成功响应 { ok:true, msg:\"已设置定时发布\" | \"已取消定时\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ScheduleRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "分类列表（登录可读）",
+        "description": "响应 data 为 [{ id, name, sort, cnt }]，按 sort, id 升序；cnt 为关联文章数。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/categories/create": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "新增分类（admin+）",
+        "description": "请求体 { name, sort? }：name 必填（截断 30），空 → 200 + ok:false「请输入分类名称」，重名 → 「分类已存在」；sort 非数字按 0。响应 { ok:true, msg:\"分类已创建\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NameSortRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/categories/update": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "更新分类（admin+）",
+        "description": "请求体 { id, name, sort? }。响应 { ok:true, msg:\"分类已更新\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdNameSortRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/categories/delete": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "删除分类（admin+，先解绑 posts.category_id）",
+        "description": "请求体 { id }。先把 posts.category_id 置 NULL，再删分类。响应 { ok:true, msg:\"分类已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/tags": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "标签列表（登录可读）",
+        "description": "响应 data 为 [{ id, name, color, cnt }]，按 cnt DESC, id 排序。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/tags/create": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "新增标签（admin+）",
+        "description": "请求体 { name, color? }：name 会去掉开头 # 再截断 30，空 → 「请输入标签名称」，重名 → 「标签已存在」；color 必须匹配 ^#[0-9a-fA-F]{6}$，否则强制 #58a6ff。响应 { ok:true, msg:\"标签已创建\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TagWriteRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/tags/update": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "更新标签（admin+）",
+        "description": "请求体 { id, name, color? }（color 规则同 create）。响应 { ok:true, msg:\"标签已更新\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TagWriteRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/tags/delete": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "删除标签（admin+，先删 post_tags 关联）",
+        "description": "请求体 { id }。响应 { ok:true, msg:\"标签已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/columns": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "分栏列表（登录可读）",
+        "description": "响应 data 为 [{ id, name, sort, cnt }]，按 sort, id 升序。⚠ 路由歧义：公开接口是 GET /api/columns/{专栏名}/articles（三段），本组是 /api/columns/<动作>（两段）；新增两段 GET 路由会被 handleAdmin 的 startsWith 抢走。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/columns/create": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "新增分栏（admin+）",
+        "description": "请求体 { name, sort? }：name 截断 30，空 → 「请输入分栏名称」；重名 → 「分栏已存在」。响应 { ok:true, msg:\"分栏已创建\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NameSortRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/columns/update": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "更新分栏（admin+）",
+        "description": "请求体 { id, name, sort? }。响应 { ok:true, msg:\"分栏已更新\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdNameSortRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/columns/delete": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "删除分栏（admin+，先删 post_columns 关联）",
+        "description": "请求体 { id }。响应 { ok:true, msg:\"分栏已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/comments": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "评论列表（登录可读，后台审核用）",
+        "description": "响应 data 为全部评论，ORDER BY m.id DESC，字段 { id, post_id, author, email, content, status, created_at, post_title }（LEFT JOIN posts 取标题；post_id 为空时 post_title 为 null）。无分页。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/comments/update": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "评论审核（admin+，改 status）",
+        "description": "请求体 { id, status }：status truthy → 1，否则 0（下架/隐藏）。响应 { ok:true, msg:\"评论状态已更新\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "id": { "type": "integer" }, "status": {} }, "required": ["id"] } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/comments/delete": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "删除评论（admin+，物理删除）",
+        "description": "请求体 { id }。**物理删除**，与前台 /api/pinlun/del 的软删除语义不同。响应 { ok:true, msg:\"评论已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "用户列表（仅 super_admin）",
+        "description": "响应 data 为 [{ id, username, role, nickname, email, status, created_at }]，created_at 由毫秒时间戳格式化为 YYYY-MM-DD HH:mm:ss。非 super_admin 返回 403「仅超级管理员可查看用户列表」。无分页。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/users/create": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "新建用户（仅 super_admin）",
+        "description": "请求体 { username, password, role, nickname?, email? }：用户名规则同注册（3-32 位字母/数字/下划线/点/短横），密码 ≥6，role 必须是 super_admin/admin/user 之一（否则「角色不合法」），重名 → 「用户名已存在」。响应 { ok:true, msg:\"用户 <name> 创建成功\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserCreateRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/users/update": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "更新用户（仅 super_admin）",
+        "description": "请求体 { id, nickname?, email?, status, role? }：status truthy → 1；role 合法才更新（非法则忽略该字段，不报错）。nickname 截断 30、email 截断 80（**未传即写空串**）。响应 { ok:true, msg:\"用户信息已更新\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserUpdateRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/users/delete": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "删除用户（仅 super_admin，不能删自己）",
+        "description": "请求体 { id }。删除当前登录账号返回 200 + ok:false「不能删除当前登录账号」；成功 { ok:true, msg:\"用户已删除\" }（不级联删 sessions，旧 token 会变成孤儿记录）。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/users/resetpwd": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "重置用户密码（仅 super_admin）",
+        "description": "请求体 { id, password }：新密码 <6 位 → 200 + ok:false「新密码至少 6 位」。重新生成盐并覆盖 pass_salt/pass_hash。响应 { ok:true, msg:\"密码已重置\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResetPwdRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/settings/tools": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "读取工具开关原始数组（登录可读，不过滤 enabled）",
+        "description": "响应 data 为 settings.key='tools' 的原始数组（**含 enabled:false 的项**），无记录为 []。与公开 /api/tools.json 的差别：前台只返回启用的。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "保存工具开关（admin+）",
+        "description": "请求体 { tools:[…] }：tools 非数组按 [] 存。响应 { ok:true, msg:\"工具展示设置已保存\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "tools": { "type": "array", "items": { "type": "object" } } } } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/settings/about": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "关于我版本列表（登录可读，最近 20 版）",
+        "description": "响应 data 为 [{ id, content, created_at }]，id DESC LIMIT 20。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "保存关于我（admin+，每次插入新版本）",
+        "description": "请求体 { content }：为空 → 200 + ok:false「内容不能为空」。若 content 未以 <p class=\"about-stamp\"> 开头，则自动在顶部追加时间戳。每次 POST 都**插入新版本**（不覆盖旧版）。响应 { ok:true, msg:\"已保存，并在顶部追加时间戳\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "content": { "type": "string" } }, "required": ["content"] } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/settings/layout": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "读取装修布局（登录可读）",
+        "description": "响应 data 形如 { custom, pages }，无记录为 { custom:false, pages:{} }。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "保存装修布局（admin+）",
+        "description": "请求体带 pages 时存 { custom:true, version:Date.now(), pages }；否则把整个 body 当 pages 存 { custom:true, pages:body }。响应 { ok:true, msg:\"装修布局已保存\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "pages": { "type": "object" } } } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/settings/layout/reset": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "恢复默认布局（admin+）",
+        "description": "请求体可为空。DELETE FROM settings WHERE key='layout'。响应 { ok:true, msg:\"已恢复默认布局\", data:{ custom:false, pages:{} } }。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/settings": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "个人资料 / 改密（登录即可，改自己）",
+        "description": "请求体 { nickname?, email?, old_password?, new_password? }：只要 nickname 或 email 任一非空就一起 UPDATE（**会同时覆盖两个字段**）；old_password 与 new_password **同时**非空才走改密，旧密码错误 → 200 + ok:false「原密码错误」，新密码 <6 位 → 「新密码至少 6 位」。账号不存在 → 200 + ok:false「账号不存在」。响应 { ok:true, msg:\"个人资料已更新\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MySettingsRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/upload": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "上传文件（admin+，multipart/form-data，字段名 file，≤3MB）",
+        "description": "请求体为 multipart/form-data，字段名必须是 file。允许扩展名：.png .jpg .jpeg .gif .webp .svg .mp3 .wav .ogg .m4a .aac .mid .midi .mp4 .webm .mov。未收到文件 → 200 + ok:false「未收到文件」；扩展名不允许 → 「不支持的文件类型，仅允许图片/音频/视频」；>3MB → **413**「文件超过 3MB 限制（D1 单条上限）」；formData/写库异常被捕获后返回 200 + ok:false「上传失败：<原因>」。成功响应 { ok:true, data:{ url:\"/api/uploads/<id>\", name } }（base64 存 uploads.data_b64）。触发 upload 限流（默认 20/时，按用户）返回 429。",
+        "security": [{ "XToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "multipart/form-data": { "schema": { "type": "object", "properties": { "file": { "type": "string", "format": "binary" } }, "required": ["file"] } } }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "413": { "$ref": "#/components/responses/Err413" },
+          "429": { "$ref": "#/components/responses/Err429" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/import_posts": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "从 raw posts.json 导入文章到 D1（admin+，按 source_file 幂等）",
+        "description": "请求体可为空。以 source_file 幂等：已存在则更新 title/summary/views（计入 updated），不存在则插入（content 先写占位 [<source_file>]、status=1、is_top=0，计入 imported）。响应 { ok:true, msg:\"导入完成：新增 N 篇，更新 M 篇\" }；raw 读取失败 → 200 + ok:false「无法读取文章源：…」。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/comments/bulk": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "评论批量审核 / 删除（admin+，仅 POST）",
+        "description": "请求体 { action, ids:[…], note? | remark? }：action 取值受白名单限制（未知 action → 400「未知操作：<action>」）；ids 为空 → 200 + ok:false「未选择评论」；note 截断 200。仅接受 POST（其它 405「仅支持 POST」）。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BulkRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/comments/report": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "举报列表（admin+）",
+        "description": "响应 { ok:true, data:[…] }；扩展表未创建时返回 { ok:true, data:[], note:\"扩展表未创建\" }。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "处理举报（admin+）",
+        "description": "请求体 { id, status, hide?, note? | remark? }：status 只能是 1（举报成立）或 2（忽略），其它 400；hide:true 时隐藏对应评论；id 缺失 400「缺少举报 id」；记录不存在 404；扩展表未创建 500。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ReportHandleRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/settings/comment": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "读取评论审核配置（admin+）",
+        "description": "响应 { ok:true, data:<配置对象> }，字段以代码为准（moderate 先审后发、words 敏感词、linkLimit 链接数上限等）。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "保存评论审核配置（admin+）",
+        "description": "请求体（均为可选，传了才覆盖）：moderate（bool/1/\"1\"/\"true\" 视为先审后发）、words（字符串数组，或按换行/逗号/分号/顿号拆分的字符串）、linkLimit（链接数上限，clamp 后存储）。写库失败 500。响应 { ok:true, msg:\"评论设置已保存\", data:<新配置> }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CommentSettingsRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/comment-blacklist": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "黑名单列表（admin+）",
+        "description": "响应 { ok:true, data:[…] }；扩展表未创建时 { ok:true, data:[], note:\"扩展表未创建\" }。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "新增黑名单条目（admin+）",
+        "description": "请求体 { type, value, reason?, expire_at? | expireAt? }：type 必须在允许集合内，否则 400「type 只能是 …」；value 为空 400。扩展表未创建/保存失败 500。也支持 POST { action:\"delete\", id } 触发删除。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BlacklistRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "delete": {
+        "tags": ["admin"],
+        "summary": "删除黑名单条目（admin+）",
+        "description": "id 来自 ?id= 或请求体 { id }（也接受 POST { action:\"delete\", id }）。id 缺失 400「缺少 id」；记录不存在 404；删除失败 500。成功 { ok:true, msg:\"已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "parameters": [
+          { "name": "id", "in": "query", "required": false, "description": "黑名单记录 id", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/audit-logs": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "审计日志（仅 super_admin）",
+        "description": "查询参数：limit（默认 50，范围 1-200）、action（前缀/精确过滤，截断 60）、user_id（整数）。响应 { ok:true, data:{ list, total } }；扩展表未创建时 { ok:true, data:{ list:[], total:0 }, note:\"扩展表未创建\" }。非 super_admin 403「权限不足」；非 GET 405「方法不允许」。",
+        "security": [{ "XToken": [] }],
+        "parameters": [
+          { "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 } },
+          { "name": "action", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "user_id", "in": "query", "required": false, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/rate-limits": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "读取限流规则（仅 super_admin）",
+        "description": "响应 { ok:true, data:{ rules, current } }。rules 为各规则阈值配置（可由 settings.rate_limits 覆盖），current 为当前规则快照（字段以代码为准）。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "保存限流规则（仅 super_admin）",
+        "description": "请求体 { rules: { <名称>: { limit, windowMs } } }：缺少 rules 对象 → 400；规则名为空 → 400「规则为空」；名称只允许字母数字_-（否则 400）；limit 必须 0-10000 整数；windowMs 必须 1000-86400000 整数。响应 { ok:true, msg:\"限流规则已保存\", data:{ rules:merged } }；保存失败 500。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RateLimitsRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "delete": {
+        "tags": ["admin"],
+        "summary": "清理限流计数（仅 super_admin）",
+        "description": "请求体 { key } 或 { all:true }：都不给 → 400「需要 key 或 all:true」；key 截断 180。限流表不可用时返回 200 + note 提示（已忽略）。成功 msg 为「已清空限流计数」或「已清理指定维度计数」。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "key": { "type": "string" }, "all": { "type": "boolean" } } } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/auth/tokens": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "密码重置 / 邮箱验证令牌总览（仅 super_admin）",
+        "description": "响应 { ok:true, data:[…], total, note }，列表项字段：type（password_reset|email_verify）、token（只展示前 8 位 + …）、tokenPrefix、user_id、email、used、expired、expire_at、created_at、created_text、path。扩展表都未创建时返回 { ok:true, data:[], note:\"扩展表未创建\" }。非 GET 405「方法不允许」。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/stats": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "访问统计（admin+，可指定天数）",
+        "description": "别名 GET /api-v1/admin/stats。查询参数 days（默认 30，夹在 1-90）。响应 data:{ range:{from,to}, daily:[{date,pv,uv,posts,comments}], topPages:[{path,pv}], topPosts:[{source_file,title,pv}], totals:{pv,uv,visits} }；扩展表未创建时返回空结构并带 note:\"扩展表未创建\"。请求会触发懒聚合。",
+        "security": [{ "XToken": [] }],
+        "parameters": [
+          { "name": "days", "in": "query", "required": false, "description": "统计天数，默认 30，范围 1-90", "schema": { "type": "integer", "minimum": 1, "maximum": 90, "default": 30 } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/subscribers": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "订阅者列表（admin+）",
+        "description": "响应 { ok:true, data:{ list:[…], total } }（订阅者行字段以扩展表为准）。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "delete": {
+        "tags": ["admin"],
+        "summary": "删除订阅者（admin+）",
+        "description": "请求体 { email } 或 { id }（可选 source）：两者都为空 → 400「缺少 email 或 id」。响应 { ok:true, msg:\"已删除\", data:{ removed } }。非 GET/POST/DELETE → 405。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SubscriberDeleteRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/notifications": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "已发送站内信列表（admin+）",
+        "description": "响应 { ok:true, data:{ list:[Notification], total } }。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "发送站内信（admin+）",
+        "description": "请求体 { title, body?, link?, type?, user_id? }：title 必填（为空 400「标题不能为空」）；body/link 分别截断（以代码为准）；type 默认 \"system\"；user_id 指定单个收件人，缺省按代码逻辑选取收件人集合。无可投递收件人 → 400「没有可投递的收件人」。响应 { ok:true, msg:\"已发送\", data:{ inserted } }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotificationSendRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/webhooks": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Webhook 列表 + 最近投递（仅 super_admin）",
+        "description": "响应 { ok:true, data:{ list:hooks, deliveries, total } }。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "新增 / 更新 Webhook（仅 super_admin）",
+        "description": "请求体 { id?, name, url, events?, status?, secret? }：name 必填（为空 400「名称不能为空」）；url 必须 https://（否则 400「仅支持 HTTPS」）；events 可为字符串或数组（序列化后截断 500，缺省 []）；status 为 0/false 时禁用、否则启用；secret 可为字符串（空串表示沿用旧值）。响应 { ok:true, msg:\"已创建\"|\"已更新\" }；保存失败 500。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WebhookRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "delete": {
+        "tags": ["admin"],
+        "summary": "删除 Webhook（仅 super_admin）",
+        "description": "请求体 { id }：缺失 400「缺少 id」。响应 { ok:true, msg:\"已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/users-ext": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "用户扩展总览（仅 super_admin；?user_id= 时返回该用户会话列表）",
+        "description": "无 user_id 时响应 { ok:true, data:{ list:[{ id, username, role, status, session_count, last_login_at, email_verified, has_2fa }], total, degraded, note } }——degraded:true 表示 two_factor_secret 列不存在（has_2fa 恒 false）。带 ?user_id=N 时响应 { ok:true, data:{ user_id, list:[{ token_prefix, created_at, expire_at, created_text, expire_text, current }], total } }。会话查询失败 500。",
+        "security": [{ "XToken": [] }],
+        "parameters": [
+          { "name": "user_id", "in": "query", "required": false, "description": "查看该用户的会话列表", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "踢出指定用户的全部会话（仅 super_admin）",
+        "description": "请求体 { action:\"revoke_sessions\", user_id }：action 不匹配 → 400；user_id ≤0 → 400「user_id 不合法」；不能操作自己（400「请用『我的会话』自助操作」）；用户不存在 404；删除失败 500。响应 { ok:true, data:{ user_id, deleted } }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RevokeSessionsRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/revisions": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "文章修订快照列表 / 详情（admin+）",
+        "description": "查询参数：id（取单条详情，含 content 全文）、post_id（过滤列表，0 或缺省为全量）、limit（默认值/上限以代码为准，clamp 处理）。列表项含 id、post_id、title、note、editor_id、created_at、size（SQL 侧 length(content)）；扩展表未创建时返回 { ok:true, data:[] | null, note:\"扩展表未创建\" }；单条不存在 404「快照不存在」。",
+        "security": [{ "XToken": [] }],
+        "parameters": [
+          { "name": "id", "in": "query", "required": false, "description": "快照 id（取详情）", "schema": { "type": "integer" } },
+          { "name": "post_id", "in": "query", "required": false, "description": "按文章过滤列表", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "required": false, "description": "列表条数上限（clamp）", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "回滚 / 删除快照（admin+，action=restore|delete）",
+        "description": "请求体 { action:\"restore\"|\"delete\", id }：其它 action → 400「未知操作」。restore 会**先把当前内容再存一份快照**（回滚本身可再回滚），不修改 source_file；id 缺失 400「缺少快照 id」，快照不存在 404，未关联文章 400「快照未关联文章」，回滚失败 500。成功 restore 返回 { ok:true, msg:\"已回滚到该版本\", data:{ post_id, revision_id } }；delete 返回 { ok:true, msg:\"快照已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RevisionActionRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "delete": {
+        "tags": ["admin"],
+        "summary": "删除快照（admin+，id 来自请求体或 ?id=）",
+        "description": "id 取自请求体 { id } 或查询参数 ?id=。缺失 400「缺少快照 id」；不存在 404；失败 500。成功 { ok:true, msg:\"快照已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "parameters": [
+          { "name": "id", "in": "query", "required": false, "description": "快照 id", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/export": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "导出文章（admin+；format=json 返回 JSON，format=markdown 下载 .md）",
+        "description": "参数可从查询串或请求体取（查询串优先）：format（json | markdown | md，其它值 400「format 只能是 json 或 markdown」）、id（单篇）、all（1/true/yes；未传 id 时视为导出全部，受上限约束）。JSON 响应 { ok:true, data:[{ id, title, summary, content, source_file, created_at, updated_at, status, is_top, views, tags, columns }], total, truncated }；markdown 响应 text/markdown + Content-Disposition: attachment; filename=\"posts-<日期>.md\"；单篇不存在 404「文章不存在」；导出失败 500。",
+        "security": [{ "XToken": [] }],
+        "parameters": [
+          { "name": "format", "in": "query", "required": false, "schema": { "type": "string", "enum": ["json", "markdown", "md"], "default": "json" } },
+          { "name": "id", "in": "query", "required": false, "description": "导出单篇文章", "schema": { "type": "integer" } },
+          { "name": "all", "in": "query", "required": false, "description": "1/true/yes 表示导出全部（受上限约束）", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "导出文章（POST，参数放请求体；format=markdown 时直接下载文件）",
+        "description": "请求体 { format?, id?, all? }，语义与 GET 相同（查询串优先于请求体）。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": false, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ExportRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/import": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "批量导入文章（admin+，仅 POST）",
+        "description": "请求体 { format:\"json\", mode:\"create\"|\"update\", data:[{…}] }：format 仅支持 json（其它 400）；mode 非法 400；data 必须是数组（否则 400「data 必须是数组」）；data 为空 400。mode=update 时匹配不到的文章计入 skipped。响应 { ok:true, msg:\"导入完成：新增 N 篇，更新 M 篇，跳过 K 篇\", data:{ created, updated, skipped, errors:[{index,msg}], truncated } }。仅支持 POST（其它 405「仅支持 POST」）。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ImportRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    },
+    "/api/admin/redirects": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "重定向列表（admin+）",
+        "description": "响应 { ok:true, data:[…] }；扩展表未创建时 { ok:true, data:[], note:\"扩展表未创建\" }。",
+        "security": [{ "XToken": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "post": {
+        "tags": ["admin"],
+        "summary": "新增 / 更新重定向（admin+）",
+        "description": "请求体 { id?, from_path | from, to_path | to, code?, status? }：from_path 必须以 / 开头（否则 400）；to_path 必须以 / 或 http 开头（否则 400）；两者相同 400；code 白名单外归为 301；status 缺省为 1，truthy → 1。保存失败 500。",
+        "security": [{ "XToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RedirectRequest" } } } },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "405": { "$ref": "#/components/responses/Err405" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      },
+      "delete": {
+        "tags": ["admin"],
+        "summary": "删除重定向（admin+，id 来自请求体或 ?id=）",
+        "description": "id 缺失 400「缺少 id」；不存在 404「重定向不存在」；失败 500。成功 { ok:true, msg:\"重定向已删除\" }。",
+        "security": [{ "XToken": [] }],
+        "parameters": [
+          { "name": "id", "in": "query", "required": false, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/Ok" },
+          "400": { "$ref": "#/components/responses/Err400" },
+          "401": { "$ref": "#/components/responses/Err401" },
+          "403": { "$ref": "#/components/responses/Err403" },
+          "404": { "$ref": "#/components/responses/Err404" },
+          "500": { "$ref": "#/components/responses/Err500" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "XToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Token",
+        "description": "管理员 / 登录用户令牌（48 位 hex），由 POST /api/login 返回，有效期 8 小时。后台管理接口与 /api/me、/api/my/*、/api/auth/email/verify/request 只认这种凭据（不认 Cookie）。"
+      },
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session",
+        "description": "Cookie 会话（HttpOnly、SameSite=Lax、Max-Age=28800、无 Secure），由 POST /api/user/login 或 POST /api/login 下发。供旧 Vue 组件与 /api/user/info、/api/article/bookmark 使用。"
+      }
+    },
+    "schemas": {
+      "Ok": {
+        "type": "object",
+        "description": "前台公开接口与后台接口的统一成功结构（data 的具体形状见各接口 description）。",
+        "properties": {
+          "ok": { "type": "boolean", "const": true },
+          "data": { "description": "业务数据（形状因接口而异）" },
+          "msg": { "type": "string" }
+        },
+        "required": ["ok"]
+      },
+      "Err": {
+        "type": "object",
+        "description": "错误结构。注意：多数校验失败是 HTTP 200 + ok:false（或 success:false），只有鉴权与显式错误分支才用 4xx/5xx。",
+        "properties": {
+          "ok": { "type": "boolean", "const": false },
+          "success": { "type": "boolean", "const": false },
+          "msg": { "type": "string" },
+          "code": { "type": "string", "description": "仅限流等分支出现，如 RATE_LIMITED" },
+          "error": { "type": "string", "description": "仅顶层 500 兜底出现（堆栈前 600 字符）" },
+          "note": { "type": "string", "description": "降级提示，如「扩展表未创建」" },
+          "degraded": { "type": "boolean", "description": "限流组件降级放行时为 true" }
+        }
+      },
+      "PinlunOk": {
+        "type": "object",
+        "description": "评论族成功结构 { success:true, data:{…}, msg? }。",
+        "properties": {
+          "success": { "type": "boolean", "const": true },
+          "data": { "description": "业务数据" },
+          "msg": { "type": "string" }
+        },
+        "required": ["success"]
+      },
+      "PinlunErr": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "const": false },
+          "msg": { "type": "string" }
+        },
+        "required": ["success"]
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "const": true },
+          "now": { "type": "integer", "description": "服务端毫秒时间戳" },
+          "d1": { "type": "boolean", "description": "env.DB 是否绑定" },
+          "tables": { "type": "array", "items": { "type": "string" }, "description": "sqlite_master 中的全部表名（含 D1 内部表）" },
+          "hint": { "type": "string", "description": "仅异常时出现：D1 未绑定 / 表缺失等提示" },
+          "schema_err": { "type": "string", "description": "ensureSchema 抛错信息（建表失败时）" },
+          "posts_total": { "type": "integer" },
+          "posts_dirty_content": { "type": "integer", "description": "脏正文篇数（占位符 / 空 / 含旧评论组件标记）" },
+          "raw_article_status": { "type": "integer", "description": "探测 RAW_ARTICLE_BASE 的 HTTP 状态" },
+          "diag_err": { "type": "string" }
+        },
+        "required": ["ok"]
+      },
+      "LoginOk": {
+        "type": "object",
+        "description": "POST /api/login 的响应：同时满足 ok / success 两种判断（另含 Set-Cookie: session）。",
+        "properties": {
+          "ok": { "type": "boolean", "const": true },
+          "success": { "type": "boolean", "const": true },
+          "token": { "type": "string", "description": "48 位 hex，放入 X-Token 请求头" },
+          "user": { "$ref": "#/components/schemas/UserBrief" },
+          "data": { "type": "object", "description": "兼容旧 Vue 弹窗的结构，含 _id、avatar、email、profile.name 等" }
+        }
+      },
+      "MeOk": {
+        "type": "object",
+        "description": "GET /api/me 成功结构；未登录/过期时为 HTTP 200 + ok:false, success:false。",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "success": { "type": "boolean" },
+          "user": { "$ref": "#/components/schemas/UserBrief" },
+          "perms": { "type": "array", "items": { "type": "string" }, "description": "super_admin: dashboard/users/posts/categories/comments/settings/tags/columns/import_posts；admin 同上但无 users；user 仅 dashboard" },
+          "data": { "type": "object", "description": "含 _id、avatar、email、profile.name、is_admin" }
+        }
+      },
+      "UserBrief": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "nickname": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string", "enum": ["super_admin", "admin", "user"] },
+          "role_name": { "type": "string", "description": "超级管理员 / 管理员 / 普通用户" }
+        }
+      },
+      "VueUser": {
+        "type": "object",
+        "description": "旧 Vue 契约的用户对象（userRowToVue）。",
+        "properties": {
+          "_id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string", "description": "为空时回退 username" },
+          "avatar": { "type": "string" },
+          "role": { "type": "string" },
+          "isc": { "type": "boolean", "description": "仅 role === super_admin 时为 true" },
+          "profile": { "type": "object", "properties": { "name": { "type": "string" } } },
+          "token": { "type": "string", "description": "Cookie 会话下恒为空串" }
+        }
+      },
+      "PostListItem": {
+        "type": "object",
+        "description": "公开文章列表项（**不含** content/status/category_id/is_top）。",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "views": { "type": "integer" },
+          "source_file": { "type": "string", "description": "拼 /article/<source_file> 即详情页" },
+          "created_at": { "type": "string" },
+          "updated_at": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "columns": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "Comment": {
+        "type": "object",
+        "description": "评论项（commentToItem；FR-X22 评论增强可能补充头像/作者标识字段）。",
+        "properties": {
+          "id": { "type": "integer" },
+          "rootId": { "type": "integer", "description": "顶层评论 ID（顶层为 0）" },
+          "parentId": { "type": "integer", "description": "当前实现与 rootId 相同" },
+          "content": { "type": "string" },
+          "user": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "avatar": { "type": "string" },
+              "email": { "type": "string" },
+              "self": { "type": "boolean", "description": "恒为 false（未按登录态判断）" },
+              "role": { "type": "string" }
+            }
+          },
+          "time": { "type": "string", "description": "YYYY-MM-DD HH:mm:ss" },
+          "createTime": { "type": "integer" },
+          "createdAt": { "type": "integer" },
+          "zan": { "type": "integer" },
+          "cai": { "type": "integer" },
+          "myVote": { "type": "integer", "description": "1 赞 / -1 踩 / 0 未投" }
+        }
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "link": { "type": "string" },
+          "read_at": { "type": "integer", "description": "0 表示未读" },
+          "created_at": { "type": "integer" }
+        }
+      },
+      "Credentials": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string", "maxLength": 32 },
+          "password": { "type": "string" }
+        },
+        "required": ["username", "password"]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string", "pattern": "^[A-Za-z0-9_\\-\\.]{3,32}$" },
+          "password": { "type": "string", "minLength": 6 },
+          "nickname": { "type": "string", "maxLength": 40 }
+        },
+        "required": ["username", "password"]
+      },
+      "ViewRequest": {
+        "type": "object",
+        "properties": {
+          "source_file": { "type": "string", "description": "首选：a_xxx.html / 裸 hex / 带目录 URL 均可（normSourceFile 归一）" },
+          "file": { "type": "string", "description": "source_file 的别名" },
+          "id": { "description": "兜底标识；传数字 58 会被归一成 a_58.html（与真实文件名不一致时不要用）" }
+        }
+      },
+      "PinlunListRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "评论目标，默认 site；文章页传 source_file（截断 120）" },
+          "pageId": { "type": "string", "description": "id 的别名" },
+          "pageIndex": { "type": "integer", "minimum": 1, "default": 1 },
+          "q": { "type": "string", "description": "评论内容关键词（截断 100）" }
+        }
+      },
+      "PinlunRepliesRequest": {
+        "type": "object",
+        "properties": {
+          "rootId": { "type": "integer", "description": "顶层评论 ID" },
+          "pageIndex": { "type": "integer", "description": "服务端忽略" }
+        },
+        "required": ["rootId"]
+      },
+      "PinlunPublishRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "评论目标，默认 site" },
+          "text": { "type": "string", "description": "内容（首选字段，trim 后截断 600）" },
+          "content": { "type": "string", "description": "text 的兼容别名" },
+          "rootId": { "type": "integer", "default": 0, "description": "回复时指向顶层评论" },
+          "replyToName": { "type": "string", "description": "被回复者昵称（读取但未落库）" },
+          "author": { "type": "string", "description": "署名，截断 40，默认匿名用户" },
+          "name": { "type": "string", "description": "author 的别名" }
+        }
+      },
+      "PinlunVoteRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "评论 ID" },
+          "type": { "type": "string", "description": "\"cai\" 为踩，其余按赞" }
+        },
+        "required": ["id"]
+      },
+      "ArticleLikeRequest": {
+        "type": "object",
+        "properties": {
+          "source_file": { "type": "string", "description": "文章文件标识（如 a_xxx.html）" },
+          "action": { "type": "string", "description": "like|unlike（bookmark 接口为 bookmark|unbookmark）；缺省或非法值 → 切换" }
+        },
+        "required": ["source_file"]
+      },
+      "ReportRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "被举报评论 ID" },
+          "comment_id": { "type": "integer", "description": "id 的别名" },
+          "commentId": { "type": "integer", "description": "id 的别名" },
+          "reason": { "type": "string", "description": "举报原因，默认「其他」，截断 200" },
+          "detail": { "type": "string", "description": "补充说明，截断 500" },
+          "msg": { "type": "string", "description": "detail 的别名" }
+        }
+      },
+      "SubscribeRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "source": { "type": "string", "description": "来源标记，默认 web，截断 40" }
+        },
+        "required": ["email"]
+      },
+      "ProfileUpdateRequest": {
+        "type": "object",
+        "description": "字段以代码为准：仅在传入对应键时才校验与更新。",
+        "properties": {
+          "nickname": { "type": "string", "maxLength": 40 },
+          "email": { "type": "string", "maxLength": 120 },
+          "avatar": { "type": "string", "maxLength": 300, "description": "站内 /api/uploads/ 前缀或 https:// 外链" },
+          "bio": { "type": "string", "maxLength": 300 },
+          "website": { "type": "string", "maxLength": 200, "description": "必须 http:// 或 https:// 开头" },
+          "location": { "type": "string", "maxLength": 60 },
+          "social": { "description": "JSON 对象或可解析字符串，序列化后 ≤1000 字符" }
+        }
+      },
+      "PostWriteRequest": {
+        "type": "object",
+        "description": "create/update 共用；update 需额外传 id。字段以代码为准。",
+        "properties": {
+          "id": { "type": "integer", "description": "仅 update 需要" },
+          "title": { "type": "string", "maxLength": 200 },
+          "summary": { "type": "string", "maxLength": 500 },
+          "content": { "type": "string", "description": "HTML 富文本，不截断" },
+          "category_id": { "type": "integer", "description": "缺省写 NULL" },
+          "status": { "description": "truthy → 1（发布），否则 0（草稿）" },
+          "is_top": { "description": "truthy → 1（置顶）" },
+          "tags": { "type": "array", "description": "标签名称字符串（自动创建）或数字 id", "items": {} },
+          "columns": { "type": "array", "description": "分栏 id（parseInt 解析，非数字忽略）", "items": {} },
+          "source_file": { "type": "string", "description": "可选，缺省自动生成 a_<24 位 hex>.html" },
+          "note": { "type": "string", "description": "仅 update：历史快照备注，截断 200" }
+        },
+        "required": ["title"]
+      },
+      "ScheduleRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "文章 id" },
+          "publish_at": { "type": "integer", "description": "毫秒时间戳；0 或省略表示取消定时并转为草稿（published_at 为 INTEGER 毫秒列）" },
+          "publishAt": { "type": "integer", "description": "publish_at 的别名" }
+        },
+        "required": ["id"]
+      },
+      "IdRequest": {
+        "type": "object",
+        "properties": { "id": { "type": "integer" } },
+        "required": ["id"]
+      },
+      "NameSortRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "maxLength": 30 },
+          "sort": { "type": "integer" }
+        },
+        "required": ["name"]
+      },
+      "IdNameSortRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string", "maxLength": 30 },
+          "sort": { "type": "integer" }
+        },
+        "required": ["id", "name"]
+      },
+      "TagWriteRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "仅 update 需要" },
+          "name": { "type": "string", "description": "去掉开头 # 后截断 30" },
+          "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "description": "不合法时强制 #58a6ff" }
+        },
+        "required": ["name"]
+      },
+      "UserCreateRequest": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string", "pattern": "^[A-Za-z0-9_\\-\\.]{3,32}$" },
+          "password": { "type": "string", "minLength": 6 },
+          "role": { "type": "string", "enum": ["super_admin", "admin", "user"] },
+          "nickname": { "type": "string", "maxLength": 30 },
+          "email": { "type": "string", "maxLength": 80 }
+        },
+        "required": ["username", "password", "role"]
+      },
+      "UserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "nickname": { "type": "string", "maxLength": 30 },
+          "email": { "type": "string", "maxLength": 80 },
+          "status": { "description": "truthy → 1" },
+          "role": { "type": "string", "enum": ["super_admin", "admin", "user"], "description": "非法值会被忽略（不报错）" }
+        },
+        "required": ["id"]
+      },
+      "ResetPwdRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "password": { "type": "string", "minLength": 6 }
+        },
+        "required": ["id", "password"]
+      },
+      "MySettingsRequest": {
+        "type": "object",
+        "properties": {
+          "nickname": { "type": "string", "maxLength": 30 },
+          "email": { "type": "string", "maxLength": 80 },
+          "old_password": { "type": "string" },
+          "new_password": { "type": "string", "minLength": 6 }
+        }
+      },
+      "BulkRequest": {
+        "type": "object",
+        "properties": {
+          "action": { "type": "string", "description": "白名单内的批量动作（以代码为准）" },
+          "ids": { "type": "array", "items": { "type": "integer" } },
+          "note": { "type": "string", "maxLength": 200 },
+          "remark": { "type": "string", "description": "note 的别名" }
+        },
+        "required": ["action", "ids"]
+      },
+      "ReportHandleRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "status": { "type": "integer", "enum": [1, 2], "description": "1 举报成立 / 2 忽略" },
+          "hide": { "type": "boolean", "description": "是否同时隐藏评论" },
+          "note": { "type": "string", "maxLength": 200 },
+          "remark": { "type": "string" }
+        },
+        "required": ["id", "status"]
+      },
+      "CommentSettingsRequest": {
+        "type": "object",
+        "description": "字段以代码为准；均为可选，传了才覆盖。",
+        "properties": {
+          "moderate": { "description": "先审后发开关（bool / 1 / \"1\" / \"true\"）" },
+          "words": { "description": "敏感词：字符串数组，或按换行/逗号/分号/顿号拆分的字符串" },
+          "linkLimit": { "description": "评论内链接数上限（clamp）" }
+        }
+      },
+      "BlacklistRequest": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "description": "黑名单类型（取值集合以代码为准）" },
+          "value": { "type": "string", "maxLength": 200 },
+          "reason": { "type": "string", "maxLength": 200 },
+          "expire_at": { "description": "过期时间（毫秒或可解析值）" },
+          "expireAt": { "description": "expire_at 的别名" },
+          "action": { "type": "string", "description": "传 \"delete\" 时按删除处理" },
+          "id": { "type": "integer" }
+        }
+      },
+      "RateLimitsRequest": {
+        "type": "object",
+        "properties": {
+          "rules": {
+            "type": "object",
+            "description": "键为规则名（字母数字_-），值为 { limit: 0-10000, windowMs: 1000-86400000 }",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "limit": { "type": "integer", "minimum": 0, "maximum": 10000 },
+                "windowMs": { "type": "integer", "minimum": 1000, "maximum": 86400000 }
+              }
+            }
+          }
+        },
+        "required": ["rules"]
+      },
+      "SubscriberDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "id": { "type": "integer" },
+          "source": { "type": "string" }
+        }
+      },
+      "NotificationSendRequest": {
+        "type": "object",
+        "description": "字段以代码为准（title/body/link/type/user_id 已确认，收件人选取逻辑见 notify.js）。",
+        "properties": {
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "link": { "type": "string", "maxLength": 300 },
+          "type": { "type": "string", "description": "默认 system" },
+          "user_id": { "type": "integer", "description": "单一收件人；缺省时按代码逻辑选取" }
+        },
+        "required": ["title"]
+      },
+      "WebhookRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": ">0 为更新，否则新建" },
+          "name": { "type": "string", "maxLength": 100 },
+          "url": { "type": "string", "description": "必须 https:// 开头，截断 500" },
+          "events": { "description": "字符串或数组（序列化后截断 500，缺省 []）" },
+          "status": { "description": "0/false 为禁用，否则启用" },
+          "secret": { "type": "string", "maxLength": 200, "description": "空串表示沿用旧值" }
+        },
+        "required": ["name", "url"]
+      },
+      "RevokeSessionsRequest": {
+        "type": "object",
+        "properties": {
+          "action": { "type": "string", "const": "revoke_sessions" },
+          "user_id": { "type": "integer" }
+        },
+        "required": ["action", "user_id"]
+      },
+      "RevisionActionRequest": {
+        "type": "object",
+        "properties": {
+          "action": { "type": "string", "enum": ["restore", "delete"] },
+          "id": { "type": "integer", "description": "快照 id" }
+        },
+        "required": ["action", "id"]
+      },
+      "ExportRequest": {
+        "type": "object",
+        "properties": {
+          "format": { "type": "string", "enum": ["json", "markdown", "md"] },
+          "id": { "type": "integer" },
+          "all": { "description": "1/true/yes 表示导出全部" }
+        }
+      },
+      "ImportRequest": {
+        "type": "object",
+        "properties": {
+          "format": { "type": "string", "const": "json" },
+          "mode": { "type": "string", "enum": ["create", "update"] },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "summary": { "type": "string" },
+                "content": { "type": "string" },
+                "source_file": { "type": "string" },
+                "status": {},
+                "is_top": {},
+                "tags": { "type": "array", "items": { "type": "string" } },
+                "columns": { "type": "array", "items": {} }
+              }
+            }
+          }
+        },
+        "required": ["data"]
+      },
+      "RedirectRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "有 id 为更新" },
+          "from_path": { "type": "string", "description": "必须 / 开头" },
+          "from": { "type": "string", "description": "from_path 的别名" },
+          "to_path": { "type": "string", "description": "必须 / 或 http 开头" },
+          "to": { "type": "string", "description": "to_path 的别名" },
+          "code": { "type": "integer", "description": "白名单外归为 301" },
+          "status": { "description": "缺省 1（启用），0 为禁用" }
+        },
+        "required": ["from_path", "to_path"]
+      }
+    },
+    "responses": {
+      "Ok": {
+        "description": "成功（{ ok:true, data?, msg? }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Ok" } } }
+      },
+      "Health": {
+        "description": "健康检查结果（始终 HTTP 200）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Health" } } }
+      },
+      "LoginOk": {
+        "description": "登录成功，含 token 与 Set-Cookie: session",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginOk" } } }
+      },
+      "MeOk": {
+        "description": "当前用户信息（未登录/过期时仍为 200，但 ok/success 为 false）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MeOk" } } }
+      },
+      "VueOk": {
+        "description": "旧 Vue 契约响应（{ success, data, msg? }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunOk" } } }
+      },
+      "PinlunOk": {
+        "description": "评论族成功响应（{ success:true, data, msg? }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunOk" } } }
+      },
+      "PinlunUnknownAction": {
+        "description": "未知评论 action（HTTP 404）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunErr" } } }
+      },
+      "PinlunServerErr": {
+        "description": "D1 未绑定（HTTP 500，{ success:false, msg }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunErr" } } }
+      },
+      "LegacyArticleMock": {
+        "description": "旧契约降级：HTTP 200 + { success:false, msg:\"内容已预渲染，无需刷新\" }",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PinlunErr" } } }
+      },
+      "CsrfToken": {
+        "description": "纯 JSON 字符串（非对象）",
+        "content": { "application/json": { "schema": { "type": "string", "const": "qingyi-blog-worker-csrf" } } }
+      },
+      "SubscribeOk": {
+        "description": "订阅结果（token 仅在邮件服务未配置时回传）",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": { "type": "boolean", "const": true },
+                "msg": { "type": "string" },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "mailConfigured": { "type": "boolean" },
+                    "delivered": { "type": "boolean" },
+                    "token": { "type": "string", "description": "仅 mailConfigured=false 时出现" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "UnsubHtml": {
+        "description": "退订结果页（站点风格 HTML，非 JSON）",
+        "content": { "text/html": { "schema": { "type": "string" } } }
+      },
+      "ArticleHtml": {
+        "description": "动态渲染的文章详情整页 HTML（Cache-Control: public, max-age=60，无 CORS 头）",
+        "content": { "text/html": { "schema": { "type": "string" } } }
+      },
+      "UploadBinary": {
+        "description": "上传文件原始字节（MIME 来自 uploads.mime，Cache-Control: public, max-age=31536000，无 CORS 头）",
+        "content": { "application/octet-stream": { "schema": { "type": "string", "format": "binary" } } }
+      },
+      "RobotsTxt": {
+        "description": "robots.txt 文本",
+        "content": { "text/plain": { "schema": { "type": "string" } } }
+      },
+      "SitemapXml": {
+        "description": "sitemap.xml",
+        "content": { "application/xml": { "schema": { "type": "string" } } }
+      },
+      "RssXml": {
+        "description": "RSS 2.0 文档",
+        "content": { "application/rss+xml": { "schema": { "type": "string" } } }
+      },
+      "AtomXml": {
+        "description": "Atom 文档",
+        "content": { "application/atom+xml": { "schema": { "type": "string" } } }
+      },
+      "FeedJson": {
+        "description": "JSON Feed 文档",
+        "content": { "application/feed+json": { "schema": { "type": "object" } } }
+      },
+      "Redirect302": {
+        "description": "302 重定向到第三方授权页"
+      },
+      "Plain404": {
+        "description": "纯文本 404（非 JSON）",
+        "content": { "text/plain": { "schema": { "type": "string", "const": "Not Found" } } }
+      },
+      "Plain500": {
+        "description": "纯文本 500（非 JSON），如 base64 解码失败 Decode error",
+        "content": { "text/plain": { "schema": { "type": "string" } } }
+      },
+      "Html404": {
+        "description": "站点风格 HTML 404 页（静态文章/D1 均未命中时回源 Pages 的 404）",
+        "content": { "text/html": { "schema": { "type": "string" } } }
+      },
+      "Err400": {
+        "description": "参数缺失或非法（{ ok:false, msg }；部分接口为 HTTP 200 + ok:false，见接口 description）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err401": {
+        "description": "未登录 / 会话已过期（{ ok:false, msg:\"未登录或会话已过期\" | \"会话已过期\" }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err403": {
+        "description": "权限不足 / 账号已被禁用（{ ok:false, msg }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err404": {
+        "description": "资源或接口不存在（{ ok:false, msg }，如「未知管理接口：<path>」）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err405": {
+        "description": "方法不允许（{ ok:false, msg }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err413": {
+        "description": "文件超过 3MB（{ ok:false, msg:\"文件超过 3MB 限制（D1 单条上限）\" }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err429": {
+        "description": "触发限流：{ ok:false, msg:\"请求过于频繁，请稍后再试\", code:\"RATE_LIMITED\" }；同时返回 Retry-After 与 X-RateLimit-Limit / X-RateLimit-Remaining / X-RateLimit-Reset（已用 access-control-expose-headers 暴露）。限流表故障时不会 429，而是放行并在响应体带 degraded:true。",
+        "headers": {
+          "Retry-After": { "description": "距窗口结束的秒数", "schema": { "type": "integer" } },
+          "X-RateLimit-Limit": { "description": "该规则窗口内允许的总次数", "schema": { "type": "integer" } },
+          "X-RateLimit-Remaining": { "description": "固定为 0", "schema": { "type": "integer" } },
+          "X-RateLimit-Reset": { "description": "窗口结束时间（秒级时间戳）", "schema": { "type": "integer" } },
+          "Access-Control-Expose-Headers": { "schema": { "type": "string" } }
+        },
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err500": {
+        "description": "服务端错误（{ ok:false, msg }，如「数据库未绑定」；顶层兜底为 { success:false, ok:false, msg:\"服务器开小差了\", error }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err501": {
+        "description": "骨架未配置（{ ok:false, msg }，如未配置 GITHUB_CLIENT_ID）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      },
+      "Err502": {
+        "description": "上游（GitHub）调用失败（{ ok:false, msg }）",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Err" } } }
+      }
+    }
+  }
+}
