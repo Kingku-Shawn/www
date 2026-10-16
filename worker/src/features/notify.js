@@ -46,7 +46,7 @@
 /* ------------------------------------------------------------------ */
 
 /** 站点对外域名兜底（生成退订链接用）；env.CUSTOM_HOST 优先 */
-const FALLBACK_HOST = "blog.qingyi.dpdns.org";
+const FALLBACK_HOST = "my.qingyi.dpdns.org/blog";
 
 /** 站点名（邮件主题用） */
 const SITE_NAME = "清逸的博客";
@@ -249,7 +249,7 @@ async function sendMail(env, to, subject, text) {
   // ① Cloudflare 原生发信（send_email binding）
   if (env && env.EMAIL && typeof env.EMAIL.send === "function") {
     try {
-      const from = String((env && env.MAIL_FROM) || "清逸的博客 <noreply@blog.qingyi.dpdns.org>");
+      const from = String((env && env.MAIL_FROM) || "清逸的博客 <noreply@qingyi.dpdns.org>");
       await env.EMAIL.send({ to: to, from: from, subject: subject, text: text });
       return { configured: true, delivered: true };
     } catch (e) {
@@ -261,7 +261,7 @@ async function sendMail(env, to, subject, text) {
   const resendKey = env && env.RESEND_API_KEY;
   if (resendKey) {
     try {
-      const from = String((env && env.MAIL_FROM) || "清逸的博客 <noreply@blog.qingyi.dpdns.org>");
+      const from = String((env && env.MAIL_FROM) || "清逸的博客 <noreply@qingyi.dpdns.org>");
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
