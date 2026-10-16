@@ -1,0 +1,27 @@
+# my.qingyi.dpdns.org 门户 Worker
+# 作用：把 /blog /tool /score 三个子站聚合到 my 主域名下。
+#   · 静态页面 → 各 GitHub Pages 裸源，并在 HTML 里注入 <base>（让子站内绝对路径 /js/... 落到正确子路径）
+#   · /blog/api/* 与 /blog/article/* → 转发给博客动态后端 Worker（blog-server），路径保留为 /api/*、/article/*
+#
+# 部署：
+#   cd deploy/worker/portal
+#   wrangler deploy
+#   把 my.qingyi.dpdns.org 的 Cloudflare 路由/自定义域名指向本 Worker（或走 Tunnel → 本机）。
+#
+# 各源：
+#   blog 静态 → https://kingku-shawn.github.io/www        （本仓库，即博客静态站）
+#   blog 动态 → https://blog-server.<子域>.workers.dev     （blog-server Worker，见仓库根 wrangler.toml）
+#   tool 静态 → https://kingku-shawn.github.io/tool        （工具站，独立仓库/分支）
+#   score 静态→ https://kingku-shawn.github.io/score       （曲谱站，独立仓库/分支）
+
+name = "qingyi-portal"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+BLOG_ORIGIN = "https://kingku-shawn.github.io/www"
+BLOG_WORKER_ORIGIN = "https://blog-server.qingyi.workers.dev"
+TOOL_ORIGIN = "https://kingku-shawn.github.io/tool"
+SCORE_ORIGIN = "https://kingku-shawn.github.io/score"
+# 根路径 / 重定向到主站首页（或 /blog/，按需改）
+ROOT_REDIRECT = "/blog/"
