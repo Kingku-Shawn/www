@@ -1,0 +1,17 @@
+[Unit]
+Description=Ollaguard - Ollama Bearer-Token Auth Proxy
+After=network.target ollama.service
+
+[Service]
+Type=simple
+# ↓ 替换为你的实际用户名
+User=qingyi
+# ↓ 替换为 ollaguard 实际路径
+WorkingDirectory=/opt/ollaguard
+# ↓ 替换 master key 为强随机值；uv 路径用 `which uv`
+ExecStart=/root/.local/bin/uv run ollaguard --target-url http://localhost:11434 --master-key "REPLACE_WITH_STRONG_MASTER_KEY" --port 4000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
