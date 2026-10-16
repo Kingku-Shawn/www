@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
-Sitemap: https://blog.qingyi.dpdns.org/sitemap.xml
+Sitemap: https://my.qingyi.dpdns.org/blog/sitemap.xml
