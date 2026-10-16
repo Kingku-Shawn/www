@@ -1,8 +1,8 @@
 /**
  * 清逸的博客 · Cloudflare Worker（动态后端）
  * ------------------------------------------------------------------
- * 站点：https://blog.qingyi.dpdns.org/  （Cloudflare 代理）
- * 静态站：GitHub Pages（已设置自定义域名 blog.qingyi.dpdns.org，直出，不经 Worker）
+ * 站点：https://my.qingyi.dpdns.org/blog/  （Cloudflare 代理 + 门户 Worker 聚合）
+ * 静态站：GitHub Pages（已设置自定义域名 my.qingyi.dpdns.org，经门户 Worker 以 /blog 子路径直出）
  * 动态数据：Cloudflare D1（env.DB，见 wrangler.toml）
  *
  * 拓扑（避免回源死循环）：
@@ -1442,7 +1442,7 @@ function notFound() {
  */
 async function proxyStatic(request, env) {
   const staticOrigin = String(env.STATIC_ORIGIN || "").trim().replace(/\/+$/, "");
-  const customHost = String(env.CUSTOM_HOST || "blog.qingyi.dpdns.org").trim();
+  const customHost = String(env.CUSTOM_HOST || "my.qingyi.dpdns.org/blog").trim();
   if (!staticOrigin) {
     return new Response("静态源未配置（STATIC_ORIGIN）", { status: 500, headers: { "content-type": "text/plain; charset=utf-8" } });
   }
@@ -1485,9 +1485,9 @@ async function proxyStatic(request, env) {
       let next = loc;
       if (loc.startsWith("/") ) {
         // 相对路径：拼到裸源
-        next = "https://kingku-shawn.github.io" + loc;
+        next = "https://kingku-shawn.github.io/www" + loc;
       } else {
-        next = loc.replace("https://" + customHost, "https://kingku-shawn.github.io/blog");
+        next = loc.replace("https://" + customHost, "https://kingku-shawn.github.io/www");
       }
       // 重定向丢失了 av 参数时补回（Pages 301 常常剥掉 query）
       if (search && next.indexOf("av=" + ASSET_VER) < 0) {
@@ -1817,7 +1817,7 @@ function clientKey(request) {
 /**
  * 从 raw.githubusercontent.com 读取静态 JSON（兜底用）。
  * RAW_API_BASE 形如：
- *   https://raw.githubusercontent.com/Kingku-Shawn/blog/main/api
+ *   https://raw.githubusercontent.com/Kingku-Shawn/www/main/api
  * 请求 /api/tools.json          → RAW_API_BASE + /tools.json
  * 请求 /api/public/columns.json → RAW_API_BASE + /public/columns.json
  * raw 不经过 GitHub Pages、无自定义域名 301，最安全，杜绝回源死循环。
