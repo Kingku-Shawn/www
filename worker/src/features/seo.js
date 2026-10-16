@@ -28,7 +28,7 @@ export const SITE_NAME = "清逸的博客";
 /* 站点级常量（不在导出行列，改动请直接改这里） */
 const SITE_AUTHOR = "清逸";
 const SITE_DESC = "清逸的博客：技术笔记、项目实践与日常思考。";
-const DEFAULT_HOST = "blog.qingyi.dpdns.org";
+const DEFAULT_HOST = "my.qingyi.dpdns.org/blog";
 const FEED_LIMIT = 20;
 
 /* ------------------------------------------------------------------ */
