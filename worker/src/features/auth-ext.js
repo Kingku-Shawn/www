@@ -245,7 +245,7 @@ async function sendMail(env, mail) {
   // ① Cloudflare 原生发信（send_email binding）
   if (env && env.EMAIL && typeof env.EMAIL.send === "function") {
     return safe(async () => {
-      const from = String((env && env.MAIL_FROM) || "清逸的博客 <noreply@blog.qingyi.dpdns.org>");
+      const from = String((env && env.MAIL_FROM) || "清逸的博客 <noreply@qingyi.dpdns.org>");
       await env.EMAIL.send({ to: to, from: from, subject: subject, text: text });
       return { configured: true, delivered: true };
     }, { configured: true, delivered: false });
@@ -255,7 +255,7 @@ async function sendMail(env, mail) {
   const resendKey = env && env.RESEND_API_KEY;
   if (resendKey) {
     return safe(async () => {
-      const from = String((env && env.MAIL_FROM) || "清逸的博客 <noreply@blog.qingyi.dpdns.org>");
+      const from = String((env && env.MAIL_FROM) || "清逸的博客 <noreply@qingyi.dpdns.org>");
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
