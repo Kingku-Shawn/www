@@ -1,0 +1,18 @@
+[Unit]
+Description=Qingyi API service (frontend/backend API)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=qingyi
+WorkingDirectory=/opt/qingyi-api
+# ↓ 按你实际的后端启动命令替换（示例为 Node 服务）
+ExecStart=/usr/bin/node /opt/qingyi-api/dist/index.js
+Restart=always
+RestartSec=5
+# API 服务在本机连接 PostgreSQL：DATABASE_URL=postgres://qingyi:密码@127.0.0.1:5432/qingyi_db
+Environment=DATABASE_URL=postgres://qingyi:REPLACE_WITH_DB_PASSWORD@127.0.0.1:5432/qingyi_db
+Environment=PORT=3000
+
+[Install]
+WantedBy=multi-user.target
