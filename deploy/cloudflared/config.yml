@@ -1,0 +1,41 @@
+# Cloudflare Tunnel（cloudflared）本地配置
+# ------------------------------------------------------------------
+# 两种用法（二选一）：
+#   1) 远程管理模式（推荐）：Dashboard 里用 Token 连接，Public Hostname 全部在
+#      Cloudflare Zero Trust → Networks → Tunnels 里增删，本文件可不用。
+#   2) 本地配置模式：用 `cloudflared tunnel create <name>` 生成 tunnel 的
+#      credentials.json 与 UUID，把下面 <TUNNEL-UUID> 换成真实 UUID 即可。
+# ------------------------------------------------------------------
+
+tunnel: <TUNNEL-UUID>            # ← 替换为 `cloudflared tunnel list` 里的 UUID
+credentials-file: /etc/cloudflared/<TUNNEL-UUID>.json
+
+ingress:
+  # ---- 主站门户（由 portal Worker 提供 /blog /tool /score 路径路由）----
+  # 注意：my 若是 GitHub Pages 自定义域名，走 CNAME + 代理即可，无需 Tunnel；
+  # 只有「本地渲染门户」时才用下面这条。默认注释掉。
+  # - hostname: my.qingyi.dpdns.org
+  #   service: http://localhost:80
+
+  # ---- 前后端 API（本机 3000，按实际端口改）----
+  - hostname: api.qingyi.dpdns.org
+    service: http://localhost:3000
+
+  # ---- 宝塔面板（本机 31843，按你 bt 8 修改后的实际端口改）----
+  - hostname: bt.qingyi.dpdns.org
+    service: http://localhost:31843
+
+  # ---- Ollama 鉴权代理（ollaguard，端口 4000）----
+  - hostname: ollama.qingyi.dpdns.org
+    service: http://localhost:4000
+
+  # ---- 本地数据库（TCP 类型，仅远程管理时启用；强烈建议配 Cloudflare Access）----
+  - hostname: db.qingyi.dpdns.org
+    service: tcp://localhost:5432
+
+  # ---- 后端管理台（实现后取消注释并指向实际端口）----
+  # - hostname: admin.qingyi.dpdns.org
+  #   service: http://localhost:8080
+
+  # 兜底：未匹配的主机名返回 404
+  - service: http_status:404
